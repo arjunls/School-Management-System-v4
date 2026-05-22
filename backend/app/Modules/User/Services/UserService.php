@@ -38,8 +38,11 @@ class UserService
         ]);
 
         if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors());
+            throw ValidationException::withMessages($validator->errors()->toArray());
         }
+
+        // Only use validated fields to avoid mass assignment of unexpected attributes
+        $data = $validator->validated();
 
         // Hash password
         $data['password'] = Hash::make($data['password']);
@@ -63,8 +66,11 @@ class UserService
         ]);
 
         if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors());
+            throw ValidationException::withMessages($validator->errors()->toArray());
         }
+
+        // Only use validated fields to avoid mass assignment of unexpected attributes
+        $data = $validator->validated();
 
         // Hash password if provided
         if (isset($data['password'])) {

@@ -11,21 +11,25 @@ class TeacherRepository implements TeacherRepositoryInterface
 
     public function __construct(User $model)
     {
-        $this->model = $model->where('role', 'teacher');
+        // Store base User model; apply teacher role filter in queries
+        $this->model = $model;
     }
 
     public function find($id)
     {
-        return $this->model->find($id);
+        return $this->baseQuery()->where('id', $id)->first();
     }
 
     public function findByEmail($email)
     {
-        return $this->model->where('email', $email)->first();
+        return $this->baseQuery()->where('email', $email)->first();
     }
 
     public function create(array $data)
     {
+        // Ensure created records are always teachers
+        $data['role'] = 'teacher';
+
         return $this->model->create($data);
     }
 
@@ -51,10 +55,15 @@ class TeacherRepository implements TeacherRepositoryInterface
 
     public function getAll($filters = [])
     {
-        $query = $this->model->newQuery();
+        $query = $this->baseQuery();
+        $allowedFilters = ['name', 'email', 'status'];
 
-        // Apply filters
+        // Apply filters with whitelist to avoid arbitrary field filtering
         foreach ($filters as $field => $value) {
+            if (! in_array($field, $allowedFilters, true)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Handle range filters like ['from' => 100, 'to' => 200]
                 if (isset($value['from']) && isset($value['to'])) {
@@ -79,10 +88,15 @@ class TeacherRepository implements TeacherRepositoryInterface
 
     public function paginate($perPage = 15, $filters = [])
     {
-        $query = $this->model->newQuery();
+        $query = $this->baseQuery();
+        $allowedFilters = ['name', 'email', 'status'];
 
-        // Apply filters
+        // Apply filters with whitelist to avoid arbitrary field filtering
         foreach ($filters as $field => $value) {
+            if (! in_array($field, $allowedFilters, true)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Handle range filters like ['from' => 100, 'to' => 200]
                 if (isset($value['from']) && isset($value['to'])) {
@@ -103,5 +117,13 @@ class TeacherRepository implements TeacherRepositoryInterface
         }
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * Base query for teachers (role = teacher).
+     */
+    protected function baseQuery()
+    {
+        return $this->model->newQuery()->where('role', 'teacher');
     }
 }

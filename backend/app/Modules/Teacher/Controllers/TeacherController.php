@@ -6,9 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Modules\Teacher\Services\TeacherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use App\Modules\Teacher\Requests\GetTeacherByEmailRequest;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @group Teachers
+ *
+ * APIs for managing teachers
+ */
 class TeacherController extends Controller
 {
     protected $teacherService;
@@ -18,6 +24,9 @@ class TeacherController extends Controller
         $this->teacherService = $teacherService;
     }
 
+    /**
+     * Get a teacher by ID
+     */
     public function getTeacher($id)
     {
         try {
@@ -34,28 +43,21 @@ class TeacherController extends Controller
                 'data' => $teacher
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching teacher', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
-    public function getTeacherByEmail(Request $request)
+    /**
+     * Get a teacher by email address
+     */
+    public function getTeacherByEmail(GetTeacherByEmailRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|string|email|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 400);
-            }
-
             $teacher = $this->teacherService->getTeacherByEmail($request->email);
             if (!$teacher) {
                 return response()->json([
@@ -69,17 +71,25 @@ class TeacherController extends Controller
                 'data' => $teacher
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching teacher by email', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Create a new teacher
+     */
     public function createTeacher(Request $request)
     {
         try {
-            $teacher = $this->teacherService->createTeacher($request->all());
+            $teacher = $this->teacherService->createTeacher($request->only([
+                'name', 'email', 'password', 'password_confirmation', 'phone',
+                'address', 'date_of_birth', 'gender', 'photo', 'status'
+            ]));
 
             return response()->json([
                 'success' => true,
@@ -93,17 +103,25 @@ class TeacherController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error creating teacher', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Update an existing teacher
+     */
     public function updateTeacher(Request $request, $id)
     {
         try {
-            $teacher = $this->teacherService->updateTeacher($id, $request->all());
+            $teacher = $this->teacherService->updateTeacher($id, $request->only([
+                'name', 'email', 'phone', 'address', 'date_of_birth', 'gender',
+                'photo', 'status', 'password', 'password_confirmation'
+            ]));
             if (!$teacher) {
                 return response()->json([
                     'success' => false,
@@ -123,13 +141,18 @@ class TeacherController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error updating teacher', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Delete a teacher
+     */
     public function deleteTeacher($id)
     {
         try {
@@ -146,17 +169,22 @@ class TeacherController extends Controller
                 'message' => 'Teacher deleted successfully'
             ]);
         } catch (\Exception $e) {
+            Log::error('Error deleting teacher', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get all teachers with optional filters
+     */
     public function getAllTeachers(Request $request)
     {
         try {
-            $filters = $request->all();
+            $filters = $request->only(['name', 'email', 'status']);
             $teachers = $this->teacherService->getAllTeachers($filters);
 
             return response()->json([
@@ -164,13 +192,18 @@ class TeacherController extends Controller
                 'data' => $teachers
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching teachers', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get paginated list of teachers
+     */
     public function getTeachersPaginated(Request $request)
     {
         try {
@@ -191,9 +224,11 @@ class TeacherController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching paginated teachers', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }

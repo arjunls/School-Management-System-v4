@@ -11,21 +11,25 @@ class StudentRepository implements StudentRepositoryInterface
 
     public function __construct(User $model)
     {
-        $this->model = $model->where('role', 'student');
+        // Store base User model; apply student role filter in queries
+        $this->model = $model;
     }
 
     public function find($id)
     {
-        return $this->model->find($id);
+        return $this->baseQuery()->with('kelas')->where('id', $id)->first();
     }
 
     public function findByEmail($email)
     {
-        return $this->model->where('email', $email)->first();
+        return $this->baseQuery()->where('email', $email)->first();
     }
 
     public function create(array $data)
     {
+        // Ensure created records are always students
+        $data['role'] = 'student';
+
         return $this->model->create($data);
     }
 
@@ -51,10 +55,15 @@ class StudentRepository implements StudentRepositoryInterface
 
     public function getAll($filters = [])
     {
-        $query = $this->model->newQuery();
+        $query = $this->baseQuery()->with('kelas');
+        $allowedFilters = ['name', 'email', 'status', 'kelas_id', 'nisn'];
 
-        // Apply filters
+        // Apply filters with whitelist to avoid arbitrary field filtering
         foreach ($filters as $field => $value) {
+            if (! in_array($field, $allowedFilters, true)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Handle range filters like ['from' => 100, 'to' => 200]
                 if (isset($value['from']) && isset($value['to'])) {
@@ -79,10 +88,15 @@ class StudentRepository implements StudentRepositoryInterface
 
     public function paginate($perPage = 15, $filters = [])
     {
-        $query = $this->model->newQuery();
+        $query = $this->baseQuery()->with('kelas');
+        $allowedFilters = ['name', 'email', 'status', 'kelas_id', 'nisn'];
 
-        // Apply filters
+        // Apply filters with whitelist to avoid arbitrary field filtering
         foreach ($filters as $field => $value) {
+            if (! in_array($field, $allowedFilters, true)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Handle range filters like ['from' => 100, 'to' => 200]
                 if (isset($value['from']) && isset($value['to'])) {
@@ -103,5 +117,13 @@ class StudentRepository implements StudentRepositoryInterface
         }
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * Base query for students (role = student).
+     */
+    protected function baseQuery()
+    {
+        return $this->model->newQuery()->where('role', 'student');
     }
 }

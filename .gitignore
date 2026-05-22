@@ -6,8 +6,6 @@
 /storage/*.key
 /.env
 /.env.backup
-/.env.example
-/.env.testing
 Homestead.yaml
 Homestead.json
 npm-debug.log
@@ -53,6 +51,9 @@ pnpm-debug.log*
 .vercel
 # Environment
 .env*
+!.env.example
+!.env.testing
+!.env.e2e
 # Build outputs
 .next/
 out/

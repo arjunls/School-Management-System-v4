@@ -10,7 +10,9 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class User extends Authenticatable
 {
@@ -32,6 +34,12 @@ class User extends Authenticatable
         'gender',
         'photo',
         'status',
+        'nisn',
+        'nik',
+        'kelas_id',
+        'jurusan',
+        'tempat_lahir',
+        'alamat',
     ];
 
     /**
@@ -79,5 +87,23 @@ class User extends Authenticatable
     public function kelasAsHomeroomTeacher(): HasOne
     {
         return $this->hasOne(\App\Modules\Class\Models\Kelas::class, 'homeroom_teacher_id');
+    }
+
+    public function children(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id')
+            ->withPivot('relationship');
+    }
+
+    public function parents(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'student_id', 'parent_id')
+            ->withPivot('relationship');
+    }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Modules\Message\Models\Conversation::class, 'conversation_participants')
+            ->withPivot('last_read_at');
     }
 }

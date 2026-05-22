@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->enum('gender', ['male', 'female', 'other'])->nullable()->after('date_of_birth');
             $table->string('photo')->nullable()->after('gender');
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active')->after('photo');
+            $table->enum('status', ['active', 'inactive', 'suspended'])
+                ->default('active')
+                ->after('photo')
+                ->index();
         });
     }
 

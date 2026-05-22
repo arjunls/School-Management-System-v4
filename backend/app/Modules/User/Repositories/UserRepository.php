@@ -52,9 +52,14 @@ class UserRepository implements UserRepositoryInterface
     public function getAll($filters = [])
     {
         $query = $this->model->newQuery();
+        $allowedFilters = ['name', 'email', 'status'];
 
-        // Apply filters
+        // Apply filters with whitelist to avoid arbitrary field filtering
         foreach ($filters as $field => $value) {
+            if (! in_array($field, $allowedFilters, true)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Handle range filters like ['from' => 100, 'to' => 200]
                 if (isset($value['from']) && isset($value['to'])) {
@@ -80,9 +85,14 @@ class UserRepository implements UserRepositoryInterface
     public function paginate($perPage = 15, $filters = [])
     {
         $query = $this->model->newQuery();
+        $allowedFilters = ['name', 'email', 'status'];
 
-        // Apply filters
+        // Apply filters with whitelist to avoid arbitrary field filtering
         foreach ($filters as $field => $value) {
+            if (! in_array($field, $allowedFilters, true)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Handle range filters like ['from' => 100, 'to' => 200]
                 if (isset($value['from']) && isset($value['to'])) {

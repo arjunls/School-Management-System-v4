@@ -4,6 +4,7 @@ namespace App\Modules\Student\Services;
 
 use App\Modules\Student\Interfaces\StudentRepositoryInterface;
 use App\Modules\Student\Repositories\StudentRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -43,14 +44,24 @@ class StudentService
         ]);
 
         if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors());
+            throw ValidationException::withMessages($validator->errors()->toArray());
         }
+
+        // Use only validated data to avoid mass assignment of unexpected attributes
+        $data = $validator->validated();
 
         // Hash password
         $data['password'] = Hash::make($data['password']);
 
         // Set default role as student
         $data['role'] = 'student';
+
+        // Only admins can explicitly set status; others default to active
+        $currentUser = Auth::user();
+        if (! $currentUser || $currentUser->role !== 'admin') {
+            unset($data['status']);
+        }
+
         $data['status'] = $data['status'] ?? 'active';
 
         return $this->repository->create($data);
@@ -68,15 +79,25 @@ class StudentService
             'gender' => 'sometimes|nullable|in:male,female,other',
             'photo' => 'sometimes|nullable|string',
             'status' => 'sometimes|nullable|in:active,inactive,suspended',
+            'password' => 'sometimes|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors());
+            throw ValidationException::withMessages($validator->errors()->toArray());
         }
+
+        // Use only validated data
+        $data = $validator->validated();
 
         // Hash password if provided
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
+        }
+
+        // Only admins can change status
+        $currentUser = Auth::user();
+        if (! $currentUser || $currentUser->role !== 'admin') {
+            unset($data['status']);
         }
 
         return $this->repository->update($id, $data);

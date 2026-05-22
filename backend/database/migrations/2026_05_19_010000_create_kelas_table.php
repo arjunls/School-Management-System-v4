@@ -19,6 +19,10 @@ return new class extends Migration
             $table->integer('capacity')->default(30);
             $table->timestamps();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('kelas_id')->references('id')->on('kelas')->onDelete('set null');
+        });
     }
 
     /**
@@ -26,6 +30,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['kelas_id']);
+        });
         Schema::dropIfExists('kelas');
     }
 };

@@ -3,12 +3,19 @@
 namespace App\Modules\User\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\User\Requests\GetUserByEmailRequest;
+use App\Modules\User\Requests\UserChangePasswordRequest;
 use App\Modules\User\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @group Users
+ *
+ * APIs for managing users
+ */
 class UserController extends Controller
 {
     protected $userService;
@@ -18,6 +25,9 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    /**
+     * Get a user by ID
+     */
     public function getUser($id)
     {
         try {
@@ -34,28 +44,21 @@ class UserController extends Controller
                 'data' => $user
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching user', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
-    public function getUserByEmail(Request $request)
+    /**
+     * Get a user by email address
+     */
+    public function getUserByEmail(GetUserByEmailRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|string|email|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 400);
-            }
-
             $user = $this->userService->getUserByEmail($request->email);
             if (!$user) {
                 return response()->json([
@@ -69,17 +72,24 @@ class UserController extends Controller
                 'data' => $user
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching user by email', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Create a new user
+     */
     public function createUser(Request $request)
     {
         try {
-            $user = $this->userService->createUser($request->all());
+            $user = $this->userService->createUser($request->only([
+                'name', 'email', 'password', 'password_confirmation', 'role'
+            ]));
 
             return response()->json([
                 'success' => true,
@@ -93,17 +103,24 @@ class UserController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error creating user', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Update an existing user
+     */
     public function updateUser(Request $request, $id)
     {
         try {
-            $user = $this->userService->updateUser($id, $request->all());
+            $user = $this->userService->updateUser($id, $request->only([
+                'name', 'email', 'password', 'password_confirmation', 'role'
+            ]));
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -123,13 +140,18 @@ class UserController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error updating user', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Delete a user
+     */
     public function deleteUser($id)
     {
         try {
@@ -146,17 +168,22 @@ class UserController extends Controller
                 'message' => 'User deleted successfully'
             ]);
         } catch (\Exception $e) {
+            Log::error('Error deleting user', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get all users with optional filters
+     */
     public function getAllUsers(Request $request)
     {
         try {
-            $filters = $request->all();
+            $filters = $request->only(['name', 'email', 'role', 'status']);
             $users = $this->userService->getAllUsers($filters);
 
             return response()->json([
@@ -164,13 +191,18 @@ class UserController extends Controller
                 'data' => $users
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching users', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get paginated list of users
+     */
     public function getUsersPaginated(Request $request)
     {
         try {
@@ -191,29 +223,21 @@ class UserController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching paginated users', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
-    public function changePassword(Request $request)
+    /**
+     * Change user password
+     */
+    public function changePassword(UserChangePasswordRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'current_password' => 'required|string',
-                'new_password' => 'required|string|min:8|confirmed',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 400);
-            }
-
             $user = $this->userService->changePassword(
                 Auth::id(),
                 $request->current_password,
@@ -232,13 +256,18 @@ class UserController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error changing password', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get authenticated user profile
+     */
     public function getProfile()
     {
         try {
@@ -255,9 +284,11 @@ class UserController extends Controller
                 'data' => $user
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching profile', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }

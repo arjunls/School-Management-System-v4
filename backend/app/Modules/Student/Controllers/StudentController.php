@@ -6,9 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Modules\Student\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use App\Modules\Student\Requests\GetStudentByEmailRequest;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @group Students
+ *
+ * APIs for managing students
+ */
 class StudentController extends Controller
 {
     protected $studentService;
@@ -18,6 +24,9 @@ class StudentController extends Controller
         $this->studentService = $studentService;
     }
 
+    /**
+     * Get a student by ID
+     */
     public function getStudent($id)
     {
         try {
@@ -34,28 +43,21 @@ class StudentController extends Controller
                 'data' => $student
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching student', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
-    public function getStudentByEmail(Request $request)
+    /**
+     * Get a student by email address
+     */
+    public function getStudentByEmail(GetStudentByEmailRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|string|email|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 400);
-            }
-
             $student = $this->studentService->getStudentByEmail($request->email);
             if (!$student) {
                 return response()->json([
@@ -69,17 +71,25 @@ class StudentController extends Controller
                 'data' => $student
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching student by email', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Create a new student
+     */
     public function createStudent(Request $request)
     {
         try {
-            $student = $this->studentService->createStudent($request->all());
+            $student = $this->studentService->createStudent($request->only([
+                'name', 'email', 'password', 'password_confirmation', 'phone',
+                'address', 'date_of_birth', 'gender', 'photo', 'status'
+            ]));
 
             return response()->json([
                 'success' => true,
@@ -93,17 +103,25 @@ class StudentController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error creating student', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Update an existing student
+     */
     public function updateStudent(Request $request, $id)
     {
         try {
-            $student = $this->studentService->updateStudent($id, $request->all());
+            $student = $this->studentService->updateStudent($id, $request->only([
+                'name', 'email', 'phone', 'address', 'date_of_birth', 'gender',
+                'photo', 'status', 'password', 'password_confirmation'
+            ]));
             if (!$student) {
                 return response()->json([
                     'success' => false,
@@ -123,13 +141,18 @@ class StudentController extends Controller
                 'errors' => $e->errors()
             ], 400);
         } catch (\Exception $e) {
+            Log::error('Error updating student', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Delete a student
+     */
     public function deleteStudent($id)
     {
         try {
@@ -146,17 +169,22 @@ class StudentController extends Controller
                 'message' => 'Student deleted successfully'
             ]);
         } catch (\Exception $e) {
+            Log::error('Error deleting student', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get all students with optional filters
+     */
     public function getAllStudents(Request $request)
     {
         try {
-            $filters = $request->all();
+            $filters = $request->only(['name', 'email', 'status', 'kelas_id', 'nisn']);
             $students = $this->studentService->getAllStudents($filters);
 
             return response()->json([
@@ -164,13 +192,18 @@ class StudentController extends Controller
                 'data' => $students
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching students', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }
 
+    /**
+     * Get paginated list of students
+     */
     public function getStudentsPaginated(Request $request)
     {
         try {
@@ -191,9 +224,11 @@ class StudentController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
+            Log::error('Error fetching paginated students', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], 500);
         }
     }

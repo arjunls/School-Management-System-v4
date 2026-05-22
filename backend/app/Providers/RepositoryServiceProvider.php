@@ -3,31 +3,54 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Modules\User\Interfaces\UserRepositoryInterface;
-use App\Modules\User\Repositories\UserRepository;
-use App\Modules\User\Services\UserService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
     public function register(): void
     {
-        // Bind User Repository Interface to Implementation
-        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
-        
-        // Bind User Service
-        $this->app->bind(UserService::class, function ($app) {
-            return new UserService(
-                $app->make(UserRepositoryInterface::class)
-            );
-        });
+        // User
+        $this->app->bind(
+            \App\Modules\User\Interfaces\UserRepositoryInterface::class,
+            \App\Modules\User\Repositories\UserRepository::class
+        );
+
+        // Student
+        $this->app->bind(
+            \App\Modules\Student\Interfaces\StudentRepositoryInterface::class,
+            \App\Modules\Student\Repositories\StudentRepository::class
+        );
+
+        // Teacher
+        $this->app->bind(
+            \App\Modules\Teacher\Interfaces\TeacherRepositoryInterface::class,
+            \App\Modules\Teacher\Repositories\TeacherRepository::class
+        );
+
+        // Subject
+        $this->app->bind(
+            \App\Modules\Subject\Interfaces\SubjectRepositoryInterface::class,
+            \App\Modules\Subject\Repositories\SubjectRepository::class
+        );
+
+        // Schedule
+        $this->app->bind(
+            \App\Modules\Schedule\Interfaces\ScheduleRepositoryInterface::class,
+            \App\Modules\Schedule\Repositories\ScheduleRepository::class
+        );
+
+        // Grade
+        $this->app->bind(
+            \App\Modules\Grade\Interfaces\GradeRepositoryInterface::class,
+            \App\Modules\Grade\Repositories\GradeRepository::class
+        );
+
+        // Attendance
+        $this->app->bind(
+            \App\Modules\Attendance\Interfaces\AttendanceRepositoryInterface::class,
+            \App\Modules\Attendance\Repositories\AttendanceRepository::class
+        );
     }
 
-    /**
-     * Bootstrap services.
-     */
     public function boot(): void
     {
         //

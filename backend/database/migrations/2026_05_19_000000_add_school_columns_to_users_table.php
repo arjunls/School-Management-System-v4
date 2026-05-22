@@ -14,13 +14,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('nisn', 20)->unique()->nullable()->after('date_of_birth');
             $table->string('nik', 20)->nullable()->after('nisn');
-            $table->unsignedInteger('kelas_id')->nullable()->after('nik');
+            $table->unsignedBigInteger('kelas_id')->nullable()->after('nik')->index();
             $table->string('jurusan', 50)->nullable()->after('kelas_id');
             $table->string('tempat_lahir', 100)->nullable()->after('jurusan');
             $table->text('alamat')->nullable()->after('tempat_lahir');
-            
-            // Foreign key constraint for kelas_id (will be created when kelas table is ready)
-            // $table->foreign('kelas_id')->references('id')->on('kelas')->onDelete('set null');
         });
     }
 

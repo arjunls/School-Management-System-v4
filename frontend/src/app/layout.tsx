@@ -11,6 +11,9 @@ export const metadata: Metadata = {
 
 import { QueryProvider } from '@/app/query-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ToastProvider } from '@/components/ui/Toast';
+import { I18nProvider } from '@/i18n/I18nProvider';
+import { DarkModeProvider } from '@/contexts/DarkModeContext';
 
 export default function RootLayout({
   children,
@@ -21,7 +24,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <DarkModeProvider>
+            <I18nProvider>
+              <QueryProvider>
+                <ToastProvider>{children}</ToastProvider>
+              </QueryProvider>
+            </I18nProvider>
+          </DarkModeProvider>
         </AuthProvider>
       </body>
     </html>
