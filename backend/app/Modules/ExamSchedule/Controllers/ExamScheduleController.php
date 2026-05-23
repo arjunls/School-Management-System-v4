@@ -29,7 +29,7 @@ class ExamScheduleController extends Controller
         if ($request->type) $query->where('type', $request->type);
         if ($request->month) $query->whereMonth('exam_date', $request->month);
 
-        return response()->json(['success' => true, 'data' => $query->orderBy('exam_date')->orderBy('start_time')->get()]);
+        return $this->success($query->orderBy('exam_date')->orderBy('start_time')->get());
     }
 
     /**
@@ -40,7 +40,7 @@ class ExamScheduleController extends Controller
         $data = $request->validated();
         $data['teacher_id'] = $request->user()->id;
         $exam = ExamSchedule::create($data);
-        return response()->json(['success' => true, 'data' => $exam, 'message' => 'Exam scheduled'], 201);
+        return $this->created($exam, 'Exam scheduled');
     }
 
     /**
@@ -50,7 +50,7 @@ class ExamScheduleController extends Controller
     {
         $exam = ExamSchedule::findOrFail($id);
         $exam->update($request->only(['name', 'description', 'exam_date', 'start_time', 'end_time', 'room', 'type']));
-        return response()->json(['success' => true, 'data' => $exam, 'message' => 'Exam updated']);
+        return $this->success($exam, 'Exam updated');
     }
 
     /**
@@ -59,6 +59,6 @@ class ExamScheduleController extends Controller
     public function destroy(int $id)
     {
         ExamSchedule::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Exam deleted']);
+        return $this->deleted('Exam deleted');
     }
 }

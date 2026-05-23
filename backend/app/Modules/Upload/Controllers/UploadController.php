@@ -25,14 +25,10 @@ class UploadController extends Controller
 
         $url = Storage::url($path);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'path' => $path,
-                'url' => $url,
-            ],
-            'message' => 'File uploaded successfully',
-        ]);
+        return $this->success([
+            'path' => $path,
+            'url' => $url,
+        ], 'File uploaded successfully');
     }
 
     /**
@@ -45,15 +41,11 @@ class UploadController extends Controller
 
         $url = Storage::url($path);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'path' => $path,
-                'url' => $url,
-                'original_name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-            ],
-            'message' => 'Document uploaded successfully',
-        ]);
+        return $this->success([
+            'path' => $path,
+            'url' => $url,
+            'original_name' => $file->getClientOriginalName(),
+            'size' => $file->getSize(),
+        ], 'Document uploaded successfully');
     }
 }

@@ -23,7 +23,7 @@ class ReportController extends Controller
     {
         $user = $request->user();
         if ($user->role === 'parent' && !$user->children()->where('student_id', $studentId)->exists()) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
 
         $student = User::with('kelas')->findOrFail($studentId);
@@ -40,20 +40,17 @@ class ReportController extends Controller
 
         $averageScore = $grades->avg('score');
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'student' => $student,
-                'grades' => $grades->groupBy('term'),
-                'attendance_summary' => [
-                    'total_days' => $totalDays,
-                    'present' => $presentDays,
-                    'absent' => $absentDays,
-                    'sick' => $sickDays,
-                    'attendance_rate' => $totalDays > 0 ? round(($presentDays / $totalDays) * 100, 1) : 0,
-                ],
-                'average_score' => $averageScore ? round($averageScore, 1) : null,
+        return $this->success([
+            'student' => $student,
+            'grades' => $grades->groupBy('term'),
+            'attendance_summary' => [
+                'total_days' => $totalDays,
+                'present' => $presentDays,
+                'absent' => $absentDays,
+                'sick' => $sickDays,
+                'attendance_rate' => $totalDays > 0 ? round(($presentDays / $totalDays) * 100, 1) : 0,
             ],
+            'average_score' => $averageScore ? round($averageScore, 1) : null,
         ]);
     }
 
@@ -94,7 +91,7 @@ class ReportController extends Controller
             ];
         })->values();
 
-        return response()->json(['success' => true, 'data' => $report]);
+        return $this->success($report);
     }
 
     /**
@@ -125,13 +122,13 @@ class ReportController extends Controller
 
         $overallAvg = $grades->whereNotNull('score')->avg('score');
 
-        return response()->json(['success' => true, 'data' => [
+        return $this->success([
             'student' => \App\Models\User::find($studentId),
             'grades_count' => $grades->count(),
             'subjects' => $subjectSummary,
             'overall_average' => $overallAvg ? round($overallAvg, 1) : null,
             'attendance_rate' => round(($present / $totalAtt) * 100, 1),
             'total_scores' => $grades->whereNotNull('score')->count(),
-        ]]);
+        ]);
     }
 }

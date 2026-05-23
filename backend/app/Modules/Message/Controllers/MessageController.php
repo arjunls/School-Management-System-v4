@@ -33,7 +33,7 @@ class MessageController extends Controller
             )
             ->get();
 
-        return response()->json(['success' => true, 'data' => $conversations]);
+        return $this->success($conversations);
     }
 
     /**
@@ -45,13 +45,13 @@ class MessageController extends Controller
         $conv = Conversation::findOrFail($conversationId);
 
         if (!$conv->participants()->where('user_id', $user->id)->exists()) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
 
         $conv->participants()->updateExistingPivot($user->id, ['last_read_at' => now()]);
 
         $messages = $conv->messages()->with('sender:id,name,role')->orderBy('created_at')->paginate(50);
-        return response()->json(['success' => true, 'data' => $messages]);
+        return $this->paginated($messages);
     }
 
     /**
@@ -64,7 +64,7 @@ class MessageController extends Controller
 
         $conv = Conversation::findOrFail($data['conversation_id']);
         if (!$conv->participants()->where('user_id', $user->id)->exists()) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
 
         $message = $conv->messages()->create([
@@ -72,11 +72,7 @@ class MessageController extends Controller
             'body' => $data['body'],
         ]);
 
-        return response()->json([
-            'success' => true,
-            'data' => $message->load('sender:id,name,role'),
-            'message' => 'Message sent',
-        ], 201);
+        return $this->created($message->load('sender:id,name,role'), 'Message sent');
     }
 
     /**
@@ -91,10 +87,6 @@ class MessageController extends Controller
         $conv = Conversation::create(['subject' => $data['subject'] ?? null, 'created_by' => $user->id]);
         $conv->participants()->attach($ids);
 
-        return response()->json([
-            'success' => true,
-            'data' => $conv->load('participants:id,name,role'),
-            'message' => 'Conversation created',
-        ], 201);
+        return $this->created($conv->load('participants:id,name,role'), 'Conversation created');
     }
 }

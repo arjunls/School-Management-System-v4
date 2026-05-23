@@ -17,19 +17,10 @@ class AuditLogController extends Controller
             $filters = $request->only(['module', 'event', 'user_id', 'date_from', 'date_to', 'per_page']);
             $logs = $this->auditService->getAll($filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $logs->items(),
-                'pagination' => [
-                    'total' => $logs->total(),
-                    'per_page' => $logs->perPage(),
-                    'current_page' => $logs->currentPage(),
-                    'last_page' => $logs->lastPage(),
-                ],
-            ]);
+            return $this->paginated($logs);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error fetching audit logs', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -39,13 +30,13 @@ class AuditLogController extends Controller
             $log = \App\Modules\Audit\Models\AuditLog::with(['user', 'auditable'])->find($id);
 
             if (! $log) {
-                return response()->json(['success' => false, 'message' => 'Audit log not found'], 404);
+                return $this->notFound('Audit log not found');
             }
 
-            return response()->json(['success' => true, 'data' => $log]);
+            return $this->success($log);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error fetching audit log', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

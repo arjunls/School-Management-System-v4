@@ -36,28 +36,19 @@ class AuthController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials',
-            ], 401);
+            return $this->error('Invalid credentials', 401);
         }
 
         if (! $user->isActive()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Account is not active',
-            ], 403);
+            return $this->error('Account is not active', 403);
         }
 
         $tokenName = 'api-token';
         $token = $user->createToken($tokenName)->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'user' => $this->formatUser($user),
-                'token' => $token,
-            ],
+        return $this->success([
+            'user' => $this->formatUser($user),
+            'token' => $token,
         ]);
     }
 
@@ -73,17 +64,11 @@ class AuthController extends Controller
                 $user->currentAccessToken()->delete();
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Logged out successfully',
-            ]);
+            return $this->success(null, 'Logged out successfully');
         } catch (\Exception $e) {
             Log::error('Error during logout', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error();
         }
     }
 
@@ -97,10 +82,7 @@ class AuthController extends Controller
             $user = $request->user();
 
             if (! $user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated',
-                ], 401);
+                return $this->error('User not authenticated', 401);
             }
 
             if ($user->currentAccessToken()) {
@@ -109,20 +91,14 @@ class AuthController extends Controller
 
             $newToken = $user->createToken('api-token')->plainTextToken;
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'user' => $this->formatUser($user),
-                    'token' => $newToken,
-                ],
+            return $this->success([
+                'user' => $this->formatUser($user),
+                'token' => $newToken,
             ]);
         } catch (\Exception $e) {
             Log::error('Error refreshing token', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error();
         }
     }
 
@@ -136,23 +112,14 @@ class AuthController extends Controller
             $user = $request->user();
 
             if (! $user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated',
-                ], 401);
+                return $this->error('User not authenticated', 401);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $this->formatUser($user),
-            ]);
+            return $this->success($this->formatUser($user));
         } catch (\Exception $e) {
             Log::error('Error fetching auth profile', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error();
         }
     }
 
@@ -168,26 +135,17 @@ class AuthController extends Controller
             $data = $request->validated();
 
             if (! Hash::check($data['current_password'], $user->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Current password is incorrect',
-                ], 422);
+                return $this->error('Current password is incorrect', 422);
             }
 
             $user->password = Hash::make($data['password']);
             $user->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Password changed successfully',
-            ]);
+            return $this->success(null, 'Password changed successfully');
         } catch (\Exception $e) {
             Log::error('Error changing password', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error();
         }
     }
 
@@ -216,13 +174,10 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'user' => $this->formatUser($user),
-                'token' => $token,
-            ],
-        ], 201);
+        return $this->created([
+            'user' => $this->formatUser($user),
+            'token' => $token,
+        ]);
     }
 
     /**
@@ -237,8 +192,8 @@ class AuthController extends Controller
         );
 
         return $status === Password::RESET_LINK_SENT
-            ? response()->json(['success' => true, 'message' => 'Password reset link sent to your email'])
-            : response()->json(['success' => false, 'message' => 'Unable to send reset link'], 500);
+            ? $this->success(null, 'Password reset link sent to your email')
+            : $this->error('Unable to send reset link');
     }
 
     /**
@@ -259,8 +214,8 @@ class AuthController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? response()->json(['success' => true, 'message' => 'Password has been reset successfully'])
-            : response()->json(['success' => false, 'message' => 'Invalid or expired reset token'], 400);
+            ? $this->success(null, 'Password has been reset successfully')
+            : $this->error('Invalid or expired reset token', 400);
     }
 
     protected function formatUser(User $user): array

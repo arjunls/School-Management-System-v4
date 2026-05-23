@@ -48,7 +48,7 @@ class ExportController extends Controller
             }, $filename, ['Content-Type' => 'text/csv']);
         } catch (\Exception $e) {
             Log::error('Error exporting students CSV', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -75,7 +75,7 @@ class ExportController extends Controller
             }, $filename, ['Content-Type' => 'text/csv']);
         } catch (\Exception $e) {
             Log::error('Error exporting teachers CSV', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -102,7 +102,7 @@ class ExportController extends Controller
             }, $filename, ['Content-Type' => 'text/csv']);
         } catch (\Exception $e) {
             Log::error('Error exporting classes CSV', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -126,7 +126,7 @@ class ExportController extends Controller
             }, $filename, ['Content-Type' => 'text/csv']);
         } catch (\Exception $e) {
             Log::error('Error exporting subjects CSV', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -157,7 +157,7 @@ class ExportController extends Controller
             }, $filename, ['Content-Type' => 'text/csv']);
         } catch (\Exception $e) {
             Log::error('Error exporting grades CSV', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -184,7 +184,7 @@ class ExportController extends Controller
             }, $filename, ['Content-Type' => 'text/csv']);
         } catch (\Exception $e) {
             Log::error('Error exporting attendance CSV', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 }

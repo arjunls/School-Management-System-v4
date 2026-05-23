@@ -24,15 +24,12 @@ class SubjectController extends Controller
     public function getAllSubjects(Request $request)
     {
         try {
-            return response()->json([
-                'success' => true,
-                'data' => $this->subjectService->getAllSubjects($request->only([
-                    'name', 'code', 'teacher_id'
-                ])),
-            ]);
+            return $this->success($this->subjectService->getAllSubjects($request->only([
+                'name', 'code', 'teacher_id'
+            ])));
         } catch (\Exception $e) {
             Log::error('Error fetching subjects', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -46,21 +43,10 @@ class SubjectController extends Controller
             $filters = $request->except(['per_page']);
             $subjects = $this->subjectService->getSubjectsPaginated($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $subjects->items(),
-                'pagination' => [
-                    'total' => $subjects->total(),
-                    'per_page' => $subjects->perPage(),
-                    'current_page' => $subjects->currentPage(),
-                    'last_page' => $subjects->lastPage(),
-                    'from' => $subjects->firstItem(),
-                    'to' => $subjects->lastItem(),
-                ],
-            ]);
+            return $this->paginated($subjects);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated subjects', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -72,13 +58,13 @@ class SubjectController extends Controller
         try {
             $subject = $this->subjectService->getSubject((int) $id);
             if (! $subject) {
-                return response()->json(['success' => false, 'message' => 'Subject not found'], 404);
+                return $this->notFound('Subject not found');
             }
 
-            return response()->json(['success' => true, 'data' => $subject]);
+            return $this->success($subject);
         } catch (\Exception $e) {
             Log::error('Error fetching subject', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -90,14 +76,10 @@ class SubjectController extends Controller
         try {
             $subject = $this->subjectService->createSubject($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Subject created successfully',
-                'data' => $subject,
-            ], 201);
+            return $this->created($subject, 'Subject created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating subject', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -109,13 +91,13 @@ class SubjectController extends Controller
         try {
             $subject = $this->subjectService->updateSubject((int) $id, $request->validated());
             if (! $subject) {
-                return response()->json(['success' => false, 'message' => 'Subject not found'], 404);
+                return $this->notFound('Subject not found');
             }
 
-            return response()->json(['success' => true, 'message' => 'Subject updated successfully', 'data' => $subject]);
+            return $this->success($subject, 'Subject updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating subject', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -127,13 +109,13 @@ class SubjectController extends Controller
         try {
             $result = $this->subjectService->deleteSubject((int) $id);
             if (! $result) {
-                return response()->json(['success' => false, 'message' => 'Subject not found'], 404);
+                return $this->notFound('Subject not found');
             }
 
-            return response()->json(['success' => true, 'message' => 'Subject deleted successfully']);
+            return $this->deleted('Subject deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting subject', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

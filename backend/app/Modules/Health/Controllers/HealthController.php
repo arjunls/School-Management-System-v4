@@ -21,9 +21,9 @@ class HealthController extends Controller
     {
         $record = HealthRecord::where('student_id', $studentId)->with('student:id,name,email')->first();
         if (!$record) {
-            return response()->json(['success' => true, 'data' => null]);
+            return $this->success(null);
         }
-        return response()->json(['success' => true, 'data' => $record]);
+        return $this->success($record);
     }
 
     /**
@@ -35,6 +35,6 @@ class HealthController extends Controller
             ['student_id' => $studentId],
             $request->validated()
         );
-        return response()->json(['success' => true, 'data' => $record, 'message' => 'Health record saved']);
+        return $this->success($record, 'Health record saved');
     }
 }

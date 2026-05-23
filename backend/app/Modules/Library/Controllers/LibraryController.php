@@ -25,7 +25,7 @@ class LibraryController extends Controller
         $query = Book::query();
         if ($s = $request->search) $query->where(function ($q) use ($s) { $q->where('title', 'like', "%{$s}%")->orWhere('author', 'like', "%{$s}%")->orWhere('isbn', 'like', "%{$s}%"); });
         if ($c = $request->category) $query->where('category', $c);
-        return response()->json(['success' => true, 'data' => $query->orderBy('title')->paginate($request->per_page ?? 20)]);
+        return $this->paginated($query->orderBy('title')->paginate($request->per_page ?? 20));
     }
 
     /**
@@ -36,7 +36,7 @@ class LibraryController extends Controller
         $data = $request->validated();
         $data['available_copies'] = $data['total_copies'] ?? 1;
         $book = Book::create($data);
-        return response()->json(['success' => true, 'data' => $book, 'message' => 'Book added'], 201);
+        return $this->created($book, 'Book added');
     }
 
     /**
@@ -46,7 +46,7 @@ class LibraryController extends Controller
     {
         $book = Book::findOrFail($id);
         $book->update($request->validated());
-        return response()->json(['success' => true, 'data' => $book, 'message' => 'Book updated']);
+        return $this->success($book, 'Book updated');
     }
 
     /**
@@ -55,7 +55,7 @@ class LibraryController extends Controller
     public function bookDelete(int $id)
     {
         Book::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Book deleted']);
+        return $this->deleted('Book deleted');
     }
 
     // Loans
@@ -70,7 +70,7 @@ class LibraryController extends Controller
         if ($user->role === 'student') $query->where('user_id', $user->id);
 
         if ($s = $request->status) $query->where('status', $s);
-        return response()->json(['success' => true, 'data' => $query->orderByDesc('loan_date')->paginate($request->per_page ?? 20)]);
+        return $this->paginated($query->orderByDesc('loan_date')->paginate($request->per_page ?? 20));
     }
 
     /**
@@ -82,7 +82,7 @@ class LibraryController extends Controller
         $book = Book::findOrFail($data['book_id']);
 
         if ($book->available_copies < 1) {
-            return response()->json(['success' => false, 'message' => 'No copies available'], 400);
+            return $this->error('No copies available', 400);
         }
 
         $loan = BookLoan::create([
@@ -95,7 +95,7 @@ class LibraryController extends Controller
         ]);
 
         $book->decrement('available_copies');
-        return response()->json(['success' => true, 'data' => $loan, 'message' => 'Book loaned'], 201);
+        return $this->created($loan, 'Book loaned');
     }
 
     /**
@@ -105,12 +105,12 @@ class LibraryController extends Controller
     {
         $loan = BookLoan::with('book')->findOrFail($id);
         if ($loan->status === 'returned') {
-            return response()->json(['success' => false, 'message' => 'Already returned'], 400);
+            return $this->error('Already returned', 400);
         }
 
         $loan->update(['returned_date' => now()->format('Y-m-d'), 'status' => 'returned']);
         $loan->book->increment('available_copies');
 
-        return response()->json(['success' => true, 'message' => 'Book returned']);
+        return $this->success(null, 'Book returned');
     }
 }

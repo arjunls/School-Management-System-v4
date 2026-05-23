@@ -20,7 +20,7 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         $notifications = $user->notifications()->orderBy('created_at', 'desc')->paginate(20);
-        return response()->json(['success' => true, 'data' => $notifications]);
+        return $this->paginated($notifications);
     }
 
     /**
@@ -31,7 +31,7 @@ class NotificationController extends Controller
         $user = $request->user();
         $count = $user->unreadNotifications()->count();
         $notifications = $user->unreadNotifications()->orderBy('created_at', 'desc')->take(10)->get();
-        return response()->json(['success' => true, 'data' => ['count' => $count, 'notifications' => $notifications]]);
+        return $this->success(['count' => $count, 'notifications' => $notifications]);
     }
 
     /**
@@ -42,10 +42,10 @@ class NotificationController extends Controller
         $user = $request->user();
         $notification = $user->notifications()->find($id);
         if (!$notification) {
-            return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+            return $this->notFound('Notification not found');
         }
         $notification->markAsRead();
-        return response()->json(['success' => true, 'message' => 'Notification marked as read']);
+        return $this->success(null, 'Notification marked as read');
     }
 
     /**
@@ -55,6 +55,6 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         $user->unreadNotifications()->update(['read_at' => now()]);
-        return response()->json(['success' => true, 'message' => 'All notifications marked as read']);
+        return $this->success(null, 'All notifications marked as read');
     }
 }

@@ -24,15 +24,12 @@ class GradeController extends Controller
     public function getAllGrades(Request $request)
     {
         try {
-            return response()->json([
-                'success' => true,
-                'data' => $this->gradeService->getAllGrades($request->only([
-                    'student_id', 'subject_id', 'term'
-                ])),
-            ]);
+            return $this->success($this->gradeService->getAllGrades($request->only([
+                'student_id', 'subject_id', 'term'
+            ])));
         } catch (\Exception $e) {
             Log::error('Error fetching grades', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -46,21 +43,10 @@ class GradeController extends Controller
             $filters = $request->except(['per_page']);
             $grades = $this->gradeService->getGradesPaginated($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $grades->items(),
-                'pagination' => [
-                    'total' => $grades->total(),
-                    'per_page' => $grades->perPage(),
-                    'current_page' => $grades->currentPage(),
-                    'last_page' => $grades->lastPage(),
-                    'from' => $grades->firstItem(),
-                    'to' => $grades->lastItem(),
-                ],
-            ]);
+            return $this->paginated($grades);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated grades', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -72,13 +58,13 @@ class GradeController extends Controller
         try {
             $grade = $this->gradeService->getGrade((int) $id);
             if (! $grade) {
-                return response()->json(['success' => false, 'message' => 'Grade not found'], 404);
+                return $this->notFound('Grade not found');
             }
 
-            return response()->json(['success' => true, 'data' => $grade]);
+            return $this->success($grade);
         } catch (\Exception $e) {
             Log::error('Error fetching grade', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -90,14 +76,10 @@ class GradeController extends Controller
         try {
             $grade = $this->gradeService->createGrade($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Grade created successfully',
-                'data' => $grade,
-            ], 201);
+            return $this->created($grade, 'Grade created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating grade', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -109,13 +91,13 @@ class GradeController extends Controller
         try {
             $grade = $this->gradeService->updateGrade((int) $id, $request->validated());
             if (! $grade) {
-                return response()->json(['success' => false, 'message' => 'Grade not found'], 404);
+                return $this->notFound('Grade not found');
             }
 
-            return response()->json(['success' => true, 'message' => 'Grade updated successfully', 'data' => $grade]);
+            return $this->success($grade, 'Grade updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating grade', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -127,13 +109,13 @@ class GradeController extends Controller
         try {
             $result = $this->gradeService->deleteGrade((int) $id);
             if (! $result) {
-                return response()->json(['success' => false, 'message' => 'Grade not found'], 404);
+                return $this->notFound('Grade not found');
             }
 
-            return response()->json(['success' => true, 'message' => 'Grade deleted successfully']);
+            return $this->deleted('Grade deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting grade', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

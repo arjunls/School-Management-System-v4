@@ -31,7 +31,7 @@ class AssignmentController extends Controller
         if ($request->class_id) $query->where('class_id', $request->class_id);
         if ($request->subject_id) $query->where('subject_id', $request->subject_id);
 
-        return response()->json(['success' => true, 'data' => $query->orderByDesc('due_date')->get()]);
+        return $this->success($query->orderByDesc('due_date')->get());
     }
 
     /**
@@ -43,7 +43,7 @@ class AssignmentController extends Controller
         $data['teacher_id'] = $request->user()->id;
 
         $assignment = Assignment::create($data);
-        return response()->json(['success' => true, 'data' => $assignment, 'message' => 'Assignment created'], 201);
+        return $this->created($assignment, 'Assignment created');
     }
 
     /**
@@ -52,7 +52,7 @@ class AssignmentController extends Controller
     public function show(int $id)
     {
         $assignment = Assignment::with(['subject', 'class', 'teacher', 'submissions.student'])->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $assignment]);
+        return $this->success($assignment);
     }
 
     /**
@@ -62,7 +62,7 @@ class AssignmentController extends Controller
     {
         $assignment = Assignment::findOrFail($id);
         $assignment->update($request->only(['title', 'description', 'due_date', 'max_score']));
-        return response()->json(['success' => true, 'data' => $assignment, 'message' => 'Assignment updated']);
+        return $this->success($assignment, 'Assignment updated');
     }
 
     /**
@@ -71,7 +71,7 @@ class AssignmentController extends Controller
     public function destroy(int $id)
     {
         Assignment::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Assignment deleted']);
+        return $this->deleted('Assignment deleted');
     }
 
     /**
@@ -89,7 +89,7 @@ class AssignmentController extends Controller
             $data
         );
 
-        return response()->json(['success' => true, 'data' => $submission, 'message' => 'Submitted'], 201);
+        return $this->created($submission, 'Submitted');
     }
 
     /**
@@ -103,6 +103,6 @@ class AssignmentController extends Controller
         $data = $request->validated();
         $data['graded_at'] = now();
         $submission->update($data);
-        return response()->json(['success' => true, 'data' => $submission, 'message' => 'Graded']);
+        return $this->success($submission, 'Graded');
     }
 }

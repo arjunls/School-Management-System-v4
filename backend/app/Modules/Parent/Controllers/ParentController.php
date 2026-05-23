@@ -22,7 +22,7 @@ class ParentController extends Controller
     {
         $user = $request->user();
         $children = $user->children()->with('kelas')->get();
-        return response()->json(['success' => true, 'data' => $children]);
+        return $this->success($children);
     }
 
     /**
@@ -36,7 +36,7 @@ class ParentController extends Controller
             $data['student_id'] => ['relationship' => $data['relationship'] ?? null],
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Parent linked to student']);
+        return $this->success(null, 'Parent linked to student');
     }
 
     /**
@@ -48,7 +48,7 @@ class ParentController extends Controller
         $parent = User::findOrFail($data['parent_id']);
         $parent->children()->detach($data['student_id']);
 
-        return response()->json(['success' => true, 'message' => 'Parent unlinked from student']);
+        return $this->success(null, 'Parent unlinked from student');
     }
 
     /**
@@ -57,7 +57,7 @@ class ParentController extends Controller
     public function getStudentParents(int $studentId)
     {
         $student = User::findOrFail($studentId);
-        return response()->json(['success' => true, 'data' => $student->parents]);
+        return $this->success($student->parents);
     }
 
     /**
@@ -67,10 +67,10 @@ class ParentController extends Controller
     {
         $user = $request->user();
         if ($user->role === 'parent' && !$user->children()->where('student_id', $studentId)->exists()) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
         $student = User::with('kelas')->findOrFail($studentId);
         $grades = $student->grades ?? \App\Modules\Grade\Models\Grade::where('student_id', $studentId)->with('subject')->get();
-        return response()->json(['success' => true, 'data' => ['student' => $student, 'grades' => $grades]]);
+        return $this->success(['student' => $student, 'grades' => $grades]);
     }
 }

@@ -34,7 +34,7 @@ class QuizController extends Controller
         if ($c = $request->class_id) $query->where('class_id', $c);
         if ($s = $request->subject_id) $query->where('subject_id', $s);
 
-        return response()->json(['success' => true, 'data' => $query->orderByDesc('created_at')->paginate($request->per_page ?? 20)]);
+        return $this->paginated($query->orderByDesc('created_at')->paginate($request->per_page ?? 20));
     }
 
     /**
@@ -43,7 +43,7 @@ class QuizController extends Controller
     public function show(int $id)
     {
         $quiz = Quiz::with(['class:id,name', 'subject:id,name', 'teacher:id,name', 'questions'])->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $quiz]);
+        return $this->success($quiz);
     }
 
     /**
@@ -54,7 +54,7 @@ class QuizController extends Controller
         $data = $request->validated();
         $data['teacher_id'] = $request->user()->id;
         $quiz = Quiz::create($data);
-        return response()->json(['success' => true, 'data' => $quiz, 'message' => 'Quiz created'], 201);
+        return $this->created($quiz, 'Quiz created');
     }
 
     /**
@@ -64,7 +64,7 @@ class QuizController extends Controller
     {
         $quiz = Quiz::where('teacher_id', $request->user()->id)->findOrFail($id);
         $quiz->update($request->only(['title', 'description', 'time_limit', 'passing_score', 'due_date', 'status']));
-        return response()->json(['success' => true, 'data' => $quiz, 'message' => 'Updated']);
+        return $this->success($quiz, 'Updated');
     }
 
     /**
@@ -74,10 +74,10 @@ class QuizController extends Controller
     {
         $quiz = Quiz::findOrFail($id);
         if (request()->user()->role !== 'admin' && $quiz->teacher_id !== request()->user()->id) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
         $quiz->delete();
-        return response()->json(['success' => true, 'message' => 'Deleted']);
+        return $this->deleted('Deleted');
     }
 
     // Questions
@@ -90,12 +90,12 @@ class QuizController extends Controller
 
         $data = $request->validated();
         if ($data['type'] === 'multiple_choice' && !$data['correct_answer']) {
-            return response()->json(['success' => false, 'message' => 'Multiple choice requires correct_answer'], 422);
+            return $this->error('Multiple choice requires correct_answer', 422);
         }
 
         $data['quiz_id'] = $quizId;
         $question = QuizQuestion::create($data);
-        return response()->json(['success' => true, 'data' => $question, 'message' => 'Question added'], 201);
+        return $this->created($question, 'Question added');
     }
 
     /**
@@ -105,7 +105,7 @@ class QuizController extends Controller
     {
         $question = QuizQuestion::findOrFail($id);
         $question->update($request->only(['question_text', 'type', 'options', 'correct_answer', 'points']));
-        return response()->json(['success' => true, 'data' => $question, 'message' => 'Question updated']);
+        return $this->success($question, 'Question updated');
     }
 
     /**
@@ -114,7 +114,7 @@ class QuizController extends Controller
     public function deleteQuestion(int $id)
     {
         QuizQuestion::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Question deleted']);
+        return $this->deleted('Question deleted');
     }
 
     // Attempts
@@ -128,7 +128,7 @@ class QuizController extends Controller
 
         $existing = QuizAttempt::where('quiz_id', $quizId)->where('student_id', $user->id)->first();
         if ($existing) {
-            return response()->json(['success' => false, 'message' => 'Already attempted'], 400);
+            return $this->error('Already attempted', 400);
         }
 
         $attempt = QuizAttempt::create([
@@ -139,7 +139,7 @@ class QuizController extends Controller
         ]);
 
         $quiz->load('questions');
-        return response()->json(['success' => true, 'data' => ['attempt' => $attempt, 'quiz' => $quiz]]);
+        return $this->success(['attempt' => $attempt, 'quiz' => $quiz]);
     }
 
     /**
@@ -149,7 +149,7 @@ class QuizController extends Controller
     {
         $attempt = QuizAttempt::with(['quiz.questions'])->where('student_id', $request->user()->id)->findOrFail($attemptId);
         if ($attempt->status !== 'in_progress') {
-            return response()->json(['success' => false, 'message' => 'Already submitted'], 400);
+            return $this->error('Already submitted', 400);
         }
 
         foreach ($request->answers as $ans) {
@@ -165,7 +165,7 @@ class QuizController extends Controller
         $attempt->load('answers');
         $attempt->update(['submitted_at' => now(), 'status' => 'submitted', 'score' => $attempt->calculateScore()]);
 
-        return response()->json(['success' => true, 'data' => $attempt, 'message' => 'Submitted']);
+        return $this->success($attempt, 'Submitted');
     }
 
     /**
@@ -179,7 +179,7 @@ class QuizController extends Controller
         if ($user->role === 'student') $query->where('student_id', $user->id);
         if ($qId = $request->quiz_id) $query->where('quiz_id', $qId);
 
-        return response()->json(['success' => true, 'data' => $query->orderByDesc('created_at')->paginate($request->per_page ?? 20)]);
+        return $this->paginated($query->orderByDesc('created_at')->paginate($request->per_page ?? 20));
     }
 
     /**
@@ -193,6 +193,6 @@ class QuizController extends Controller
         $attempt = QuizAttempt::with('answers')->find($attemptId);
         $attempt->update(['score' => $attempt->calculateScore()]);
 
-        return response()->json(['success' => true, 'data' => $answer, 'message' => 'Graded']);
+        return $this->success($answer, 'Graded');
     }
 }

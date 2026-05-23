@@ -32,23 +32,14 @@ class ClassController extends Controller
         try {
             $class = $this->classService->getClass($id);
             if (!$class) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Class not found'
-                ], 404);
+                return $this->notFound('Class not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $class
-            ]);
+            return $this->success($class);
         } catch (\Exception $e) {
             Log::error('Error fetching class', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -60,18 +51,11 @@ class ClassController extends Controller
         try {
             $class = $this->classService->createClass($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Class created successfully',
-                'data' => $class
-            ], 201);
+            return $this->created($class, 'Class created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating class', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -83,24 +67,14 @@ class ClassController extends Controller
         try {
             $class = $this->classService->updateClass($id, $request->validated());
             if (!$class) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Class not found'
-                ], 404);
+                return $this->notFound('Class not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Class updated successfully',
-                'data' => $class
-            ]);
+            return $this->success($class, 'Class updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating class', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -112,23 +86,14 @@ class ClassController extends Controller
         try {
             $result = $this->classService->deleteClass($id);
             if (!$result) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Class not found'
-                ], 404);
+                return $this->notFound('Class not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Class deleted successfully'
-            ]);
+            return $this->deleted('Class deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting class', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -141,17 +106,11 @@ class ClassController extends Controller
             $filters = $request->only(['name', 'grade_level']);
             $classes = $this->classService->getAllClasses($filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $classes
-            ]);
+            return $this->success($classes);
         } catch (\Exception $e) {
             Log::error('Error fetching classes', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -165,25 +124,11 @@ class ClassController extends Controller
             $filters = $request->except(['per_page']);
             $classes = $this->classService->getClassesPaginated($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $classes->items(),
-                'pagination' => [
-                    'total' => $classes->total(),
-                    'per_page' => $classes->perPage(),
-                    'current_page' => $classes->currentPage(),
-                    'last_page' => $classes->lastPage(),
-                    'from' => $classes->firstItem(),
-                    'to' => $classes->lastItem()
-                ]
-            ]);
+            return $this->paginated($classes);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated classes', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -195,18 +140,11 @@ class ClassController extends Controller
         try {
             $result = $this->classService->addStudentToClass($classId, $studentId);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Student added to class successfully',
-                'data' => $result
-            ]);
+            return $this->success($result, 'Student added to class successfully');
         } catch (\Exception $e) {
             Log::error('Error adding student to class', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -218,18 +156,11 @@ class ClassController extends Controller
         try {
             $result = $this->classService->removeStudentFromClass($classId, $studentId);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Student removed from class successfully',
-                'data' => $result
-            ]);
+            return $this->success($result, 'Student removed from class successfully');
         } catch (\Exception $e) {
             Log::error('Error removing student from class', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -241,17 +172,11 @@ class ClassController extends Controller
         try {
             $students = $this->classService->getClassStudents($classId);
 
-            return response()->json([
-                'success' => true,
-                'data' => $students
-            ]);
+            return $this->success($students);
         } catch (\Exception $e) {
             Log::error('Error fetching class students', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

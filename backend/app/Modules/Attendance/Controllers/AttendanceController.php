@@ -29,17 +29,11 @@ class AttendanceController extends Controller
             $filters = $request->only(['student_id', 'date', 'status']);
             $records = $this->attendanceService->getAll($filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $records,
-            ]);
+            return $this->success($records);
         } catch (\Exception $e) {
             Log::error('Error fetching attendance', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -53,25 +47,11 @@ class AttendanceController extends Controller
             $filters = $request->except(['per_page']);
             $records = $this->attendanceService->paginate($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $records->items(),
-                'pagination' => [
-                    'total' => $records->total(),
-                    'per_page' => $records->perPage(),
-                    'current_page' => $records->currentPage(),
-                    'last_page' => $records->lastPage(),
-                    'from' => $records->firstItem(),
-                    'to' => $records->lastItem(),
-                ],
-            ]);
+            return $this->paginated($records);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated attendance', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -83,23 +63,14 @@ class AttendanceController extends Controller
         try {
             $record = $this->attendanceService->getAll(['id' => $id])->first();
             if (! $record) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Attendance record not found',
-                ], 404);
+                return $this->notFound('Attendance record not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $record,
-            ]);
+            return $this->success($record);
         } catch (\Exception $e) {
             Log::error('Error fetching attendance record', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -111,18 +82,11 @@ class AttendanceController extends Controller
         try {
             $record = $this->attendanceService->create($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Attendance record created successfully',
-                'data' => $record,
-            ], 201);
+            return $this->created($record, 'Attendance record created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating attendance', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -134,24 +98,14 @@ class AttendanceController extends Controller
         try {
             $record = $this->attendanceService->update((int) $id, $request->validated());
             if (! $record) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Attendance record not found',
-                ], 404);
+                return $this->notFound('Attendance record not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Attendance record updated successfully',
-                'data' => $record,
-            ]);
+            return $this->success($record, 'Attendance record updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating attendance', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -163,23 +117,14 @@ class AttendanceController extends Controller
         try {
             $result = $this->attendanceService->delete((int) $id);
             if (! $result) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Attendance record not found',
-                ], 404);
+                return $this->notFound('Attendance record not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Attendance record deleted successfully',
-            ]);
+            return $this->deleted('Attendance record deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting attendance', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

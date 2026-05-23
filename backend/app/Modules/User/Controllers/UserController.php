@@ -34,23 +34,14 @@ class UserController extends Controller
         try {
             $user = $this->userService->getUser($id);
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
-                ], 404);
+                return $this->notFound('User not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $user
-            ]);
+            return $this->success($user);
         } catch (\Exception $e) {
             Log::error('Error fetching user', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -62,23 +53,14 @@ class UserController extends Controller
         try {
             $user = $this->userService->getUserByEmail($request->email);
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
-                ], 404);
+                return $this->notFound('User not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $user
-            ]);
+            return $this->success($user);
         } catch (\Exception $e) {
             Log::error('Error fetching user by email', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -90,18 +72,11 @@ class UserController extends Controller
         try {
             $user = $this->userService->createUser($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User created successfully',
-                'data' => $user
-            ], 201);
+            return $this->created($user, 'User created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating user', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -113,24 +88,14 @@ class UserController extends Controller
         try {
             $user = $this->userService->updateUser($id, $request->validated());
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
-                ], 404);
+                return $this->notFound('User not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User updated successfully',
-                'data' => $user
-            ]);
+            return $this->success($user, 'User updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating user', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -142,23 +107,14 @@ class UserController extends Controller
         try {
             $result = $this->userService->deleteUser($id);
             if (!$result) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
-                ], 404);
+                return $this->notFound('User not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User deleted successfully'
-            ]);
+            return $this->deleted('User deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting user', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -171,17 +127,11 @@ class UserController extends Controller
             $filters = $request->only(['name', 'email', 'role', 'status']);
             $users = $this->userService->getAllUsers($filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $users
-            ]);
+            return $this->success($users);
         } catch (\Exception $e) {
             Log::error('Error fetching users', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -195,25 +145,11 @@ class UserController extends Controller
             $filters = $request->except(['per_page']);
             $users = $this->userService->getUsersPaginated($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $users->items(),
-                'pagination' => [
-                    'total' => $users->total(),
-                    'per_page' => $users->perPage(),
-                    'current_page' => $users->currentPage(),
-                    'last_page' => $users->lastPage(),
-                    'from' => $users->firstItem(),
-                    'to' => $users->lastItem()
-                ]
-            ]);
+            return $this->paginated($users);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated users', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -229,24 +165,13 @@ class UserController extends Controller
                 $request->new_password
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Password changed successfully',
-                'data' => $user
-            ]);
+            return $this->success($user, 'Password changed successfully');
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
+            return $this->error('Validation failed', 400, $e->errors());
         } catch (\Exception $e) {
             Log::error('Error changing password', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -258,23 +183,14 @@ class UserController extends Controller
         try {
             $user = Auth::user();
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not authenticated'
-                ], 401);
+                return $this->error('User not authenticated', 401);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $user
-            ]);
+            return $this->success($user);
         } catch (\Exception $e) {
             Log::error('Error fetching profile', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

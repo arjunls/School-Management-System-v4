@@ -30,7 +30,7 @@ class AnnouncementController extends Controller
             $q->whereNull('publish_at')->orWhere('publish_at', '<=', now());
         });
 
-        return response()->json(['success' => true, 'data' => $query->orderByDesc('created_at')->paginate($request->per_page ?? 20)]);
+        return $this->paginated($query->orderByDesc('created_at')->paginate($request->per_page ?? 20));
     }
 
     /**
@@ -42,7 +42,7 @@ class AnnouncementController extends Controller
         $data['author_id'] = $request->user()->id;
         $ann = Announcement::create($data);
         $ann->load('author:id,name');
-        return response()->json(['success' => true, 'data' => $ann, 'message' => 'Announcement created'], 201);
+        return $this->created($ann, 'Announcement created');
     }
 
     /**
@@ -52,7 +52,7 @@ class AnnouncementController extends Controller
     {
         $ann = Announcement::findOrFail($id);
         $ann->update($request->only(['title', 'content', 'target_role', 'publish_at', 'expires_at']));
-        return response()->json(['success' => true, 'data' => $ann, 'message' => 'Updated']);
+        return $this->success($ann, 'Updated');
     }
 
     /**
@@ -61,6 +61,6 @@ class AnnouncementController extends Controller
     public function destroy(int $id)
     {
         Announcement::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Deleted']);
+        return $this->deleted('Deleted');
     }
 }

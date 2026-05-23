@@ -33,23 +33,14 @@ class StudentController extends Controller
         try {
             $student = $this->studentService->getStudent($id);
             if (!$student) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Student not found'
-                ], 404);
+                return $this->notFound('Student not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $student
-            ]);
+            return $this->success($student);
         } catch (\Exception $e) {
             Log::error('Error fetching student', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -61,23 +52,14 @@ class StudentController extends Controller
         try {
             $student = $this->studentService->getStudentByEmail($request->email);
             if (!$student) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Student not found'
-                ], 404);
+                return $this->notFound('Student not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $student
-            ]);
+            return $this->success($student);
         } catch (\Exception $e) {
             Log::error('Error fetching student by email', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -89,18 +71,11 @@ class StudentController extends Controller
         try {
             $student = $this->studentService->createStudent($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Student created successfully',
-                'data' => $student
-            ], 201);
+            return $this->created($student, 'Student created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating student', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -112,24 +87,14 @@ class StudentController extends Controller
         try {
             $student = $this->studentService->updateStudent($id, $request->validated());
             if (!$student) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Student not found'
-                ], 404);
+                return $this->notFound('Student not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Student updated successfully',
-                'data' => $student
-            ]);
+            return $this->success($student, 'Student updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating student', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -141,23 +106,14 @@ class StudentController extends Controller
         try {
             $result = $this->studentService->deleteStudent($id);
             if (!$result) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Student not found'
-                ], 404);
+                return $this->notFound('Student not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Student deleted successfully'
-            ]);
+            return $this->deleted('Student deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting student', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -170,17 +126,11 @@ class StudentController extends Controller
             $filters = $request->only(['name', 'email', 'status', 'kelas_id', 'nisn']);
             $students = $this->studentService->getAllStudents($filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $students
-            ]);
+            return $this->success($students);
         } catch (\Exception $e) {
             Log::error('Error fetching students', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -194,25 +144,11 @@ class StudentController extends Controller
             $filters = $request->except(['per_page']);
             $students = $this->studentService->getStudentsPaginated($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $students->items(),
-                'pagination' => [
-                    'total' => $students->total(),
-                    'per_page' => $students->perPage(),
-                    'current_page' => $students->currentPage(),
-                    'last_page' => $students->lastPage(),
-                    'from' => $students->firstItem(),
-                    'to' => $students->lastItem()
-                ]
-            ]);
+            return $this->paginated($students);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated students', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

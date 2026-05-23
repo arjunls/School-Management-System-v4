@@ -25,7 +25,7 @@ class FeeController extends Controller
      */
     public function types(Request $request)
     {
-        return response()->json(['success' => true, 'data' => FeeType::orderBy('name')->get()]);
+        return $this->success(FeeType::orderBy('name')->get());
     }
 
     /**
@@ -34,7 +34,7 @@ class FeeController extends Controller
     public function typeStore(StoreFeeTypeRequest $request)
     {
         $type = FeeType::create($request->validated());
-        return response()->json(['success' => true, 'data' => $type, 'message' => 'Fee type created'], 201);
+        return $this->created($type, 'Fee type created');
     }
 
     /**
@@ -44,7 +44,7 @@ class FeeController extends Controller
     {
         $type = FeeType::findOrFail($id);
         $type->update($request->validated());
-        return response()->json(['success' => true, 'data' => $type, 'message' => 'Fee type updated']);
+        return $this->success($type, 'Fee type updated');
     }
 
     /**
@@ -53,7 +53,7 @@ class FeeController extends Controller
     public function typeDelete(int $id)
     {
         FeeType::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Fee type deleted']);
+        return $this->deleted('Fee type deleted');
     }
 
     // Invoices
@@ -70,7 +70,7 @@ class FeeController extends Controller
         if ($s = $request->status) $query->where('status', $s);
         if ($sId = $request->student_id) $query->where('student_id', $sId);
 
-        return response()->json(['success' => true, 'data' => $query->orderByDesc('created_at')->paginate($request->per_page ?? 20)]);
+        return $this->paginated($query->orderByDesc('created_at')->paginate($request->per_page ?? 20));
     }
 
     /**
@@ -86,7 +86,7 @@ class FeeController extends Controller
 
         $invoice = FeeInvoice::create($data);
         $invoice->load(['feeType:id,name,amount', 'student:id,name,email']);
-        return response()->json(['success' => true, 'data' => $invoice, 'message' => 'Invoice created'], 201);
+        return $this->created($invoice, 'Invoice created');
     }
 
     // Payments
@@ -97,7 +97,7 @@ class FeeController extends Controller
     {
         $invoice = FeeInvoice::findOrFail($invoiceId);
         if ($invoice->status === 'paid') {
-            return response()->json(['success' => false, 'message' => 'Already fully paid'], 400);
+            return $this->error('Already fully paid', 400);
         }
 
         $data = $request->validated();
@@ -116,6 +116,6 @@ class FeeController extends Controller
             $invoice->update(['status' => 'overdue']);
         }
 
-        return response()->json(['success' => true, 'data' => $payment, 'message' => 'Payment recorded'], 201);
+        return $this->created($payment, 'Payment recorded');
     }
 }

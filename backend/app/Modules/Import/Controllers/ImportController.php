@@ -48,10 +48,7 @@ class ImportController extends Controller
             $missing = array_diff($required, array_map('strtolower', $headers));
             if (! empty($missing)) {
                 fclose($handle);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'CSV must contain columns: ' . implode(', ', $required),
-                ], 422);
+                return $this->error('CSV must contain columns: ' . implode(', ', $required), 422);
             }
 
             $headerMap = [];
@@ -100,18 +97,16 @@ class ImportController extends Controller
 
             fclose($handle);
 
-            return response()->json([
-                'success' => true,
-                'message' => "Imported {$created} {$role}(s)" . (! empty($errors) ? " with " . count($errors) . " error(s)" : ''),
-                'data' => [
-                    'created' => $created,
-                    'errors' => $errors,
-                    'total' => $created + count($errors),
-                ],
-            ]);
+            $data = [
+                'created' => $created,
+                'errors' => $errors,
+                'total' => $created + count($errors),
+            ];
+            $message = "Imported {$created} {$role}(s)" . (! empty($errors) ? " with " . count($errors) . " error(s)" : '');
+            return $this->success($data, $message);
         } catch (\Exception $e) {
             Log::error('Error importing ' . $role . 's', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

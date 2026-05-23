@@ -30,13 +30,10 @@ class DashboardController extends Controller
             $academicYearId = $request->input('academic_year_id');
             $stats = $this->dashboardService->getStats($academicYearId);
 
-            return response()->json([
-                'success' => true,
-                'data' => $stats
-            ]);
+            return $this->success($stats);
         } catch (\Exception $e) {
             Log::error('Error fetching dashboard stats', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -50,13 +47,10 @@ class DashboardController extends Controller
             $days = $request->input('days', 7);
             $chartData = $this->dashboardService->getAttendanceChartData($academicYearId, $days);
 
-            return response()->json([
-                'success' => true,
-                'data' => $chartData
-            ]);
+            return $this->success($chartData);
         } catch (\Exception $e) {
             Log::error('Error fetching attendance chart data', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -69,13 +63,10 @@ class DashboardController extends Controller
             $academicYearId = $request->input('academic_year_id');
             $chartData = $this->dashboardService->getPerformanceChartData($academicYearId);
 
-            return response()->json([
-                'success' => true,
-                'data' => $chartData
-            ]);
+            return $this->success($chartData);
         } catch (\Exception $e) {
             Log::error('Error fetching performance chart data', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 
@@ -87,10 +78,10 @@ class DashboardController extends Controller
         try {
             $academicYearId = $request->input('academic_year_id');
             $data = $this->dashboardService->getStudentPerformanceTrend($studentId, $academicYearId);
-            return response()->json(['success' => true, 'data' => $data]);
+            return $this->success($data);
         } catch (\Exception $e) {
             Log::error('Error fetching student performance trend', ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error();
         }
     }
 }

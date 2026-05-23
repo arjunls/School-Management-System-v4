@@ -33,23 +33,14 @@ class TeacherController extends Controller
         try {
             $teacher = $this->teacherService->getTeacher($id);
             if (!$teacher) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Teacher not found'
-                ], 404);
+                return $this->notFound('Teacher not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $teacher
-            ]);
+            return $this->success($teacher);
         } catch (\Exception $e) {
             Log::error('Error fetching teacher', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -61,23 +52,14 @@ class TeacherController extends Controller
         try {
             $teacher = $this->teacherService->getTeacherByEmail($request->email);
             if (!$teacher) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Teacher not found'
-                ], 404);
+                return $this->notFound('Teacher not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $teacher
-            ]);
+            return $this->success($teacher);
         } catch (\Exception $e) {
             Log::error('Error fetching teacher by email', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -89,18 +71,11 @@ class TeacherController extends Controller
         try {
             $teacher = $this->teacherService->createTeacher($request->validated());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Teacher created successfully',
-                'data' => $teacher
-            ], 201);
+            return $this->created($teacher, 'Teacher created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating teacher', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -112,24 +87,14 @@ class TeacherController extends Controller
         try {
             $teacher = $this->teacherService->updateTeacher($id, $request->validated());
             if (!$teacher) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Teacher not found'
-                ], 404);
+                return $this->notFound('Teacher not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Teacher updated successfully',
-                'data' => $teacher
-            ]);
+            return $this->success($teacher, 'Teacher updated successfully');
         } catch (\Exception $e) {
             Log::error('Error updating teacher', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -141,23 +106,14 @@ class TeacherController extends Controller
         try {
             $result = $this->teacherService->deleteTeacher($id);
             if (!$result) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Teacher not found'
-                ], 404);
+                return $this->notFound('Teacher not found');
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Teacher deleted successfully'
-            ]);
+            return $this->deleted('Teacher deleted successfully');
         } catch (\Exception $e) {
             Log::error('Error deleting teacher', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -170,17 +126,11 @@ class TeacherController extends Controller
             $filters = $request->only(['name', 'email', 'status']);
             $teachers = $this->teacherService->getAllTeachers($filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $teachers
-            ]);
+            return $this->success($teachers);
         } catch (\Exception $e) {
             Log::error('Error fetching teachers', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -194,25 +144,11 @@ class TeacherController extends Controller
             $filters = $request->except(['per_page']);
             $teachers = $this->teacherService->getTeachersPaginated($perPage, $filters);
 
-            return response()->json([
-                'success' => true,
-                'data' => $teachers->items(),
-                'pagination' => [
-                    'total' => $teachers->total(),
-                    'per_page' => $teachers->perPage(),
-                    'current_page' => $teachers->currentPage(),
-                    'last_page' => $teachers->lastPage(),
-                    'from' => $teachers->firstItem(),
-                    'to' => $teachers->lastItem()
-                ]
-            ]);
+            return $this->paginated($teachers);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated teachers', ['exception' => $e]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 }

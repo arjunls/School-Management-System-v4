@@ -24,7 +24,7 @@ class ExtracurricularController extends Controller
         if ($user->role === 'student') {
             $query->with(['activeParticipants' => fn($q) => $q->where('student_id', $user->id)]);
         }
-        return response()->json(['success' => true, 'data' => $query->get()]);
+        return $this->success($query->get());
     }
 
     /**
@@ -33,7 +33,7 @@ class ExtracurricularController extends Controller
     public function store(StoreExtracurricularRequest $request)
     {
         $ec = Extracurricular::create($request->validated());
-        return response()->json(['success' => true, 'data' => $ec, 'message' => 'Extracurricular created'], 201);
+        return $this->created($ec, 'Extracurricular created');
     }
 
     /**
@@ -43,7 +43,7 @@ class ExtracurricularController extends Controller
     {
         $ec = Extracurricular::findOrFail($id);
         $ec->update($request->only(['name', 'description', 'coach', 'day', 'start_time', 'end_time', 'location', 'max_participants']));
-        return response()->json(['success' => true, 'data' => $ec, 'message' => 'Updated']);
+        return $this->success($ec, 'Updated');
     }
 
     /**
@@ -52,7 +52,7 @@ class ExtracurricularController extends Controller
     public function destroy(int $id)
     {
         Extracurricular::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Deleted']);
+        return $this->deleted('Deleted');
     }
 
     /**
@@ -63,18 +63,18 @@ class ExtracurricularController extends Controller
         $ec = Extracurricular::findOrFail($id);
         $user = $request->user();
 
-        if ($user->role !== 'student') return response()->json(['success' => false, 'message' => 'Only students'], 403);
+        if ($user->role !== 'student') return $this->error('Only students', 403);
 
         if ($ec->activeParticipants()->count() >= ($ec->max_participants ?? 9999)) {
-            return response()->json(['success' => false, 'message' => 'Full'], 400);
+            return $this->error('Full', 400);
         }
 
         if ($ec->activeParticipants()->where('student_id', $user->id)->exists()) {
-            return response()->json(['success' => false, 'message' => 'Already joined'], 400);
+            return $this->error('Already joined', 400);
         }
 
         $ec->participants()->attach($user->id, ['joined_at' => now()->format('Y-m-d'), 'status' => 'active']);
-        return response()->json(['success' => true, 'message' => 'Joined']);
+        return $this->success(null, 'Joined');
     }
 
     /**
@@ -86,6 +86,6 @@ class ExtracurricularController extends Controller
         $user = request()->user();
 
         $ec->participants()->updateExistingPivot($user->id, ['status' => 'inactive']);
-        return response()->json(['success' => true, 'message' => 'Left']);
+        return $this->success(null, 'Left');
     }
 }

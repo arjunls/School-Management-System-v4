@@ -24,10 +24,7 @@ class AcademicYearController extends Controller
      */
     public function getAll()
     {
-        return response()->json([
-            'success' => true,
-            'data' => $this->academicYearService->getAll(),
-        ]);
+        return $this->success($this->academicYearService->getAll());
     }
 
     /**
@@ -37,10 +34,7 @@ class AcademicYearController extends Controller
     {
         $perPage = $request->input('per_page', 15);
         $filters = $request->only(['search']);
-        return response()->json([
-            'success' => true,
-            'data' => $this->academicYearService->paginate($perPage, $filters),
-        ]);
+        return $this->paginated($this->academicYearService->paginate($perPage, $filters));
     }
 
     /**
@@ -50,9 +44,9 @@ class AcademicYearController extends Controller
     {
         $year = $this->academicYearService->find($id);
         if (!$year) {
-            return response()->json(['success' => false, 'message' => 'Academic year not found'], 404);
+            return $this->notFound('Academic year not found');
         }
-        return response()->json(['success' => true, 'data' => $year]);
+        return $this->success($year);
     }
 
     /**
@@ -62,9 +56,9 @@ class AcademicYearController extends Controller
     {
         try {
             $year = $this->academicYearService->create($request->validated());
-            return response()->json(['success' => true, 'data' => $year, 'message' => 'Academic year created'], 201);
+            return $this->created($year, 'Academic year created');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -76,11 +70,11 @@ class AcademicYearController extends Controller
         try {
             $year = $this->academicYearService->update($id, $request->validated());
             if (!$year) {
-                return response()->json(['success' => false, 'message' => 'Academic year not found'], 404);
+                return $this->notFound('Academic year not found');
             }
-            return response()->json(['success' => true, 'data' => $year, 'message' => 'Academic year updated']);
+            return $this->success($year, 'Academic year updated');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -90,9 +84,9 @@ class AcademicYearController extends Controller
     public function delete(int $id)
     {
         if ($this->academicYearService->delete($id)) {
-            return response()->json(['success' => true, 'message' => 'Academic year deleted']);
+            return $this->deleted('Academic year deleted');
         }
-        return response()->json(['success' => false, 'message' => 'Academic year not found'], 404);
+        return $this->notFound('Academic year not found');
     }
 
     /**
@@ -102,9 +96,9 @@ class AcademicYearController extends Controller
     {
         $year = $this->academicYearService->getActive();
         if (!$year) {
-            return response()->json(['success' => false, 'message' => 'No active academic year'], 404);
+            return $this->notFound('No active academic year');
         }
-        return response()->json(['success' => true, 'data' => $year]);
+        return $this->success($year);
     }
 
     // Terms
@@ -113,10 +107,7 @@ class AcademicYearController extends Controller
      */
     public function getTerms(int $academicYearId)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $this->academicYearService->getTerms($academicYearId),
-        ]);
+        return $this->success($this->academicYearService->getTerms($academicYearId));
     }
 
     /**
@@ -126,9 +117,9 @@ class AcademicYearController extends Controller
     {
         try {
             $term = $this->academicYearService->createTerm($request->validated());
-            return response()->json(['success' => true, 'data' => $term, 'message' => 'Term created'], 201);
+            return $this->created($term, 'Term created');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -140,11 +131,11 @@ class AcademicYearController extends Controller
         try {
             $term = $this->academicYearService->updateTerm($id, $request->validated());
             if (!$term) {
-                return response()->json(['success' => false, 'message' => 'Term not found'], 404);
+                return $this->notFound('Term not found');
             }
-            return response()->json(['success' => true, 'data' => $term, 'message' => 'Term updated']);
+            return $this->success($term, 'Term updated');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
+            return $this->error('Internal server error', 500);
         }
     }
 
@@ -154,8 +145,8 @@ class AcademicYearController extends Controller
     public function deleteTerm(int $id)
     {
         if ($this->academicYearService->deleteTerm($id)) {
-            return response()->json(['success' => true, 'message' => 'Term deleted']);
+            return $this->deleted('Term deleted');
         }
-        return response()->json(['success' => false, 'message' => 'Term not found'], 404);
+        return $this->notFound('Term not found');
     }
 }

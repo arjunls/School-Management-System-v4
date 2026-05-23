@@ -25,7 +25,7 @@ class EventController extends Controller
         if ($year = $request->year) $query->whereYear('start_date', $year);
         if ($type = $request->type) $query->where('type', $type);
 
-        return response()->json(['success' => true, 'data' => $query->orderBy('start_date')->get()]);
+        return $this->success($query->orderBy('start_date')->get());
     }
 
     /**
@@ -34,7 +34,7 @@ class EventController extends Controller
     public function store(StoreEventRequest $request)
     {
         $event = Event::create($request->validated());
-        return response()->json(['success' => true, 'data' => $event, 'message' => 'Event created'], 201);
+        return $this->created($event, 'Event created');
     }
 
     /**
@@ -44,7 +44,7 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
         $event->update($request->only(['title', 'description', 'start_date', 'end_date', 'start_time', 'end_time', 'location', 'color', 'type']));
-        return response()->json(['success' => true, 'data' => $event, 'message' => 'Updated']);
+        return $this->success($event, 'Updated');
     }
 
     /**
@@ -53,6 +53,6 @@ class EventController extends Controller
     public function destroy(int $id)
     {
         Event::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Deleted']);
+        return $this->deleted('Deleted');
     }
 }
