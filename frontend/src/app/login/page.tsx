@@ -3,162 +3,14 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDarkMode } from '@/contexts/DarkModeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-
-/* ===== Floating Input ===== */
-function FloatInput({ id, type, value, onChange, label, icon, isBusy, showToggle, onToggle, accent }: {
-  id: string; type: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  label: string; icon: string; isBusy?: boolean; showToggle?: boolean; onToggle?: () => void; accent?: string;
-}) {
-  const hasVal = value.length > 0;
-  return (
-    <div className="group relative">
-      <div className="pointer-events-none absolute -inset-0.5 rounded-xl opacity-0 transition-all duration-300 group-focus-within:opacity-100 blur"
-        style={{ background: accent ? `linear-gradient(to right, ${accent}33, ${accent}1a)` : undefined }}
-      />
-      <div className="relative">
-        <input
-          id={id} type={type} required value={value} onChange={onChange} disabled={isBusy} placeholder=" "
-          className="peer relative w-full rounded-xl border border-input bg-white/50 dark:bg-white/5 px-3 pt-5 pb-1 pr-9 text-sm shadow-sm outline-none transition-all file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-transparent disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-blue-400 focus-visible:ring-4 focus-visible:ring-blue-500/10"
-        />
-        <label htmlFor={id}
-          className={`pointer-events-none absolute left-3 flex items-center gap-1.5 transition-all duration-200 select-none
-            ${hasVal ? 'top-1.5 text-[10px] text-blue-500' : 'top-1/2 -translate-y-1/2 text-sm text-muted-foreground'}
-            peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:text-blue-500`}
-        >
-          <svg className={`size-3 shrink-0 transition-colors duration-200 ${hasVal ? 'text-blue-500' : 'text-muted-foreground'} peer-focus:text-blue-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-          </svg>
-          {label}
-        </label>
-        {showToggle && (
-          <button type="button" onClick={onToggle} tabIndex={-1}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground transition-colors"
-          >
-            {type === 'password' ? (
-              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-              </svg>
-            ) : (
-              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              </svg>
-            )}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ===== Strength Bar ===== */
-function StrengthBar({ password }: { password: string }) {
-  const score = password.length === 0 ? 0
-    : password.length < 6 ? 1
-    : password.length < 10 ? 2
-    : /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password) ? 4
-    : /[A-Z]/.test(password) || /[0-9]/.test(password) ? 3
-    : 2;
-
-  const colors = ['', 'bg-red-500', 'bg-orange-400', 'bg-amber-400', 'bg-emerald-500'];
-  const labels = ['', 'Lemah', 'Cukup', 'Sedang', 'Kuat'];
-  const w = score * 25;
-
-  if (password.length === 0) return null;
-  return (
-    <div className="mt-1.5">
-      <div className="h-1 rounded-full bg-muted/50 overflow-hidden">
-        <motion.div initial={{ width: 0 }} animate={{ width: `${w}%` }}
-          className={`h-full rounded-full ${colors[score]} transition-colors`} />
-      </div>
-      <p className={`text-[9px] mt-0.5 font-medium ${colors[score].replace('bg-', 'text-')}`}>{labels[score]}</p>
-    </div>
-  );
-}
-
-/* ===== Typing Motto ===== */
-const mottos = [
-  'Mencetak Lulusan Berkompeten dan Berkarakter',
-  'Siap Kerja, Siap Wirausaha, Siap Lanjut Studi',
-  'SMK Bisa — SMK Hebat',
-];
-
-function TypeText({ className }: { className?: string }) {
-  const [idx, setIdx] = useState(0);
-  const [char, setChar] = useState(0);
-  const [dir, setDir] = useState(1);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setChar(prev => {
-        const next = prev + dir;
-        if (next > mottos[idx].length || next < 0) {
-          if (dir === 1 && next > mottos[idx].length) {
-            setTimeout(() => setDir(-1), 1500);
-            return prev;
-          }
-          if (dir === -1 && next < 0) {
-            setIdx((mottos.length + 1) % mottos.length);
-            setDir(1);
-            return 0;
-          }
-          return prev;
-        }
-        return next;
-      });
-    }, 45);
-    return () => clearInterval(t);
-  }, [idx, dir]);
-
-  return (
-    <p className={className}>
-      &ldquo;{mottos[idx].slice(0, char)}&rdquo;
-      <span className="animate-pulse text-white/40">|</span>
-    </p>
-  );
-}
-
-/* ===== Avatars for quick account ===== */
-const quickAccounts = [
-  { email: 'admin@school.com', name: 'Admin', color: 'from-blue-500 to-blue-600', text: 'A' },
-  { email: 'teacher@school.com', name: 'Guru', color: 'from-orange-400 to-orange-500', text: 'G' },
-  { email: 'student@school.com', name: 'Siswa', color: 'from-emerald-400 to-emerald-500', text: 'S' },
-];
-
-/* ===== Data ===== */
-const particles = [
-  { size: 80, x: 10, y: 15, icon: 'M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25', dur: 7, del: 0 },
-  { size: 60, x: 75, y: 20, icon: 'M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z', dur: 9, del: 1.5 },
-  { size: 50, x: 85, y: 70, icon: 'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z', dur: 8, del: 3 },
-  { size: 40, x: 20, y: 75, icon: 'M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342', dur: 10, del: 0.5 },
-  { size: 35, x: 55, y: 85, icon: 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z', dur: 6, del: 2 },
-];
-
-const statItems = [
-  { label: 'Siswa', value: '1,200+' },
-  { label: 'Guru', value: '80+' },
-  { label: 'Kelas', value: '36' },
-];
-
-const tools = [
-  { icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z', label: 'Raport' },
-  { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'SPP' },
-  { icon: 'M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9', label: 'NISN' },
-  { icon: 'M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z', label: 'Jadwal' },
-];
+import { FloatInput } from '@/components/login/FloatInput';
+import { StrengthBar } from '@/components/login/StrengthBar';
+import { TypeText } from '@/components/login/TypeText';
+import { quickAccounts, particles, statItems, tools, themes } from '@/components/login/constants';
 
 const formEnter = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } };
 const formStagger = { animate: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
 
-const themes = [
-  { name: 'Biru', right: 'from-blue-700 via-blue-600 to-blue-500', left: 'oklch(0.55_0.19_240', accent: '#2563eb', swatch: 'bg-blue-600' },
-  { name: 'Teal', right: 'from-teal-700 via-cyan-600 to-slate-800', left: 'oklch(0.5_0.15_190', accent: '#0d9488', swatch: 'bg-teal-600' },
-  { name: 'Hijau', right: 'from-emerald-800 via-green-700 to-teal-600', left: 'oklch(0.55_0.18_160', accent: '#059669', swatch: 'bg-emerald-600' },
-  { name: 'Violet', right: 'from-violet-700 via-indigo-600 to-purple-800', left: 'oklch(0.55_0.2_280', accent: '#7c3aed', swatch: 'bg-violet-600' },
-  { name: 'Sunset', right: 'from-rose-700 via-orange-600 to-amber-500', left: 'oklch(0.6_0.2_40', accent: '#ea580c', swatch: 'bg-orange-500' },
-];
-
-/* ===== Page ===== */
 export default function LoginPage() {
   const { login } = useAuth();
   const { dark, toggle } = useDarkMode();
@@ -231,7 +83,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-svh">
-      {/* Left: Form */}
       <div className="relative flex w-full items-center justify-center p-6 lg:w-[460px]">
         <div className="pointer-events-none absolute inset-0 transition-all duration-700"
           style={{ background: `radial-gradient(ellipse 80% 50% at 50% -20%, ${theme.left}/0.08, transparent)` }}
@@ -245,7 +96,6 @@ export default function LoginPage() {
           transition={{ duration: 0.6, ease: 'easeOut' as const }}
           className="relative w-full max-w-sm"
         >
-          {/* Logo */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-5 flex flex-col items-center gap-2"
           >
@@ -262,7 +112,6 @@ export default function LoginPage() {
             </div>
           </motion.div>
 
-          {/* Banner */}
           <AnimatePresence>
             {!bannerDismissed && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
@@ -286,7 +135,6 @@ export default function LoginPage() {
             )}
           </AnimatePresence>
 
-          {/* Title */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.25 }}
             className="mb-5 text-center"
           >
@@ -294,7 +142,6 @@ export default function LoginPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Masukkan kredensial akun Anda</p>
           </motion.div>
 
-          {/* Form */}
           <motion.div variants={formStagger} initial="initial" animate="animate">
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <motion.div variants={formEnter}>
@@ -329,7 +176,6 @@ export default function LoginPage() {
               </motion.button>
             </form>
 
-            {/* Quick accounts */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}
               className="mt-4 flex items-center justify-center gap-3"
             >
@@ -345,7 +191,6 @@ export default function LoginPage() {
               ))}
             </motion.div>
 
-            {/* Tools */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
               className="mt-4 flex items-center justify-center gap-4"
             >
@@ -361,7 +206,6 @@ export default function LoginPage() {
               ))}
             </motion.div>
 
-            {/* Social proof */}
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
               className="mt-4 text-center text-[10px] text-muted-foreground/40">Digunakan oleh <span className="font-semibold text-muted-foreground/60">50+ SMK</span> di Indonesia</motion.p>
 
@@ -379,7 +223,6 @@ export default function LoginPage() {
               )}
             </AnimatePresence>
 
-            {/* Footer */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95 }}
               className="mt-5 flex items-center justify-center gap-4 text-[10px] text-muted-foreground/35"
             >
@@ -397,12 +240,10 @@ export default function LoginPage() {
         </motion.div>
       </div>
 
-      {/* Right: Brand Panel */}
       <div ref={rightRef} onMouseMove={handleMouse}
         suppressHydrationWarning
         className={`hidden flex-1 items-center justify-center bg-gradient-to-br ${theme.right} relative overflow-hidden lg:flex`}
       >
-        {/* Parallax layers */}
         <div className="absolute inset-0 transition-all duration-75"
           style={{
             background: `radial-gradient(ellipse 60% 50% at ${30 + (mousePos.x - 0.5) * 8}% ${20 + (mousePos.y - 0.5) * 8}%, color-mix(in oklch, ${theme.left}, transparent 85%), transparent)`,
@@ -414,7 +255,6 @@ export default function LoginPage() {
           }}
         />
 
-        {/* Floating icons */}
         {particles.map((p, i) => (
           <motion.div key={i}
             className="absolute flex items-center justify-center rounded-2xl bg-white/[0.06] backdrop-blur-[1px] border border-white/10"
