@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Kernel\Audit\Controllers;
+
+use App\Kernel\Http\Controllers\Controller;
+use App\Kernel\Audit\Services\AuditService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class AuditLogController extends Controller
+{
+    public function __construct(protected AuditService $auditService) {}
+
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $filters = $request->only(['module', 'event', 'user_id', 'date_from', 'date_to', 'per_page']);
+            $logs = $this->auditService->getAll($filters);
+
+            return $this->paginated($logs);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error fetching audit logs', ['exception' => $e]);
+            return $this->error('Internal server error', 500);
+        }
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $log = \App\Kernel\Audit\Models\AuditLog::with(['user', 'auditable'])->find($id);
+
+            if (! $log) {
+                return $this->notFound('Audit log not found');
+            }
+
+            return $this->success($log);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error fetching audit log', ['exception' => $e]);
+            return $this->error('Internal server error', 500);
+        }
+    }
+}
