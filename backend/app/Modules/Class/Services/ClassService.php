@@ -4,8 +4,6 @@ namespace App\Modules\Class\Services;
 
 use App\Models\User;
 use App\Modules\Class\Repositories\ClassRepository;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ClassService
 {
@@ -28,34 +26,12 @@ class ClassService
 
     public function createClass(array $data)
     {
-        $validator = Validator::make($data, [
-            'name' => 'required|string|max:50',
-            'grade_level' => 'required|integer|min:1|max:12',
-            'homeroom_teacher_id' => 'nullable|integer|exists:users,id',
-            'capacity' => 'nullable|integer|min:1|max:100',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        return $this->repository->create($validator->validated());
+        return $this->repository->create($data);
     }
 
     public function updateClass(int $id, array $data)
     {
-        $validator = Validator::make($data, [
-            'name' => 'sometimes|required|string|max:50',
-            'grade_level' => 'sometimes|required|integer|min:1|max:12',
-            'homeroom_teacher_id' => 'sometimes|nullable|integer|exists:users,id',
-            'capacity' => 'sometimes|nullable|integer|min:1|max:100',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        return $this->repository->update($id, $validator->validated());
+        return $this->repository->update($id, $data);
     }
 
     public function deleteClass(int $id): bool

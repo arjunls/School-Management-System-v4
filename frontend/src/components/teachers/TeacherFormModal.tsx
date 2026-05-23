@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import { teacherAPI } from '@/lib/api';
+import { Input, Select, FormField } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface TeacherFormData {
   name: string;
@@ -29,6 +31,18 @@ interface TeacherFormModalProps {
     status: string;
   };
 }
+
+const genderOptions = [
+  { value: 'male', label: 'Laki-laki' },
+  { value: 'female', label: 'Perempuan' },
+  { value: 'other', label: 'Lainnya' },
+];
+
+const statusOptions = [
+  { value: 'active', label: 'Aktif' },
+  { value: 'inactive', label: 'Tidak Aktif' },
+  { value: 'suspended', label: 'Ditangguhkan' },
+];
 
 export function TeacherFormModal({ open, onClose, onSuccess, teacher }: TeacherFormModalProps) {
   const isEdit = !!teacher;
@@ -89,90 +103,71 @@ export function TeacherFormModal({ open, onClose, onSuccess, teacher }: TeacherF
     } finally { setSaving(false); }
   };
 
-  const inputClass = (field: string) =>
-    `block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors[field] ? 'ring-red-500' : 'ring-gray-300'}`;
-
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{isEdit ? 'Edit Teacher' : 'Add Teacher'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+      <div className="bg-card text-card-foreground rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">{isEdit ? 'Edit Guru' : 'Tambah Guru'}</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {errors._general && <div className="bg-red-50 border-l-4 border-red-500 p-3 text-sm text-red-700">{errors._general}</div>}
+          {errors._general && <div className="bg-destructive/10 border-l-4 border-destructive p-3 text-sm text-destructive">{errors._general}</div>}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-              <input name="name" required className={inputClass('name')} value={form.name} onChange={handleChange} />
-              {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+              <Input name="name" label="Nama Lengkap" required value={form.name} onChange={handleChange} error={errors.name} />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-              <input name="email" type="email" required className={inputClass('email')} value={form.email} onChange={handleChange} />
-              {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
+              <Input name="email" label="Email" type="email" required value={form.email} onChange={handleChange} error={errors.email} />
             </div>
             {!isEdit && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-                  <input name="password" type="password" required className={inputClass('password')} value={form.password} onChange={handleChange} />
-                  {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
+                  <Input name="password" label="Kata Sandi" type="password" required value={form.password} onChange={handleChange} error={errors.password} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
-                  <input name="password_confirmation" type="password" required className={inputClass('password_confirmation')} value={form.password_confirmation} onChange={handleChange} />
+                  <Input name="password_confirmation" label="Konfirmasi Kata Sandi" type="password" required value={form.password_confirmation} onChange={handleChange} />
                 </div>
               </>
             )}
             {isEdit && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                  <input name="password" type="password" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.password} onChange={handleChange} placeholder="Leave blank" />
+                  <Input name="password" label="Kata Sandi Baru" type="password" value={form.password} onChange={handleChange} placeholder="Kosongkan jika tidak ingin mengubah" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                  <input name="password_confirmation" type="password" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.password_confirmation} onChange={handleChange} />
+                  <Input name="password_confirmation" label="Konfirmasi Kata Sandi" type="password" value={form.password_confirmation} onChange={handleChange} />
                 </div>
               </>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <input name="phone" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.phone} onChange={handleChange} />
+              <Input name="phone" label="Nomor Telepon" value={form.phone} onChange={handleChange} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-              <select name="gender" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.gender} onChange={handleChange}>
-                <option value="">Select</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
+              <Select name="gender" label="Jenis Kelamin" value={form.gender} onChange={handleChange} options={genderOptions} placeholder="Pilih" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-              <input name="date_of_birth" type="date" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.date_of_birth} onChange={handleChange} />
+              <Input name="date_of_birth" label="Tanggal Lahir" type="date" value={form.date_of_birth} onChange={handleChange} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select name="status" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.status} onChange={handleChange}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="suspended">Suspended</option>
-              </select>
-              {errors.status && <p className="mt-1 text-xs text-red-600">{errors.status}</p>}
+              <Select name="status" label="Status" value={form.status} onChange={handleChange} options={statusOptions} error={errors.status} />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <textarea name="address" rows={2} className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.address} onChange={handleChange} />
+              <FormField label="Alamat">
+                <textarea
+                  name="address"
+                  rows={2}
+                  className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20"
+                  value={form.address}
+                  onChange={handleChange}
+                />
+              </FormField>
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" disabled={saving}>Cancel</button>
-            <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">
-              {saving ? 'Saving...' : isEdit ? 'Update Teacher' : 'Create Teacher'}
-            </button>
+            <Button variant="secondary" type="button" onClick={onClose} disabled={saving}>Batal</Button>
+            <Button variant="primary" type="submit" loading={saving}>
+              {saving ? 'Menyimpan...' : isEdit ? 'Perbarui' : 'Simpan'}
+            </Button>
           </div>
         </form>
       </div>

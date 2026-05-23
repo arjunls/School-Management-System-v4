@@ -5,8 +5,6 @@ namespace App\Modules\Attendance\Services;
 use App\Modules\Attendance\Interfaces\AttendanceRepositoryInterface;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class AttendanceService
 {
@@ -26,18 +24,6 @@ class AttendanceService
 
     public function create(array $data)
     {
-        $validator = Validator::make($data, [
-            'student_id' => 'required|integer|exists:users,id',
-            'date' => 'required|date',
-            'status' => 'required|in:present,absent,sick,leave',
-            'notes' => 'nullable|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        $data = $validator->validated();
         $data['created_by'] = Auth::id();
 
         // Upsert: update if exists for same student+date, otherwise create
@@ -56,16 +42,7 @@ class AttendanceService
 
     public function update(int $id, array $data)
     {
-        $validator = Validator::make($data, [
-            'status' => 'sometimes|required|in:present,absent,sick,leave',
-            'notes' => 'sometimes|nullable|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        return $this->repository->update($id, $validator->validated());
+        return $this->repository->update($id, $data);
     }
 
     public function delete(int $id): bool

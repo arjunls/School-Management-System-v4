@@ -3,9 +3,12 @@
 namespace App\Modules\AcademicYear\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\AcademicYear\Requests\StoreAcademicYearRequest;
+use App\Modules\AcademicYear\Requests\UpdateAcademicYearRequest;
+use App\Modules\AcademicYear\Requests\StoreTermRequest;
+use App\Modules\AcademicYear\Requests\UpdateTermRequest;
 use App\Modules\AcademicYear\Services\AcademicYearService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Academic Years
@@ -55,33 +58,29 @@ class AcademicYearController extends Controller
     /**
      * Create a new academic year
      */
-    public function create(Request $request)
+    public function create(StoreAcademicYearRequest $request)
     {
         try {
-            $year = $this->academicYearService->create($request->only([
-                'name', 'start_date', 'end_date', 'is_active'
-            ]));
+            $year = $this->academicYearService->create($request->validated());
             return response()->json(['success' => true, 'data' => $year, 'message' => 'Academic year created'], 201);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
         }
     }
 
     /**
      * Update an academic year
      */
-    public function update(Request $request, int $id)
+    public function update(UpdateAcademicYearRequest $request, int $id)
     {
         try {
-            $year = $this->academicYearService->update($id, $request->only([
-                'name', 'start_date', 'end_date', 'is_active'
-            ]));
+            $year = $this->academicYearService->update($id, $request->validated());
             if (!$year) {
                 return response()->json(['success' => false, 'message' => 'Academic year not found'], 404);
             }
             return response()->json(['success' => true, 'data' => $year, 'message' => 'Academic year updated']);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
         }
     }
 
@@ -123,33 +122,29 @@ class AcademicYearController extends Controller
     /**
      * Create a new term
      */
-    public function createTerm(Request $request)
+    public function createTerm(StoreTermRequest $request)
     {
         try {
-            $term = $this->academicYearService->createTerm($request->only([
-                'academic_year_id', 'name', 'start_date', 'end_date', 'is_active'
-            ]));
+            $term = $this->academicYearService->createTerm($request->validated());
             return response()->json(['success' => true, 'data' => $term, 'message' => 'Term created'], 201);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
         }
     }
 
     /**
      * Update a term
      */
-    public function updateTerm(Request $request, int $id)
+    public function updateTerm(UpdateTermRequest $request, int $id)
     {
         try {
-            $term = $this->academicYearService->updateTerm($id, $request->only([
-                'academic_year_id', 'name', 'start_date', 'end_date', 'is_active'
-            ]));
+            $term = $this->academicYearService->updateTerm($id, $request->validated());
             if (!$term) {
                 return response()->json(['success' => false, 'message' => 'Term not found'], 404);
             }
             return response()->json(['success' => true, 'data' => $term, 'message' => 'Term updated']);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
         }
     }
 

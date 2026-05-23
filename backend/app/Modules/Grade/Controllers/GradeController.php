@@ -3,10 +3,11 @@
 namespace App\Modules\Grade\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Grade\Requests\StoreGradeRequest;
+use App\Modules\Grade\Requests\UpdateGradeRequest;
 use App\Modules\Grade\Services\GradeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Grades
@@ -84,20 +85,16 @@ class GradeController extends Controller
     /**
      * Create a new grade entry
      */
-    public function createGrade(Request $request)
+    public function createGrade(StoreGradeRequest $request)
     {
         try {
-            $grade = $this->gradeService->createGrade($request->only([
-                'student_id', 'subject_id', 'score', 'grade', 'term'
-            ]));
+            $grade = $this->gradeService->createGrade($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Grade created successfully',
                 'data' => $grade,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error creating grade', ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
@@ -107,19 +104,15 @@ class GradeController extends Controller
     /**
      * Update an existing grade
      */
-    public function updateGrade(Request $request, $id)
+    public function updateGrade(UpdateGradeRequest $request, $id)
     {
         try {
-            $grade = $this->gradeService->updateGrade((int) $id, $request->only([
-                'student_id', 'subject_id', 'score', 'grade', 'term'
-            ]));
+            $grade = $this->gradeService->updateGrade((int) $id, $request->validated());
             if (! $grade) {
                 return response()->json(['success' => false, 'message' => 'Grade not found'], 404);
             }
 
             return response()->json(['success' => true, 'message' => 'Grade updated successfully', 'data' => $grade]);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error updating grade', ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Internal server error'], 500);

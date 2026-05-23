@@ -5,8 +5,6 @@ namespace App\Modules\Grade\Services;
 use App\Models\User;
 use App\Modules\Grade\Interfaces\GradeRepositoryInterface;
 use App\Modules\Subject\Models\Subject;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class GradeService
 {
@@ -29,38 +27,14 @@ class GradeService
 
     public function createGrade(array $data)
     {
-        $validator = Validator::make($data, [
-            'student_id' => 'required|integer|exists:users,id',
-            'subject_id' => 'required|integer|exists:subjects,id',
-            'score' => 'nullable|numeric|min:0|max:100',
-            'grade' => 'nullable|string|max:2',
-            'term' => 'nullable|string|max:50',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        $grade = $this->repository->create($validator->validated());
+        $grade = $this->repository->create($data);
         $this->notifyStudent($grade);
         return $grade;
     }
 
     public function updateGrade(int $id, array $data)
     {
-        $validator = Validator::make($data, [
-            'student_id' => 'sometimes|required|integer|exists:users,id',
-            'subject_id' => 'sometimes|required|integer|exists:subjects,id',
-            'score' => 'sometimes|nullable|numeric|min:0|max:100',
-            'grade' => 'sometimes|nullable|string|max:2',
-            'term' => 'sometimes|nullable|string|max:50',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        $grade = $this->repository->update($id, $validator->validated());
+        $grade = $this->repository->update($id, $data);
         if ($grade) $this->notifyStudent($grade);
         return $grade;
     }

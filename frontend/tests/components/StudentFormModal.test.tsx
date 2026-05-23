@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { StudentFormModal } from '@/components/students/StudentFormModal'
 
 vi.mock('@/lib/api')
-import api from '@/lib/api'
+import { mockGet, mockPost, mockPut } from '@/lib/api'
 
 function getForm(): HTMLFormElement {
-  return screen.getByRole('button', { name: /create|update/i }).closest('form')!
+  return screen.getByRole('button', { name: /simpan|perbarui/i }).closest('form')!
 }
 
 describe('StudentFormModal', () => {
@@ -15,7 +15,7 @@ describe('StudentFormModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(api.get as any).mockResolvedValue({ data: { success: true, data: [] } })
+    mockGet.mockResolvedValue({ data: { success: true, data: [] } })
   })
 
   it('renders nothing when closed', () => {
@@ -27,33 +27,33 @@ describe('StudentFormModal', () => {
 
   it('renders form when open', async () => {
     render(<StudentFormModal open onClose={onClose} onSuccess={onSuccess} />)
-    expect(screen.getByText('Add Student')).toBeInTheDocument()
-    expect(screen.getByText('Create Student')).toBeInTheDocument()
+    expect(screen.getByText('Tambah Siswa')).toBeInTheDocument()
+    expect(screen.getByText('Simpan')).toBeInTheDocument()
   })
 
   it('renders edit mode with student data', () => {
     const student = { id: 1, name: 'John', email: 'john@test.com', status: 'active', kelas_id: 1 }
     render(<StudentFormModal open onClose={onClose} onSuccess={onSuccess} student={student} />)
-    expect(screen.getByText('Edit Student')).toBeInTheDocument()
+    expect(screen.getByText('Edit Siswa')).toBeInTheDocument()
     expect(screen.getByDisplayValue('John')).toBeInTheDocument()
     expect(screen.getByDisplayValue('john@test.com')).toBeInTheDocument()
   })
 
   it('calls create API on submit', async () => {
-    ;(api.post as any).mockResolvedValueOnce({ data: { success: true, data: { id: 1 } } })
+    mockPost.mockResolvedValueOnce({ data: { success: true, data: { id: 1 } } })
 
     render(<StudentFormModal open onClose={onClose} onSuccess={onSuccess} />)
     fireEvent.submit(getForm())
 
     await waitFor(() => {
-      expect(api.post).toHaveBeenCalled()
+      expect(mockPost).toHaveBeenCalled()
       expect(onSuccess).toHaveBeenCalledWith('Student created successfully')
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('calls update API on submit in edit mode', async () => {
-    ;(api.put as any).mockResolvedValueOnce({ data: { success: true } })
+    mockPut.mockResolvedValueOnce({ data: { success: true } })
 
     const student = { id: 1, name: 'John', email: 'john@test.com', status: 'active' }
     render(<StudentFormModal open onClose={onClose} onSuccess={onSuccess} student={student} />)
@@ -61,14 +61,14 @@ describe('StudentFormModal', () => {
     fireEvent.submit(getForm())
 
     await waitFor(() => {
-      expect(api.put).toHaveBeenCalled()
+      expect(mockPut).toHaveBeenCalled()
       expect(onSuccess).toHaveBeenCalledWith('Student updated successfully')
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('shows validation errors from API', async () => {
-    ;(api.post as any).mockRejectedValueOnce({
+    mockPost.mockRejectedValueOnce({
       response: {
         data: {
           errors: { name: ['The name field is required.'] },
@@ -85,7 +85,7 @@ describe('StudentFormModal', () => {
   })
 
   it('shows general error from API', async () => {
-    ;(api.post as any).mockRejectedValueOnce({
+    mockPost.mockRejectedValueOnce({
       response: { data: { message: 'Server error' } },
     })
 

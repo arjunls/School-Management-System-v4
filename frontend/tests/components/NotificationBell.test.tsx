@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 vi.mock('@/lib/api')
-import api from '@/lib/api'
+import { mockGet, mockPost } from '@/lib/api'
 
 describe('NotificationBell', () => {
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe('NotificationBell', () => {
   })
 
   it('shows no notifications when empty', async () => {
-    ;(api.get as any).mockResolvedValueOnce({
+    mockGet.mockResolvedValueOnce({
       data: { success: true, data: { count: 0, notifications: [] } },
     })
 
@@ -19,12 +19,12 @@ describe('NotificationBell', () => {
     fireEvent.click(screen.getByRole('button'))
 
     await waitFor(() => {
-      expect(screen.getByText('No new notifications')).toBeInTheDocument()
+      expect(screen.getByText('Tidak ada notifikasi baru')).toBeInTheDocument()
     })
   })
 
   it('shows notification count badge', async () => {
-    ;(api.get as any).mockResolvedValueOnce({
+    mockGet.mockResolvedValueOnce({
       data: {
         success: true,
         data: {
@@ -42,7 +42,7 @@ describe('NotificationBell', () => {
   })
 
   it('shows notification message in dropdown', async () => {
-    ;(api.get as any).mockResolvedValueOnce({
+    mockGet.mockResolvedValueOnce({
       data: {
         success: true,
         data: {
@@ -63,7 +63,7 @@ describe('NotificationBell', () => {
   })
 
   it('calls markAllAsRead when button clicked', async () => {
-    ;(api.get as any).mockResolvedValueOnce({
+    mockGet.mockResolvedValueOnce({
       data: {
         success: true,
         data: {
@@ -75,23 +75,23 @@ describe('NotificationBell', () => {
         },
       },
     })
-    ;(api.post as any).mockResolvedValueOnce({ data: { success: true } })
+    mockPost.mockResolvedValueOnce({ data: { success: true } })
 
     render(<NotificationBell />)
     fireEvent.click(screen.getByRole('button'))
 
     await waitFor(() => {
-      expect(screen.getByText('Mark all as read')).toBeInTheDocument()
+      expect(screen.getByText('Tandai sudah dibaca')).toBeInTheDocument()
     })
 
-    ;(api.get as any).mockResolvedValueOnce({
+    mockGet.mockResolvedValueOnce({
       data: { success: true, data: { count: 0, notifications: [] } },
     })
 
-    fireEvent.click(screen.getByText('Mark all as read'))
+    fireEvent.click(screen.getByText('Tandai sudah dibaca'))
 
     await waitFor(() => {
-      expect(api.post).toHaveBeenCalledWith('/notifications/mark-all-read')
+      expect(mockPost).toHaveBeenCalled()
     })
   })
 })

@@ -335,3 +335,9 @@ Route::prefix('health')->middleware('auth:sanctum')->group(function () {
     Route::get('/{studentId}', [HealthController::class, 'show']);
     Route::put('/{studentId}', [HealthController::class, 'upsert'])->middleware('role:admin,teacher');
 });
+
+// Audit Log routes (admin only)
+Route::prefix('audit-logs')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/', [\App\Modules\Audit\Controllers\AuditLogController::class, 'index']);
+    Route::get('/{id}', [\App\Modules\Audit\Controllers\AuditLogController::class, 'show']);
+});

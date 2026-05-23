@@ -1,52 +1,46 @@
+"use client";
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  color: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
-  trend?: {
-    value: string;
-    isPositive: boolean;
-  };
+  trend?: { value: string; isPositive: boolean };
+  accent?: string;
   className?: string;
 }
 
-export const StatCard = ({ 
-  title, 
-  value, 
-  icon, 
-  color, 
-  trend, 
-  className = '' 
-}: StatCardProps) => {
-  const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-green-50 text-green-600 border-green-200',
-    red: 'bg-red-50 text-red-600 border-red-200',
-    yellow: 'bg-yellow-50 text-yellow-600 border-yellow-200',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200',
-  };
-
+export function StatCard({ title, value, icon, trend, accent = 'var(--primary)', className = '' }: StatCardProps) {
   return (
-    <div className={`flex-1 bg-white rounded-lg shadow border p-6 ${colorMap[color]} ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <div className={`p-3 rounded-full ${colorMap[color].replace('bg-', 'bg-').replace('text-', 'bg-')}/20`}>
-            {icon}
-          </div>
-          <div className="ml-4">
-            <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-          </div>
+    <motion.div
+      variants={{ initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } }}
+      whileHover={{ y: -2, boxShadow: 'var(--shadow-card-hover)' }}
+      className={`rounded-xl border bg-card text-card-foreground shadow-card p-5 transition-all duration-200 ${className}`}
+      style={{ ['--card-accent' as string]: accent }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm text-muted-foreground font-medium">{title}</span>
+        <div className="size-9 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+          style={{ background: `color-mix(in oklch, ${accent}, transparent 88%)`, color: accent }}
+        >
+          {icon}
         </div>
-        
+      </div>
+      <div className="flex items-end justify-between">
+        <span className="text-2xl font-bold tracking-tight">{value}</span>
         {trend && (
-          <div className={`text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {trend.isPositive ? '▲' : '▼'} {trend.value}
-          </div>
+          <span className={`text-xs font-medium inline-flex items-center gap-0.5 ${trend.isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+            <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              {trend.isPositive
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                : <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.95 11.95 0 015.814 5.519l2.74 1.22m0 0l-5.94 2.28m5.94-2.28l-2.28-5.941" />
+              }
+            </svg>
+            {trend.value}
+          </span>
         )}
       </div>
-    </div>
+    </motion.div>
   );
-};
+}

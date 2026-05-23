@@ -1,8 +1,5 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'School Management System',
@@ -21,8 +18,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var stored = localStorage.getItem('theme');
+              var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (stored === 'dark' || (!stored && prefersDark)) {
+                document.documentElement.classList.add('dark');
+              }
+            })();
+          `
+        }} />
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+      </head>
+      <body>
         <AuthProvider>
           <DarkModeProvider>
             <I18nProvider>

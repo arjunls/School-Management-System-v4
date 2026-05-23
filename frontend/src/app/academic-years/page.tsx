@@ -7,6 +7,9 @@ import { AcademicYearFormModal } from '@/components/academic-years/AcademicYearF
 import { TermFormModal } from '@/components/academic-years/TermFormModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 interface AcademicYear {
   id: number; name: string; start_date: string; end_date: string; is_active: boolean;
@@ -27,7 +30,6 @@ export default function AcademicYearsPage() {
   const [deleting, setDeleting] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  // Term modals
   const [termFormOpen, setTermFormOpen] = useState(false);
   const [termAcademicYearId, setTermAcademicYearId] = useState<number>(0);
   const [termEditing, setTermEditing] = useState<Term | null>(null);
@@ -68,67 +70,79 @@ export default function AcademicYearsPage() {
     <ProtectedRoute roles={['admin']}>
       <MainLayout>
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Academic Years</h1>
-            <button onClick={() => { setEditing(null); setFormOpen(true); }}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">+ Add Academic Year</button>
-          </div>
+          <PageHeader
+            title="Tahun Ajaran"
+            breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Tahun Ajaran' }]}
+            action={
+              <Button size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>}
+                onClick={() => { setEditing(null); setFormOpen(true); }}
+              >
+                Tambah
+              </Button>
+            }
+          />
 
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading...</div>
+            <div className="text-center py-12 text-muted-foreground">Memuat...</div>
           ) : years.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No academic years found.</div>
+            <div className="text-center py-12 text-muted-foreground">Belum ada tahun ajaran.</div>
           ) : (
             <div className="space-y-4">
               {years.map(year => (
-                <div key={year.id} className="bg-white rounded-lg shadow overflow-hidden">
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+                <div key={year.id} className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 flex items-center justify-between hover:bg-muted/50 cursor-pointer"
                     onClick={() => setExpandedId(expandedId === year.id ? null : year.id)}>
                     <div className="flex items-center gap-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${year.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {year.is_active ? 'Active' : 'Inactive'}
-                      </span>
+                      <Badge variant={year.is_active ? 'success' : 'default'}>{year.is_active ? 'Aktif' : 'Tidak Aktif'}</Badge>
                       <div>
-                        <p className="font-medium text-gray-900">{year.name}</p>
-                        <p className="text-sm text-gray-500">{year.start_date} – {year.end_date}</p>
+                        <p className="font-medium text-foreground">{year.name}</p>
+                        <p className="text-sm text-muted-foreground">{year.start_date} – {year.end_date}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => { setEditing(year); setFormOpen(true); }} className="text-sm text-indigo-600 hover:text-indigo-800">Edit</button>
-                      <button onClick={() => setDeleteTarget(year)} className="text-sm text-red-600 hover:text-red-800">Delete</button>
+                      <Button variant="ghost" size="sm" onClick={() => { setEditing(year); setFormOpen(true); }}>
+                        <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(year)}>
+                        <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                      </Button>
                     </div>
                   </div>
 
                   {expandedId === year.id && (
-                    <div className="border-t border-gray-200 px-6 py-4">
+                    <div className="border-t border-border px-6 py-4">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-sm font-semibold text-gray-700">Terms</h3>
-                        <button onClick={() => openTermForm(year.id)}
-                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800">+ Add Term</button>
+                        <h3 className="text-sm font-semibold text-foreground/80">Semester</h3>
+                        <Button variant="ghost" size="sm" onClick={() => openTermForm(year.id)}>
+                          <svg className="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                          Tambah Semester
+                        </Button>
                       </div>
                       {(!year.terms || year.terms.length === 0) ? (
-                        <p className="text-sm text-gray-500">No terms for this academic year.</p>
+                        <p className="text-sm text-muted-foreground">Belum ada semester untuk tahun ajaran ini.</p>
                       ) : (
-                        <table className="min-w-full divide-y divide-gray-200 text-sm">
-                          <thead><tr className="bg-gray-50">
-                            <th className="px-4 py-2 text-left font-medium text-gray-500">Name</th>
-                            <th className="px-4 py-2 text-left font-medium text-gray-500">Period</th>
-                            <th className="px-4 py-2 text-center font-medium text-gray-500">Status</th>
-                            <th className="px-4 py-2 text-right font-medium text-gray-500">Actions</th>
+                        <table className="min-w-full divide-y divide-border text-sm">
+                          <thead><tr className="bg-muted/50">
+                            <th className="px-4 py-2 text-left font-medium text-muted-foreground">Nama</th>
+                            <th className="px-4 py-2 text-left font-medium text-muted-foreground">Periode</th>
+                            <th className="px-4 py-2 text-center font-medium text-muted-foreground">Status</th>
+                            <th className="px-4 py-2 text-right font-medium text-muted-foreground">Aksi</th>
                           </tr></thead>
-                          <tbody className="divide-y divide-gray-200">
+                          <tbody className="divide-y divide-border">
                             {year.terms.map(term => (
                               <tr key={term.id}>
                                 <td className="px-4 py-2">{term.name}</td>
-                                <td className="px-4 py-2 text-gray-500">{term.start_date} – {term.end_date}</td>
+                                <td className="px-4 py-2 text-muted-foreground">{term.start_date} – {term.end_date}</td>
                                 <td className="px-4 py-2 text-center">
-                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${term.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                    {term.is_active ? 'Active' : 'Inactive'}
-                                  </span>
+                                  <Badge variant={term.is_active ? 'success' : 'default'}>{term.is_active ? 'Aktif' : 'Tidak Aktif'}</Badge>
                                 </td>
                                 <td className="px-4 py-2 text-right">
-                                  <button onClick={() => openTermForm(year.id, term)} className="text-indigo-600 hover:text-indigo-800 mr-2">Edit</button>
-                                  <button onClick={() => setDeleteTermTarget(term)} className="text-red-600 hover:text-red-800">Delete</button>
+                                  <Button variant="ghost" size="sm" onClick={() => openTermForm(year.id, term)}>
+                                    <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                                  </Button>
+                                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteTermTarget(term)}>
+                                    <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                                  </Button>
                                 </td>
                               </tr>
                             ))}
@@ -145,8 +159,8 @@ export default function AcademicYearsPage() {
 
         <AcademicYearFormModal open={formOpen} onClose={() => setFormOpen(false)} onSuccess={fetch} editing={editing} />
         <TermFormModal open={termFormOpen} onClose={() => setTermFormOpen(false)} onSuccess={fetch} academicYearId={termAcademicYearId} editing={termEditing} />
-        <ConfirmDialog open={!!deleteTarget} title="Delete Academic Year" message="This will also delete all terms under this year. Are you sure?" loading={deleting} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
-        <ConfirmDialog open={!!deleteTermTarget} title="Delete Term" message="Are you sure you want to delete this term?" loading={deletingTerm} onConfirm={handleDeleteTerm} onCancel={() => setDeleteTermTarget(null)} />
+        <ConfirmDialog open={!!deleteTarget} title="Hapus Tahun Ajaran" message="Ini akan menghapus semua semester di tahun ini. Yakin?" loading={deleting} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
+        <ConfirmDialog open={!!deleteTermTarget} title="Hapus Semester" message="Yakin ingin menghapus semester ini?" loading={deletingTerm} onConfirm={handleDeleteTerm} onCancel={() => setDeleteTermTarget(null)} />
       </MainLayout>
     </ProtectedRoute>
   );

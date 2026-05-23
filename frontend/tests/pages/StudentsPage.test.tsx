@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 vi.mock('@/lib/api')
 import { mockGet, mockPost, mockDelete } from '@/lib/api'
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/students' }))
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
@@ -32,14 +32,14 @@ describe('StudentsPage', () => {
   it('renders page heading', async () => {
     render(<StudentsPage />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Students' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Siswa' })).toBeInTheDocument()
     })
   })
 
   it('shows add student button', async () => {
     render(<StudentsPage />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /add student/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /tambah/i })).toBeInTheDocument()
     })
   })
 
@@ -62,7 +62,7 @@ describe('StudentsPage', () => {
   it('shows sidebar navigation', async () => {
     render(<StudentsPage />, { wrapper: Wrapper })
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument()
+      expect(screen.getAllByRole('link', { name: /dashboard/i }).length).toBeGreaterThanOrEqual(1)
     })
   })
 })

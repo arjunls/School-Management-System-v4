@@ -3,12 +3,12 @@
 namespace App\Modules\Class\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Class\Requests\StoreClassRequest;
+use App\Modules\Class\Requests\UpdateClassRequest;
 use App\Modules\Class\Services\ClassService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Classes
@@ -55,24 +55,16 @@ class ClassController extends Controller
     /**
      * Create a new class
      */
-    public function createClass(Request $request)
+    public function createClass(StoreClassRequest $request)
     {
         try {
-            $class = $this->classService->createClass($request->only([
-                'name', 'grade_level', 'homeroom_teacher_id', 'capacity'
-            ]));
+            $class = $this->classService->createClass($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Class created successfully',
                 'data' => $class
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error creating class', ['exception' => $e]);
 
@@ -86,12 +78,10 @@ class ClassController extends Controller
     /**
      * Update an existing class
      */
-    public function updateClass(Request $request, $id)
+    public function updateClass(UpdateClassRequest $request, $id)
     {
         try {
-            $class = $this->classService->updateClass($id, $request->only([
-                'name', 'grade_level', 'homeroom_teacher_id', 'capacity'
-            ]));
+            $class = $this->classService->updateClass($id, $request->validated());
             if (!$class) {
                 return response()->json([
                     'success' => false,
@@ -104,12 +94,6 @@ class ClassController extends Controller
                 'message' => 'Class updated successfully',
                 'data' => $class
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error updating class', ['exception' => $e]);
 

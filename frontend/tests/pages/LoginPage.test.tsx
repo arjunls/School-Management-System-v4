@@ -21,24 +21,25 @@ describe('LoginPage', () => {
     vi.clearAllMocks()
   })
 
-  it('renders sign in form', () => {
+  it('renders sign in form', async () => {
     render(<LoginPage />)
-    expect(screen.getByText('Sign in to your account')).toBeInTheDocument()
-    expect(screen.getByLabelText('Email Address')).toBeInTheDocument()
+    await screen.findByText('Masukkan kredensial akun Anda')
+    expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /masuk/i })).toBeInTheDocument()
   })
 
-  it('shows demo account information', () => {
+  it('shows demo account information', async () => {
     render(<LoginPage />)
-    expect(screen.getByText(/admin@school.com/)).toBeInTheDocument()
-    expect(screen.getByText(/teacher@school.com/)).toBeInTheDocument()
-    expect(screen.getByText(/student@school.com/)).toBeInTheDocument()
+    await screen.findByTitle('Login sebagai Admin')
+    expect(screen.getByTitle('Login sebagai Guru')).toBeInTheDocument()
+    expect(screen.getByTitle('Login sebagai Siswa')).toBeInTheDocument()
   })
 
-  it('has forgot password link', () => {
+  it('has forgot password link', async () => {
     render(<LoginPage />)
-    const link = screen.getByText('Forgot password?')
+    await screen.findByText('Lupa password?')
+    const link = screen.getByText('Lupa password?')
     expect(link).toHaveAttribute('href', '/forgot-password')
   })
 })

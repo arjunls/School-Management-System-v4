@@ -3,8 +3,6 @@
 namespace App\Modules\Subject\Services;
 
 use App\Modules\Subject\Interfaces\SubjectRepositoryInterface;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class SubjectService
 {
@@ -27,36 +25,12 @@ class SubjectService
 
     public function createSubject(array $data)
     {
-        $validator = Validator::make($data, [
-            'name' => 'required|string|max:100',
-            'code' => 'required|string|max:20|unique:subjects,code',
-            'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:1|max:20',
-            'teacher_id' => 'nullable|integer|exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        return $this->repository->create($validator->validated());
+        return $this->repository->create($data);
     }
 
     public function updateSubject(int $id, array $data)
     {
-        $validator = Validator::make($data, [
-            'name' => 'sometimes|required|string|max:100',
-            'code' => 'sometimes|required|string|max:20|unique:subjects,code,' . $id,
-            'description' => 'sometimes|nullable|string',
-            'credits' => 'sometimes|nullable|integer|min:1|max:20',
-            'teacher_id' => 'sometimes|nullable|integer|exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        return $this->repository->update($id, $validator->validated());
+        return $this->repository->update($id, $data);
     }
 
     public function deleteSubject(int $id): bool

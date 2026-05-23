@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import { notificationAPI } from '@/lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
   id: string;
@@ -32,47 +33,63 @@ export function NotificationBell() {
   }, []);
 
   const handleMarkAsRead = async (id: string) => {
-    try {
-      await notificationAPI.markAsRead(id);
-      fetch();
-    } catch { /* */ }
+    try { await notificationAPI.markAsRead(id); fetch(); } catch { /* */ }
   };
 
   const handleMarkAllAsRead = async () => {
-    try {
-      await notificationAPI.markAllAsRead();
-      setCount(0);
-      setNotifications([]);
-    } catch { /* */ }
+    try { await notificationAPI.markAllAsRead(); setCount(0); setNotifications([]); } catch { /* */ }
   };
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen(!open)} className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none">
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-        {count > 0 && <span className="absolute top-0 right-0 inline-flex items-center justify-center h-4 w-4 rounded-full bg-red-500 text-white text-xs font-bold">{count > 9 ? '9+' : count}</span>}
+      <button onClick={() => setOpen(!open)}
+        className="p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200 relative"
+      >
+        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+        </svg>
+        {count > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 flex size-4">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive/40 opacity-75" />
+            <span className="relative inline-flex size-4 rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground items-center justify-center">{count > 9 ? '9+' : count}</span>
+          </span>
+        )}
       </button>
 
-      {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b">
-            <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
-            {count > 0 && <button onClick={handleMarkAllAsRead} className="text-xs text-indigo-600 hover:text-indigo-800">Mark all as read</button>}
-          </div>
-          <div className="max-h-64 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-gray-500 text-center">No new notifications</p>
-            ) : (
-              notifications.map(n => (
-                <div key={n.id} className="px-4 py-3 hover:bg-gray-50 border-b last:border-b-0 cursor-pointer" onClick={() => handleMarkAsRead(n.id)}>
-                  <p className="text-sm text-gray-800">{n.data?.message || 'Notification'}</p>
-                  <p className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleString()}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 mt-2 w-80 rounded-xl border bg-card text-card-foreground shadow-lg z-50 overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold">Notifikasi</h3>
+              {count > 0 && (
+                <button onClick={handleMarkAllAsRead} className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                   Tandai sudah dibaca
+                </button>
+              )}
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="px-4 py-8 text-sm text-muted-foreground text-center">Tidak ada notifikasi baru</p>
+              ) : (
+                notifications.map(n => (
+                  <button key={n.id} onClick={() => handleMarkAsRead(n.id)}
+                    className="w-full text-left px-4 py-3 hover:bg-muted/50 border-b border-border last:border-b-0 transition-colors"
+                  >
+                    <p className="text-sm text-foreground">{n.data?.message || 'Notifikasi'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString('id-ID')}</p>
+                  </button>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

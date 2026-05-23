@@ -6,6 +6,11 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { TeacherFormModal } from '@/components/teachers/TeacherFormModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
+import { DataTable } from '@/components/ui/DataTable';
 
 interface Teacher {
   id: number; name: string; email: string; status: string;
@@ -43,8 +48,8 @@ export default function TeachersPage() {
   }, [toast, perPage]);
 
   useEffect(() => { fetch(search, page); }, [page, perPage]);
+
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPage(1); fetch(search, 1); };
-  const handlePerPage = (val: string) => { setPerPage(Number(val)); setPage(1); };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -54,83 +59,71 @@ export default function TeachersPage() {
     finally { setDeleting(false); }
   };
 
+  const statusVariant = (s: string) => s === 'active' ? 'success' as const : s === 'inactive' ? 'warning' as const : 'danger' as const;
+
   return (
     <ProtectedRoute roles={['admin']}>
       <MainLayout>
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Teachers</h1>
-              {pagination && <p className="text-sm text-gray-500 mt-1">Showing {pagination.from ?? 0}–{pagination.to ?? 0} of {pagination.total}</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => exportAPI.download('teachers')} className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Export CSV</button>
-              <button onClick={() => { setEditing(undefined); setFormOpen(true); }} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">+ Add Teacher</button>
-            </div>
-          </div>
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <input type="text" placeholder="Search by name..." className="flex-1 rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Search</button>
-            {search && <button type="button" onClick={() => { setSearch(''); setPage(1); fetch('', 1); }} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Clear</button>}
-          </form>
-          {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading teachers...</div>
-          ) : teachers.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No teachers found.</div>
-          ) : (
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gender</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {teachers.map((t) => (
-                    <tr key={t.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{t.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">{t.gender || '—'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${t.status === 'active' ? 'bg-green-100 text-green-800' : t.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{t.status}</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        <button onClick={() => { setEditing(t); setFormOpen(true); }} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                        <button onClick={() => setDeleteTarget(t)} className="text-red-600 hover:text-red-900">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {pagination && pagination.last_page > 1 && (
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>Rows:</span>
-                <select className="rounded border border-gray-300 px-2 py-1 text-sm" value={perPage} onChange={(e) => handlePerPage(e.target.value)}>
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-              </div>
+          <PageHeader
+            title="Guru"
+            description={pagination ? `Menampilkan ${pagination.from ?? 0}-${pagination.to ?? 0} dari ${pagination.total}` : undefined}
+            breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Guru' }]}
+            action={
               <div className="flex items-center gap-2">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50">Prev</button>
-              {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((n) => (
-                <button key={n} onClick={() => setPage(n)} className={`px-3 py-1.5 text-sm font-medium rounded-md ${n === page ? 'bg-indigo-600 text-white' : 'border border-gray-300 hover:bg-gray-50'}`}>{n}</button>
-              ))}
-              <button onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))} disabled={page >= pagination.last_page} className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50">Next</button>
+                <Button variant="secondary" size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>}
+                  onClick={() => exportAPI.download('teachers')}
+                >
+                  Export
+                </Button>
+                <Button size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>}
+                  onClick={() => { setEditing(undefined); setFormOpen(true); }}
+                >
+                  Tambah
+                </Button>
+              </div>
+            }
+          />
+
+          <form onSubmit={handleSearch}>
+            <div className="flex flex-wrap items-center gap-3">
+              <Input
+                placeholder="Cari nama..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                icon={<svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>}
+              />
+              <Button type="submit" size="sm">Cari</Button>
+              {search && <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setPage(1); fetch('', 1); }}>Reset</Button>}
             </div>
-            </div>
-          )}
+          </form>
+
+          <DataTable
+            columns={[
+              { key: 'name', label: 'Nama', sortable: true },
+              { key: 'email', label: 'Email', sortable: true },
+              { key: 'gender', label: 'Jenis Kelamin', render: (row) => row.gender ? (row.gender.charAt(0).toUpperCase() + row.gender.slice(1)) : '—' },
+              { key: 'status', label: 'Status', render: (row) => <Badge variant={statusVariant(row.status)}>{row.status}</Badge> },
+              { key: 'id', label: 'Aksi', className: 'text-right', render: (row) => (
+                <div className="flex justify-end gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setFormOpen(true); }}>
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row)}>
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                  </Button>
+                </div>
+              )},
+            ]}
+            data={teachers}
+            keyExtractor={(row) => row.id}
+            loading={loading}
+            emptyMessage="Belum ada data guru."
+            pageSize={perPage}
+          />
         </div>
         <TeacherFormModal open={formOpen} onClose={() => setFormOpen(false)} onSuccess={(msg) => { toast(msg, 'success'); fetch(search, page); }} teacher={editing} />
-        <ConfirmDialog open={!!deleteTarget} title="Delete Teacher" message={`Delete ${deleteTarget?.name}? This cannot be undone.`} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+        <ConfirmDialog open={!!deleteTarget} title="Hapus Guru" message={`Hapus ${deleteTarget?.name}? Tindakan ini tidak bisa dibatalkan.`} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
       </MainLayout>
     </ProtectedRoute>
   );

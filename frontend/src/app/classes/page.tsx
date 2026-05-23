@@ -6,6 +6,9 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ClassFormModal } from '@/components/classes/ClassFormModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { DataTable } from '@/components/ui/DataTable';
 
 interface ClassItem {
   id: number; name: string; grade_level: number; capacity: number;
@@ -51,72 +54,52 @@ export default function ClassesPage() {
     <ProtectedRoute roles={['admin']}>
       <MainLayout>
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Classes</h1>
-              {pagination && <p className="text-sm text-gray-500 mt-1">Showing {pagination.from ?? 0}–{pagination.to ?? 0} of {pagination.total}</p>}
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => exportAPI.download('classes')} className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Export CSV</button>
-              <button onClick={() => { setEditing(undefined); setFormOpen(true); }} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">+ Add Class</button>
-            </div>
-          </div>
-          {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading classes...</div>
-          ) : classes.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No classes found.</div>
-          ) : (
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Grade</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Capacity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Students</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {classes.map((c) => (
-                    <tr key={c.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{c.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Grade {c.grade_level}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{c.capacity}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{c.student_count ?? '—'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        <button onClick={() => { setEditing(c); setFormOpen(true); }} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                        <button onClick={() => setDeleteTarget(c)} className="text-red-600 hover:text-red-900">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {pagination && pagination.last_page > 1 && (
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>Rows:</span>
-                <select className="rounded border border-gray-300 px-2 py-1 text-sm" value={perPage} onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}>
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-              </div>
+          <PageHeader
+            title="Kelas"
+            description={pagination ? `Menampilkan ${pagination.from ?? 0}-${pagination.to ?? 0} dari ${pagination.total}` : undefined}
+            breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Kelas' }]}
+            action={
               <div className="flex items-center gap-2">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50">Prev</button>
-              {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((n) => (
-                <button key={n} onClick={() => setPage(n)} className={`px-3 py-1.5 text-sm font-medium rounded-md ${n === page ? 'bg-indigo-600 text-white' : 'border border-gray-300 hover:bg-gray-50'}`}>{n}</button>
-              ))}
-              <button onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))} disabled={page >= pagination.last_page} className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50">Next</button>
-            </div>
-            </div>
-          )}
+                <Button variant="secondary" size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>}
+                  onClick={() => exportAPI.download('classes')}
+                >
+                  Export
+                </Button>
+                <Button size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>}
+                  onClick={() => { setEditing(undefined); setFormOpen(true); }}
+                >
+                  Tambah
+                </Button>
+              </div>
+            }
+          />
+
+          <DataTable
+            columns={[
+              { key: 'name', label: 'Nama', sortable: true },
+              { key: 'grade_level', label: 'Tingkat', sortable: true, render: (row) => `Kelas ${row.grade_level}` },
+              { key: 'capacity', label: 'Kapasitas', sortable: true, render: (row) => String(row.capacity) },
+              { key: 'student_count', label: 'Siswa', render: (row) => row.student_count != null ? String(row.student_count) : '—' },
+              { key: 'id', label: 'Aksi', className: 'text-right', render: (row) => (
+                <div className="flex justify-end gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setFormOpen(true); }}>
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row)}>
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                  </Button>
+                </div>
+              )},
+            ]}
+            data={classes}
+            keyExtractor={(row) => row.id}
+            loading={loading}
+            emptyMessage="Belum ada data kelas."
+            pageSize={perPage}
+          />
         </div>
         <ClassFormModal open={formOpen} onClose={() => setFormOpen(false)} onSuccess={(msg) => { toast(msg, 'success'); fetch(page); }} classData={editing} />
-        <ConfirmDialog open={!!deleteTarget} title="Delete Class" message={`Delete ${deleteTarget?.name}? This cannot be undone.`} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+        <ConfirmDialog open={!!deleteTarget} title="Hapus Kelas" message={`Hapus ${deleteTarget?.name}? Tindakan ini tidak bisa dibatalkan.`} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
       </MainLayout>
     </ProtectedRoute>
   );

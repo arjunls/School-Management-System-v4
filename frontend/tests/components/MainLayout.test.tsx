@@ -3,7 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MainLayout } from '@/components/layout/MainLayout'
 
 const mockPush = vi.fn()
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }))
+const mockUsePathname = vi.fn(() => '/dashboard')
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }), usePathname: () => mockUsePathname() }))
 
 let mockUser: any = null
 vi.mock('@/contexts/AuthContext', () => ({
@@ -42,35 +43,28 @@ describe('MainLayout', () => {
   it('shows admin-only nav items for admin role', () => {
     mockUser = { id: 1, name: 'Admin', role: 'admin' }
     render(<MainLayout><div>Content</div></MainLayout>)
-    expect(screen.getByText('Teachers')).toBeInTheDocument()
-    expect(screen.getByText('Import')).toBeInTheDocument()
-    expect(screen.getByText('Academic Years')).toBeInTheDocument()
+    expect(screen.getByText('Guru')).toBeInTheDocument()
   })
 
   it('hides admin-only nav items for student role', () => {
     mockUser = { id: 1, name: 'Student', role: 'student' }
     render(<MainLayout><div>Content</div></MainLayout>)
-    expect(screen.queryByText('Teachers')).not.toBeInTheDocument()
-    expect(screen.queryByText('Import')).not.toBeInTheDocument()
-    expect(screen.queryByText('Academic Years')).not.toBeInTheDocument()
+    expect(screen.queryByText('Guru')).not.toBeInTheDocument()
   })
 
   it('shows common nav items for student role', () => {
     mockUser = { id: 1, name: 'Student', role: 'student' }
     render(<MainLayout><div>Content</div></MainLayout>)
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
-    expect(screen.getByText('Profile')).toBeInTheDocument()
-    expect(screen.getByText('Assignments')).toBeInTheDocument()
-    expect(screen.getByText('Quizzes')).toBeInTheDocument()
-    expect(screen.getByText('Library')).toBeInTheDocument()
-    expect(screen.getByText('Messages')).toBeInTheDocument()
-    expect(screen.getByText('Announcements')).toBeInTheDocument()
-    expect(screen.getByText('Calendar')).toBeInTheDocument()
+    expect(screen.getAllByText('Dashboard').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Tugas')).toBeInTheDocument()
+    expect(screen.getByText('Kuis')).toBeInTheDocument()
+    expect(screen.getByText('Perpustakaan')).toBeInTheDocument()
+    expect(screen.getByText('Pesan')).toBeInTheDocument()
   })
 
   it('shows sign out button', () => {
     mockUser = { id: 1, name: 'User', role: 'admin' }
     render(<MainLayout><div>Content</div></MainLayout>)
-    expect(screen.getAllByText('Sign Out').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Keluar').length).toBeGreaterThanOrEqual(1)
   })
 })

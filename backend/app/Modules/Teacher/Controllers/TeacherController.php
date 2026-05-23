@@ -3,12 +3,13 @@
 namespace App\Modules\Teacher\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Teacher\Requests\GetTeacherByEmailRequest;
+use App\Modules\Teacher\Requests\StoreTeacherRequest;
+use App\Modules\Teacher\Requests\UpdateTeacherRequest;
 use App\Modules\Teacher\Services\TeacherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use App\Modules\Teacher\Requests\GetTeacherByEmailRequest;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Teachers
@@ -83,25 +84,16 @@ class TeacherController extends Controller
     /**
      * Create a new teacher
      */
-    public function createTeacher(Request $request)
+    public function createTeacher(StoreTeacherRequest $request)
     {
         try {
-            $teacher = $this->teacherService->createTeacher($request->only([
-                'name', 'email', 'password', 'password_confirmation', 'phone',
-                'address', 'date_of_birth', 'gender', 'photo', 'status'
-            ]));
+            $teacher = $this->teacherService->createTeacher($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Teacher created successfully',
                 'data' => $teacher
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error creating teacher', ['exception' => $e]);
 
@@ -115,13 +107,10 @@ class TeacherController extends Controller
     /**
      * Update an existing teacher
      */
-    public function updateTeacher(Request $request, $id)
+    public function updateTeacher(UpdateTeacherRequest $request, $id)
     {
         try {
-            $teacher = $this->teacherService->updateTeacher($id, $request->only([
-                'name', 'email', 'phone', 'address', 'date_of_birth', 'gender',
-                'photo', 'status', 'password', 'password_confirmation'
-            ]));
+            $teacher = $this->teacherService->updateTeacher($id, $request->validated());
             if (!$teacher) {
                 return response()->json([
                     'success' => false,
@@ -134,12 +123,6 @@ class TeacherController extends Controller
                 'message' => 'Teacher updated successfully',
                 'data' => $teacher
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error updating teacher', ['exception' => $e]);
 

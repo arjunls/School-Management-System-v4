@@ -3,10 +3,11 @@
 namespace App\Modules\Schedule\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Schedule\Requests\StoreScheduleRequest;
+use App\Modules\Schedule\Requests\UpdateScheduleRequest;
 use App\Modules\Schedule\Services\ScheduleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Schedules
@@ -84,21 +85,16 @@ class ScheduleController extends Controller
     /**
      * Create a new schedule
      */
-    public function createSchedule(Request $request)
+    public function createSchedule(StoreScheduleRequest $request)
     {
         try {
-            $schedule = $this->scheduleService->createSchedule($request->only([
-                'class_id', 'subject_id', 'teacher_id', 'day_of_week',
-                'start_time', 'end_time', 'room'
-            ]));
+            $schedule = $this->scheduleService->createSchedule($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Schedule created successfully',
                 'data' => $schedule,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error creating schedule', ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
@@ -108,20 +104,15 @@ class ScheduleController extends Controller
     /**
      * Update an existing schedule
      */
-    public function updateSchedule(Request $request, $id)
+    public function updateSchedule(UpdateScheduleRequest $request, $id)
     {
         try {
-            $schedule = $this->scheduleService->updateSchedule((int) $id, $request->only([
-                'class_id', 'subject_id', 'teacher_id', 'day_of_week',
-                'start_time', 'end_time', 'room'
-            ]));
+            $schedule = $this->scheduleService->updateSchedule((int) $id, $request->validated());
             if (! $schedule) {
                 return response()->json(['success' => false, 'message' => 'Schedule not found'], 404);
             }
 
             return response()->json(['success' => true, 'message' => 'Schedule updated successfully', 'data' => $schedule]);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error updating schedule', ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Internal server error'], 500);

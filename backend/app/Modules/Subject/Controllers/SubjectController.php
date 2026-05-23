@@ -3,10 +3,11 @@
 namespace App\Modules\Subject\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Subject\Requests\StoreSubjectRequest;
+use App\Modules\Subject\Requests\UpdateSubjectRequest;
 use App\Modules\Subject\Services\SubjectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Subjects
@@ -84,20 +85,16 @@ class SubjectController extends Controller
     /**
      * Create a new subject
      */
-    public function createSubject(Request $request)
+    public function createSubject(StoreSubjectRequest $request)
     {
         try {
-            $subject = $this->subjectService->createSubject($request->only([
-                'name', 'code', 'description', 'credits', 'teacher_id'
-            ]));
+            $subject = $this->subjectService->createSubject($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Subject created successfully',
                 'data' => $subject,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error creating subject', ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Internal server error'], 500);
@@ -107,19 +104,15 @@ class SubjectController extends Controller
     /**
      * Update an existing subject
      */
-    public function updateSubject(Request $request, $id)
+    public function updateSubject(UpdateSubjectRequest $request, $id)
     {
         try {
-            $subject = $this->subjectService->updateSubject((int) $id, $request->only([
-                'name', 'code', 'description', 'credits', 'teacher_id'
-            ]));
+            $subject = $this->subjectService->updateSubject((int) $id, $request->validated());
             if (! $subject) {
                 return response()->json(['success' => false, 'message' => 'Subject not found'], 404);
             }
 
             return response()->json(['success' => true, 'message' => 'Subject updated successfully', 'data' => $subject]);
-        } catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error updating subject', ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Internal server error'], 500);

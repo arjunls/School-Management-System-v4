@@ -4,12 +4,13 @@ namespace App\Modules\User\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\User\Requests\GetUserByEmailRequest;
+use App\Modules\User\Requests\StoreUserRequest;
+use App\Modules\User\Requests\UpdateUserRequest;
 use App\Modules\User\Requests\UserChangePasswordRequest;
 use App\Modules\User\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Users
@@ -84,24 +85,16 @@ class UserController extends Controller
     /**
      * Create a new user
      */
-    public function createUser(Request $request)
+    public function createUser(StoreUserRequest $request)
     {
         try {
-            $user = $this->userService->createUser($request->only([
-                'name', 'email', 'password', 'password_confirmation', 'role'
-            ]));
+            $user = $this->userService->createUser($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'User created successfully',
                 'data' => $user
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error creating user', ['exception' => $e]);
 
@@ -115,12 +108,10 @@ class UserController extends Controller
     /**
      * Update an existing user
      */
-    public function updateUser(Request $request, $id)
+    public function updateUser(UpdateUserRequest $request, $id)
     {
         try {
-            $user = $this->userService->updateUser($id, $request->only([
-                'name', 'email', 'password', 'password_confirmation', 'role'
-            ]));
+            $user = $this->userService->updateUser($id, $request->validated());
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -133,12 +124,6 @@ class UserController extends Controller
                 'message' => 'User updated successfully',
                 'data' => $user
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error updating user', ['exception' => $e]);
 

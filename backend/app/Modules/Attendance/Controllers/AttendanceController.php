@@ -3,10 +3,11 @@
 namespace App\Modules\Attendance\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Attendance\Requests\StoreAttendanceRequest;
+use App\Modules\Attendance\Requests\UpdateAttendanceRequest;
 use App\Modules\Attendance\Services\AttendanceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Attendance
@@ -105,24 +106,16 @@ class AttendanceController extends Controller
     /**
      * Create a new attendance record
      */
-    public function createAttendance(Request $request)
+    public function createAttendance(StoreAttendanceRequest $request)
     {
         try {
-            $record = $this->attendanceService->create($request->only([
-                'student_id', 'date', 'status', 'notes'
-            ]));
+            $record = $this->attendanceService->create($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Attendance record created successfully',
                 'data' => $record,
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             Log::error('Error creating attendance', ['exception' => $e]);
 
@@ -136,12 +129,10 @@ class AttendanceController extends Controller
     /**
      * Update an attendance record
      */
-    public function updateAttendance(Request $request, $id)
+    public function updateAttendance(UpdateAttendanceRequest $request, $id)
     {
         try {
-            $record = $this->attendanceService->update((int) $id, $request->only([
-                'status', 'notes'
-            ]));
+            $record = $this->attendanceService->update((int) $id, $request->validated());
             if (! $record) {
                 return response()->json([
                     'success' => false,
@@ -154,12 +145,6 @@ class AttendanceController extends Controller
                 'message' => 'Attendance record updated successfully',
                 'data' => $record,
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             Log::error('Error updating attendance', ['exception' => $e]);
 

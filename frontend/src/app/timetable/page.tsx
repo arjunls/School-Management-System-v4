@@ -27,7 +27,7 @@ const COLORS = [
   'bg-pink-100 border-pink-300 text-pink-800',
   'bg-teal-100 border-teal-300 text-teal-800',
   'bg-orange-100 border-orange-300 text-orange-800',
-  'bg-indigo-100 border-indigo-300 text-indigo-800',
+  'bg-indigo-100 border-blue-300 text-indigo-800',
 ];
 
 function toMinutes(t: string): number {
@@ -99,11 +99,11 @@ export default function TimetablePage() {
       <MainLayout>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Timetable</h1>
+            <h1 className="text-2xl font-bold text-foreground">Timetable</h1>
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">Class:</label>
+              <label className="text-sm font-medium text-foreground/80">Class:</label>
               <select
-                className="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+                className="rounded-md border-0 px-3 py-2 text-foreground shadow-sm ring-1 ring-inset border-input focus:ring-2 focus:ring-inset focus:ring-blue-500/50 sm:text-sm"
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
               >
@@ -113,17 +113,17 @@ export default function TimetablePage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading timetable...</div>
+            <div className="text-center py-12 text-muted-foreground">Loading timetable...</div>
           ) : schedules.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No schedule for this class.</div>
+            <div className="text-center py-12 text-muted-foreground">No schedule for this class.</div>
           ) : (
-            <div className="overflow-x-auto bg-white rounded-lg shadow border">
+            <div className="overflow-x-auto rounded-xl border bg-card text-card-foreground shadow-sm border">
               <div className="min-w-[900px]">
                 {/* Header row */}
-                <div className="grid grid-cols-[80px_repeat(6,1fr)] border-b border-gray-200 bg-gray-50 sticky top-0">
-                  <div className="px-3 py-3 text-xs font-medium text-gray-500 uppercase border-r border-gray-200">Time</div>
+                <div className="grid grid-cols-[80px_repeat(6,1fr)] border-b border-border bg-muted/50 sticky top-0">
+                  <div className="px-3 py-3 text-xs font-medium text-muted-foreground uppercase border-r border-border">Time</div>
                   {DAYS.map((d) => (
-                    <div key={d} className="px-3 py-3 text-xs font-semibold text-gray-700 uppercase text-center border-r border-gray-200 last:border-r-0">
+                    <div key={d} className="px-3 py-3 text-xs font-semibold text-foreground/80 uppercase text-center border-r border-border last:border-r-0">
                       {DAY_LABELS[d]}
                     </div>
                   ))}
@@ -132,11 +132,11 @@ export default function TimetablePage() {
                 {/* Time grid */}
                 <div className="grid grid-cols-[80px_repeat(6,1fr)] relative" style={{ height: gridHeight }}>
                   {/* Time labels */}
-                  <div className="border-r border-gray-200">
+                  <div className="border-r border-border">
                     {Array.from({ length: END_HOUR - START_HOUR }, (_, i) => {
                       const hour = START_HOUR + i;
                       return (
-                        <div key={hour} className="border-b border-gray-100 px-2 py-1 text-xs text-gray-500" style={{ height: HOUR_HEIGHT }}>
+                        <div key={hour} className="border-b border-border/50 px-2 py-1 text-xs text-muted-foreground" style={{ height: HOUR_HEIGHT }}>
                           {String(hour).padStart(2, '0')}:00
                         </div>
                       );
@@ -145,10 +145,10 @@ export default function TimetablePage() {
 
                   {/* Day columns */}
                   {DAYS.map((day, dayIdx) => (
-                    <div key={day} className={`relative border-r border-gray-200 ${dayIdx === 5 ? 'border-r-0' : ''}`}>
+                    <div key={day} className={`relative border-r border-border ${dayIdx === 5 ? 'border-r-0' : ''}`}>
                       {/* Hour lines */}
                       {Array.from({ length: END_HOUR - START_HOUR }, (_, i) => (
-                        <div key={i} className="border-b border-gray-100" style={{ height: HOUR_HEIGHT }} />
+                        <div key={i} className="border-b border-border/50" style={{ height: HOUR_HEIGHT }} />
                       ))}
 
                       {/* Schedule blocks */}
@@ -184,8 +184,8 @@ export default function TimetablePage() {
 
           {/* Subject color legend */}
           {schedules.length > 0 && (
-            <div className="bg-white rounded-lg shadow border p-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Subjects</h3>
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm border p-4">
+              <h3 className="text-sm font-medium text-foreground/80 mb-2">Subjects</h3>
               <div className="flex flex-wrap gap-3">
                 {Array.from(subjectColorMap.entries()).map(([code, color]) => (
                   <span key={code} className={`inline-flex px-2.5 py-1 rounded text-xs font-medium ${color}`}>

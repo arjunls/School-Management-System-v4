@@ -7,6 +7,11 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { StudentFormModal } from '@/components/students/StudentFormModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Input, Select } from '@/components/ui/Input';
+import { DataTable } from '@/components/ui/DataTable';
 
 interface Student {
   id: number;
@@ -55,11 +60,9 @@ export default function StudentsPage() {
     })();
   }, []);
 
-  // Modal state
   const [formOpen, setFormOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | undefined>();
 
-  // Delete state
   const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -136,183 +139,90 @@ export default function StudentsPage() {
     }
   };
 
+  const statusVariant = (status: string) => {
+    if (status === 'active') return 'success' as const;
+    if (status === 'inactive') return 'warning' as const;
+    return 'danger' as const;
+  };
+
   return (
     <ProtectedRoute roles={['admin', 'teacher']}>
       <MainLayout>
         <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-              {pagination && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Showing {pagination.from ?? 0}–{pagination.to ?? 0} of {pagination.total}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => exportAPI.download('students')} className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Export CSV</button>
-              <button
-                onClick={openCreate}
-                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
-              >
-                + Add Student
-              </button>
-            </div>
-          </div>
+          <PageHeader
+            title="Siswa"
+            description={pagination ? `Menampilkan ${pagination.from ?? 0}-${pagination.to ?? 0} dari ${pagination.total}` : undefined}
+            breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Siswa' }]}
+            action={
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>}
+                  onClick={() => exportAPI.download('students')}
+                >
+                  Ekspor
+                </Button>
+                <Button size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>}
+                  onClick={openCreate}
+                >
+                  Tambah
+                </Button>
+              </div>
+            }
+          />
 
-          {/* Filters */}
           <div className="flex flex-wrap items-center gap-3">
-            <input
-              type="text"
-              placeholder="Search by name..."
-              className="flex-1 min-w-[200px] rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch(e as unknown as React.FormEvent)}
-            />
-            <select
-              className="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+            <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
+              <Input
+                placeholder="Cari nama..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                icon={<svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>}
+              />
+            </form>
+            <Select
+              options={[{ value: '', label: 'Semua Kelas' }, ...classes.map(c => ({ value: String(c.id), label: c.name }))]}
               value={filterKelas}
               onChange={(e) => { setFilterKelas(e.target.value); setPage(1); }}
-            >
-              <option value="">All Classes</option>
-              {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <select
-              className="rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+            />
+            <Select
+              options={[{ value: '', label: 'Semua Status' }, { value: 'active', label: 'Aktif' }, { value: 'inactive', label: 'Tidak Aktif' }, { value: 'suspended', label: 'Ditangguhkan' }]}
               value={filterStatus}
               onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="suspended">Suspended</option>
-            </select>
-            <button
-              type="button"
-              onClick={() => { setSearch(''); setFilterKelas(''); setFilterStatus(''); setPage(1); }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Clear
-            </button>
+            />
+            <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setFilterKelas(''); setFilterStatus(''); setPage(1); fetchStudents('', 1, '', ''); }}>
+              Reset
+            </Button>
           </div>
 
-          {/* Table */}
-          {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading students...</div>
-          ) : students.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No students found.</div>
-          ) : (
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {students.map((student) => (
-                    <tr key={student.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.nisn || '—'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{student.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{student.kelas?.name || '—'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">{student.gender || '—'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          student.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : student.status === 'inactive'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {student.status}
-                        </span>
-                      </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                      <Link
-                        href={`/profile?id=${student.id}`}
-                        className="text-gray-600 hover:text-gray-900 mr-4"
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={() => openEdit(student)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(student)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {pagination && pagination.last_page > 1 && (
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>Rows:</span>
-                <select
-                  className="rounded border border-gray-300 px-2 py-1 text-sm"
-                  value={perPage}
-                  onChange={(e) => handlePerPageChange(e.target.value)}
-                >
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
-              >
-                Prev
-              </button>
-              {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setPage(n)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md ${
-                    n === page
-                      ? 'bg-indigo-600 text-white'
-                      : 'border border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {n}
-                </button>
-              ))}
-              <button
-                onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
-                disabled={page >= pagination.last_page}
-                className="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
-              >
-                Next
-              </button>
-            </div>
-            </div>
-          )}
+          <DataTable
+            columns={[
+              { key: 'name', label: 'Nama', sortable: true },
+              { key: 'nisn', label: 'NISN', render: (row) => row.nisn || '—' },
+              { key: 'email', label: 'Email', sortable: true },
+              { key: 'kelas', label: 'Kelas', render: (row) => row.kelas?.name || '—' },
+              { key: 'gender', label: 'Jenis Kelamin', render: (row) => row.gender ? (row.gender.charAt(0).toUpperCase() + row.gender.slice(1)) : '—' },
+              { key: 'status', label: 'Status', render: (row) => <Badge variant={statusVariant(row.status)}>{row.status}</Badge> },
+              { key: 'id', label: 'Aksi', className: 'text-right', render: (row) => (
+                <div className="flex justify-end gap-1">
+                  <Link href={`/profile?id=${row.id}`} className="inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground size-8">
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                  </Link>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(row)}>
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteTarget(row)}>
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                  </Button>
+                </div>
+              )},
+            ]}
+            data={students}
+            keyExtractor={(row) => row.id}
+            loading={loading}
+            emptyMessage="Belum ada data siswa."
+            pageSize={perPage}
+          />
         </div>
 
-        {/* Form Modal */}
         <StudentFormModal
           open={formOpen}
           onClose={() => setFormOpen(false)}
@@ -320,11 +230,10 @@ export default function StudentsPage() {
           student={editingStudent}
         />
 
-        {/* Delete Confirmation */}
         <ConfirmDialog
           open={!!deleteTarget}
-          title="Delete Student"
-          message={`Are you sure you want to delete ${deleteTarget?.name}? This action cannot be undone.`}
+          title="Hapus Siswa"
+          message={`Yakin ingin menghapus ${deleteTarget?.name}? Tindakan ini tidak bisa dibatalkan.`}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
           loading={deleting}
@@ -332,13 +241,4 @@ export default function StudentsPage() {
       </MainLayout>
     </ProtectedRoute>
   );
-}
-
-interface Pagination {
-  total: number;
-  per_page: number;
-  current_page: number;
-  last_page: number;
-  from: number | null;
-  to: number | null;
 }

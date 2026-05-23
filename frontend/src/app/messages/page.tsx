@@ -5,6 +5,10 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/Toast';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
 
 interface Conversation {
   id: number; subject: string | null; created_by: number;
@@ -106,52 +110,51 @@ export default function MessagesPage() {
   return (
     <ProtectedRoute roles={['admin', 'teacher', 'parent', 'student']}>
       <MainLayout>
-        <div className="flex h-[calc(100vh-10rem)] gap-4">
-          {/* Sidebar */}
-          <div className="w-80 bg-white rounded-lg shadow border flex flex-col">
+        <div className="flex flex-col lg:flex-row h-[calc(100dvh-10rem)] gap-4">
+          <div className="w-full lg:w-80 rounded-xl border bg-card text-card-foreground shadow-sm border flex flex-col">
             <div className="p-4 border-b flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">Messages</h2>
-              <button onClick={() => setShowNew(true)} className="text-sm text-indigo-600 hover:text-indigo-800">+ New</button>
+              <h2 className="font-semibold text-foreground">Pesan</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowNew(true)}>
+                <svg className="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                Baru
+              </Button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {loading ? <p className="p-4 text-sm text-gray-500">Loading...</p> :
-                conversations.length === 0 ? <p className="p-4 text-sm text-gray-500">No conversations</p> :
+              {loading ? <p className="p-4 text-sm text-muted-foreground">Memuat...</p> :
+                conversations.length === 0 ? <p className="p-4 text-sm text-muted-foreground">Tidak ada percakapan</p> :
                 conversations.map(conv => (
                   <div key={conv.id} onClick={() => selectConversation(conv)}
-                    className={`px-4 py-3 border-b cursor-pointer hover:bg-gray-50 ${selected?.id === conv.id ? 'bg-indigo-50' : ''}`}>
+                    className={`px-4 py-3 border-b cursor-pointer hover:bg-muted/50 ${selected?.id === conv.id ? 'bg-blue-50' : ''}`}>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 truncate">{conv.subject || otherParticipants(conv)}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{conv.subject || otherParticipants(conv)}</p>
                       {(conv as any).unread_count > 0 && (
-                        <span className="bg-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                          {(conv as any).unread_count}
-                        </span>
+                        <Badge variant="danger" size="sm">{(conv as any).unread_count}</Badge>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 truncate mt-1">{lastMsg(conv)}</p>
+                    <p className="text-xs text-muted-foreground truncate mt-1">{lastMsg(conv)}</p>
                   </div>
                 ))}
             </div>
           </div>
 
-          {/* Chat */}
-          <div className="flex-1 bg-white rounded-lg shadow border flex flex-col">
+          <div className="flex-1 rounded-xl border bg-card text-card-foreground shadow-sm border flex flex-col">
             {!selected ? (
-              <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Select a conversation</div>
+              <div className="flex-1 flex items-center justify-center text-muted-foreground/60 text-sm">Pilih percakapan</div>
             ) : (
               <>
-                <div className="px-6 py-4 border-b bg-gray-50">
-                  <h3 className="font-semibold text-gray-900">{selected.subject || 'No subject'}</h3>
-                  <p className="text-xs text-gray-500">{otherParticipants(selected)}</p>
+                <div className="px-6 py-4 border-b bg-muted/50">
+                  <h3 className="font-semibold text-foreground">{selected.subject || 'Tanpa subjek'}</h3>
+                  <p className="text-xs text-muted-foreground">{otherParticipants(selected)}</p>
                 </div>
                 <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
                   {messages.length === 0 ? (
-                    <p className="text-center text-gray-400 text-sm py-8">No messages yet</p>
+                    <p className="text-center text-muted-foreground/60 text-sm py-8">Belum ada pesan</p>
                   ) : messages.map(m => (
                     <div key={m.id} className={`flex ${m.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-md px-4 py-2 rounded-lg text-sm ${m.sender_id === user?.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                      <div className={`max-w-md px-4 py-2 rounded-lg text-sm ${m.sender_id === user?.id ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' : 'bg-muted/30 text-foreground'}`}>
                         {m.sender_id !== user?.id && <p className="text-xs opacity-75 mb-1">{m.sender.name}</p>}
                         <p>{m.body}</p>
-                        <p className={`text-xs mt-1 ${m.sender_id === user?.id ? 'text-indigo-200' : 'text-gray-400'}`}>
+                        <p className={`text-xs mt-1 ${m.sender_id === user?.id ? 'text-indigo-200' : 'text-muted-foreground/60'}`}>
                           {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -160,33 +163,26 @@ export default function MessagesPage() {
                   <div ref={msgsEnd} />
                 </div>
                 <form onSubmit={handleSend} className="px-6 py-4 border-t flex gap-3">
-                  <input type="text" value={body} onChange={e => setBody(e.target.value)} placeholder="Type a message..."
-                    className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none" />
-                  <button type="submit" disabled={sending || !body.trim()}
-                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">
-                    {sending ? '...' : 'Send'}
-                  </button>
+                  <Input type="text" value={body} onChange={e => setBody(e.target.value)} placeholder="Ketik pesan..." />
+                  <Button type="submit" disabled={sending || !body.trim()} loading={sending}>{sending ? '...' : 'Kirim'}</Button>
                 </form>
               </>
             )}
           </div>
         </div>
 
-        {/* New Conversation Modal */}
         {showNew && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">New Conversation</h2>
+            <div className="w-full max-w-lg rounded-xl border bg-card text-card-foreground shadow-sm-lg p-6">
+              <h2 className="text-lg font-semibold mb-4">Percakapan Baru</h2>
               <div className="space-y-4">
-                <input type="text" value={newSubject} onChange={e => setNewSubject(e.target.value)} placeholder="Subject (optional)"
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-                <input type="text" value={searchTerm} onChange={e => searchUsers(e.target.value)} placeholder="Search teachers or students..."
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+                <Input type="text" value={newSubject} onChange={e => setNewSubject(e.target.value)} placeholder="Subjek (opsional)" />
+                <Input type="text" value={searchTerm} onChange={e => searchUsers(e.target.value)} placeholder="Cari guru atau siswa..." />
                 {searchResults.length > 0 && (
                   <div className="max-h-40 overflow-y-auto border rounded-md">
                     {searchResults.map(u => (
                       <div key={u.id} onClick={() => { if (!selectedUsers.find(s => s.id === u.id)) { setSelectedUsers(p => [...p, u]); setSearchTerm(''); setSearchResults([]); } }}
-                        className="px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm">{u.name} ({u.role})</div>
+                        className="px-3 py-2 hover:bg-muted/50 cursor-pointer text-sm">{u.name} ({u.role})</div>
                     ))}
                   </div>
                 )}
@@ -195,16 +191,14 @@ export default function MessagesPage() {
                     {selectedUsers.map(u => (
                       <span key={u.id} className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
                         {u.name}
-                        <button onClick={() => setSelectedUsers(p => p.filter(s => s.id !== u.id))} className="hover:text-indigo-600">&times;</button>
+                        <button onClick={() => setSelectedUsers(p => p.filter(s => s.id !== u.id))} className="hover:text-blue-600">&times;</button>
                       </span>
                     ))}
                   </div>
                 )}
                 <div className="flex justify-end gap-3 pt-2">
-                  <button onClick={() => { setShowNew(false); setSelectedUsers([]); setNewSubject(''); setSearchTerm(''); }}
-                    className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md">Cancel</button>
-                  <button onClick={createConv} disabled={selectedUsers.length === 0}
-                    className="px-4 py-2 text-sm text-white bg-indigo-600 rounded-md disabled:opacity-50">Start Conversation</button>
+                  <Button variant="outline" onClick={() => { setShowNew(false); setSelectedUsers([]); setNewSubject(''); setSearchTerm(''); }}>Batal</Button>
+                  <Button onClick={createConv} disabled={selectedUsers.length === 0}>Mulai Percakapan</Button>
                 </div>
               </div>
             </div>

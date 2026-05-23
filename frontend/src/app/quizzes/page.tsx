@@ -5,6 +5,11 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/Toast';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Input, Select } from '@/components/ui/Input';
+import { DataTable } from '@/components/ui/DataTable';
 
 export default function QuizzesPage() {
   const { toast } = useToast();
@@ -16,24 +21,20 @@ export default function QuizzesPage() {
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
 
-  // Form state
   const [showForm, setShowForm] = useState(false);
   const [editQuiz, setEditQuiz] = useState<any>(null);
   const [form, setForm] = useState({ title: '', description: '', class_id: '', subject_id: '', time_limit: '', passing_score: '0', due_date: '', status: 'draft' });
 
-  // Questions
   const [showQuestions, setShowQuestions] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
   const [qForm, setQForm] = useState({ question_text: '', type: 'multiple_choice', options: [] as any[], correct_answer: '', points: '1' });
   const [qOption, setQOption] = useState('');
 
-  // Taking quiz
   const [takingQuiz, setTakingQuiz] = useState<any>(null);
   const [attempt, setAttempt] = useState<any>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [timeLeft, setTimeLeft] = useState(0);
 
-  // Grading
   const [showGrading, setShowGrading] = useState<any>(null);
   const [gradeScores, setGradeScores] = useState<Record<number, string>>({});
 
@@ -107,7 +108,6 @@ export default function QuizzesPage() {
     try { await quizAPI.gradeEssay(attemptId, questionId, { score: Number(gradeScores[questionId]) }); toast('Graded', 'success'); } catch { toast('Failed', 'error'); }
   };
 
-  // Timer
   useEffect(() => {
     if (timeLeft <= 0 || tab !== 'take') return;
     const t = setInterval(() => setTimeLeft(p => { if (p <= 1) { handleSubmitQuiz(); return 0; } return p - 1; }), 1000);
@@ -116,66 +116,81 @@ export default function QuizzesPage() {
 
   const fmtTime = (s: number) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
+  const statusVariant = (s: string) => {
+    if (s === 'published') return 'success' as const;
+    if (s === 'draft') return 'default' as const;
+    return 'default' as const;
+  };
+
+  const attemptStatusVariant = (s: string) => {
+    if (s === 'graded') return 'success' as const;
+    if (s === 'submitted') return 'warning' as const;
+    return 'info' as const;
+  };
+
   return (
     <ProtectedRoute roles={['admin', 'teacher', 'student']}>
       <MainLayout>
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Quizzes</h1>
-            <div className="flex gap-2">
-              <button onClick={() => setTab('quizzes')} className={`px-3 py-2 text-sm rounded-md ${tab === 'quizzes' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 dark:text-gray-200'}`}>Quizzes</button>
-              <button onClick={() => setTab('attempts')} className={`px-3 py-2 text-sm rounded-md ${tab === 'attempts' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 dark:text-gray-200'}`}>Attempts</button>
-            </div>
-          </div>
+          <PageHeader
+            title="Kuis"
+            breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Kuis' }]}
+            action={
+              <div className="flex gap-2">
+                <button onClick={() => setTab('quizzes')} className={`px-3 py-2 text-sm rounded-md ${tab === 'quizzes' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' : 'bg-card border border-border'}`}>Kuis</button>
+                <button onClick={() => setTab('attempts')} className={`px-3 py-2 text-sm rounded-md ${tab === 'attempts' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white' : 'bg-card border border-border'}`}>Percobaan</button>
+              </div>
+            }
+          />
 
           {tab === 'take' && takingQuiz ? (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold dark:text-white">{takingQuiz.title}</h2>
+                <h2 className="text-xl font-semibold">{takingQuiz.title}</h2>
                 {timeLeft > 0 && <span className="text-lg font-mono text-red-600">{fmtTime(timeLeft)}</span>}
               </div>
               <div className="space-y-4">
                 {takingQuiz.questions?.map((q: any) => (
-                  <div key={q.id} className="bg-white dark:bg-slate-800 rounded-lg shadow border dark:border-slate-700 p-4">
-                    <p className="font-medium mb-2 dark:text-white">{q.question_text} <span className="text-sm text-gray-400">({q.points}pt)</span></p>
+                  <div key={q.id} className="bg-card dark:bg-slate-800 rounded-lg shadow border dark:border-slate-700 p-4">
+                    <p className="font-medium mb-2">{q.question_text} <span className="text-sm text-muted-foreground/60">({q.points}pt)</span></p>
                     {q.type === 'multiple_choice' ? (
                       <div className="space-y-2">
                         {(q.options ?? []).map((opt: any, i: number) => (
-                          <label key={i} className="flex items-center gap-2 text-sm dark:text-gray-200 cursor-pointer">
+                          <label key={i} className="flex items-center gap-2 text-sm cursor-pointer">
                             <input type="radio" name={`q_${q.id}`} value={opt.key} checked={answers[q.id] === opt.key} onChange={e => setAnswers(p => ({ ...p, [q.id]: e.target.value }))} className="accent-indigo-600" />
                             {opt.value}
                           </label>
                         ))}
                       </div>
                     ) : (
-                      <textarea value={answers[q.id] ?? ''} onChange={e => setAnswers(p => ({ ...p, [q.id]: e.target.value }))} rows={3} className="block w-full rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
+                      <textarea value={answers[q.id] ?? ''} onChange={e => setAnswers(p => ({ ...p, [q.id]: e.target.value }))} rows={3} className="block w-full rounded-md border border-border dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
                     )}
                   </div>
                 ))}
-                <button onClick={handleSubmitQuiz} className="px-6 py-2 bg-indigo-600 text-white rounded-md">Submit</button>
+                <Button onClick={handleSubmitQuiz}>Kumpulkan</Button>
               </div>
             </div>
           ) : tab === 'quizzes' ? (
             <>
-              {user?.role !== 'student' && <button onClick={() => { setEditQuiz(null); setForm({ title: '', description: '', class_id: '', subject_id: '', time_limit: '', passing_score: '0', due_date: '', status: 'draft' }); setShowForm(true); }} className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md">+ Create Quiz</button>}
-              {loading ? <div className="text-center py-12 text-gray-500">Loading...</div> :
-                quizzes.length === 0 ? <div className="text-center py-12 text-gray-500 dark:text-gray-400">No quizzes</div> :
+              {user?.role !== 'student' && <Button size="sm" icon={<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>} onClick={() => { setEditQuiz(null); setForm({ title: '', description: '', class_id: '', subject_id: '', time_limit: '', passing_score: '0', due_date: '', status: 'draft' }); setShowForm(true); }}>Buat Kuis</Button>}
+              {loading ? <div className="text-center py-12 text-muted-foreground">Memuat...</div> :
+                quizzes.length === 0 ? <div className="text-center py-12 text-muted-foreground">Belum ada kuis</div> :
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {quizzes.map(q => (
-                    <div key={q.id} className="bg-white dark:bg-slate-800 rounded-lg shadow border dark:border-slate-700 p-4">
+                    <div key={q.id} className="bg-card dark:bg-slate-800 rounded-lg shadow border dark:border-slate-700 p-4">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold dark:text-white">{q.title}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${q.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-gray-200'}`}>{q.status}</span>
+                        <h3 className="font-semibold">{q.title}</h3>
+                        <Badge variant={statusVariant(q.status)}>{q.status}</Badge>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{q.class?.name} — {q.subject?.name}</p>
-                      {q.time_limit && <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">Time: {q.time_limit}min</p>}
+                      <p className="text-xs text-muted-foreground">{q.class?.name} — {q.subject?.name}</p>
+                      {q.time_limit && <p className="text-xs text-muted-foreground/60 mt-1">Waktu: {q.time_limit}menit</p>}
                       <div className="mt-3 flex gap-2 justify-end">
                         {user?.role === 'student' ? (
-                          q.status === 'published' && <button onClick={() => handleStartQuiz(q.id)} className="px-3 py-1.5 text-xs bg-indigo-600 text-white rounded-md">Start</button>
+                          q.status === 'published' && <Button size="sm" onClick={() => handleStartQuiz(q.id)}>Mulai</Button>
                         ) : (
                           <>
-                            <button onClick={() => loadQuestions(q.id)} className="px-3 py-1.5 text-xs border border-gray-300 dark:border-slate-600 dark:text-gray-200 rounded-md">Questions</button>
-                            <button onClick={() => { setEditQuiz(q); setForm({ title: q.title, description: q.description ?? '', class_id: String(q.class_id), subject_id: String(q.subject_id), time_limit: String(q.time_limit ?? ''), passing_score: String(q.passing_score ?? '0'), due_date: q.due_date ? q.due_date.slice(0,16) : '', status: q.status }); setShowForm(true); }} className="px-3 py-1.5 text-xs border border-gray-300 dark:border-slate-600 dark:text-gray-200 rounded-md">Edit</button>
+                            <Button variant="outline" size="sm" onClick={() => loadQuestions(q.id)}>Soal</Button>
+                            <Button variant="outline" size="sm" onClick={() => { setEditQuiz(q); setForm({ title: q.title, description: q.description ?? '', class_id: String(q.class_id), subject_id: String(q.subject_id), time_limit: String(q.time_limit ?? ''), passing_score: String(q.passing_score ?? '0'), due_date: q.due_date ? q.due_date.slice(0,16) : '', status: q.status }); setShowForm(true); }}>Edit</Button>
                           </>
                         )}
                       </div>
@@ -186,131 +201,115 @@ export default function QuizzesPage() {
             </>
           ) : (
             <>
-              {loading ? <div className="text-center py-12 text-gray-500">Loading...</div> :
-                attempts.length === 0 ? <div className="text-center py-12 text-gray-500 dark:text-gray-400">No attempts</div> :
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow border dark:border-slate-700 overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
-                    <thead className="bg-gray-50 dark:bg-slate-700"><tr>
-                      <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">Quiz</th>
-                      {user?.role !== 'student' && <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">Student</th>}
-                      <th className="px-4 py-3 text-center font-medium text-gray-500 dark:text-gray-300">Score</th>
-                      <th className="px-4 py-3 text-center font-medium text-gray-500 dark:text-gray-300">Status</th>
-                      <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-gray-300">Actions</th>
-                    </tr></thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                      {attempts.map(a => (
-                        <tr key={a.id} className="dark:text-gray-200">
-                          <td className="px-4 py-3">{a.quiz?.title}</td>
-                          {user?.role !== 'student' && <td className="px-4 py-3">{a.student?.name}</td>}
-                          <td className="px-4 py-3 text-center">{a.score ?? '—'}</td>
-                          <td className="px-4 py-3 text-center">
-                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${a.status === 'graded' ? 'bg-green-100 text-green-800' : a.status === 'submitted' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>{a.status}</span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            {user?.role !== 'student' && a.status === 'submitted' && <button onClick={async () => { try { const res = await quizAPI.get(a.quiz_id); const quiz = res.data?.data; const res2 = await quizAPI.get(a.quiz_id); /* load full attempt details */ const initScores: Record<number, string> = {}; setShowGrading(a); setGradeScores(initScores); } catch {} }} className="text-indigo-600 hover:text-indigo-800">Grade</button>}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              {loading ? <div className="text-center py-12 text-muted-foreground">Memuat...</div> :
+                attempts.length === 0 ? <div className="text-center py-12 text-muted-foreground">Belum ada percobaan</div> :
+                <DataTable
+                  columns={[
+                    { key: 'quiz', label: 'Kuis', render: (row: any) => row.quiz?.title },
+                    ...(user?.role !== 'student' ? [{ key: 'student', label: 'Siswa', render: (row: any) => row.student?.name }] : []),
+                    { key: 'score', label: 'Skor', render: (row: any) => row.score ?? '—' },
+                    { key: 'status', label: 'Status', render: (row: any) => <Badge variant={attemptStatusVariant(row.status)}>{row.status}</Badge> },
+                    { key: 'id', label: 'Aksi', className: 'text-right', render: (row: any) => (
+                      user?.role !== 'student' && row.status === 'submitted' ? (
+                        <Button variant="ghost" size="sm" onClick={async () => { try { const initScores: Record<number, string> = {}; setShowGrading(row); setGradeScores(initScores); } catch {} }}>
+                          <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          Nilai
+                        </Button>
+                      ) : null
+                    )},
+                  ]}
+                  data={attempts}
+                  keyExtractor={(row: any) => row.id}
+                  emptyMessage="Belum ada percobaan."
+                />
               }
             </>
           )}
         </div>
 
-        {/* Quiz Form Modal */}
         {showForm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-lg font-semibold mb-4 dark:text-white">{editQuiz ? 'Edit' : 'Create'} Quiz</h2>
+            <div className="w-full max-w-lg bg-card dark:bg-slate-800 rounded-lg shadow-lg p-6">
+              <h2 className="text-lg font-semibold mb-4">{editQuiz ? 'Edit' : 'Buat'} Kuis</h2>
               <form onSubmit={handleSave} className="space-y-4">
-                <input type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Title" required className="block w-full rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
-                <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Description" rows={2} className="block w-full rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
+                <Input type="text" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Judul" required />
+                <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Deskripsi" rows={2} className="block w-full rounded-md border border-border dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
                 <div className="grid grid-cols-2 gap-3">
-                  <select value={form.class_id} onChange={e => setForm(p => ({ ...p, class_id: e.target.value }))} required className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm">
-                    <option value="">Class</option>{classes.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <select value={form.subject_id} onChange={e => setForm(p => ({ ...p, subject_id: e.target.value }))} required className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm">
-                    <option value="">Subject</option>{subjects.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
+                  <Select value={form.class_id} onChange={e => setForm(p => ({ ...p, class_id: e.target.value }))} options={[{ value: '', label: 'Kelas' }, ...classes.map((c: any) => ({ value: String(c.id), label: c.name }))]} />
+                  <Select value={form.subject_id} onChange={e => setForm(p => ({ ...p, subject_id: e.target.value }))} options={[{ value: '', label: 'Mata Pelajaran' }, ...subjects.map((s: any) => ({ value: String(s.id), label: s.name }))]} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="number" value={form.time_limit} onChange={e => setForm(p => ({ ...p, time_limit: e.target.value }))} placeholder="Time limit (min)" className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
-                  <input type="number" value={form.passing_score} onChange={e => setForm(p => ({ ...p, passing_score: e.target.value }))} placeholder="Passing score" className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
+                  <Input type="number" value={form.time_limit} onChange={e => setForm(p => ({ ...p, time_limit: e.target.value }))} placeholder="Batas waktu (menit)" />
+                  <Input type="number" value={form.passing_score} onChange={e => setForm(p => ({ ...p, passing_score: e.target.value }))} placeholder="Skor kelulusan" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="datetime-local" value={form.due_date} onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))} className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
-                  <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))} className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm">
-                    <option value="draft">Draft</option><option value="published">Published</option>
-                  </select>
+                  <Input type="datetime-local" value={form.due_date} onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))} />
+                  <Select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))} options={[{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Terbit' }]} />
                 </div>
                 <div className="flex justify-end gap-3">
-                  <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:text-gray-200 rounded-md">Cancel</button>
-                  <button type="submit" className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md">{editQuiz ? 'Update' : 'Create'}</button>
+                  <Button variant="outline" type="button" onClick={() => setShowForm(false)}>Batal</Button>
+                  <Button type="submit">{editQuiz ? 'Update' : 'Buat'}</Button>
                 </div>
               </form>
             </div>
           </div>
         )}
 
-        {/* Questions Modal */}
         {showQuestions && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 max-h-[80vh] overflow-y-auto">
-              <h2 className="text-lg font-semibold mb-4 dark:text-white">{showQuestions.title} — Questions</h2>
+            <div className="w-full max-w-2xl bg-card dark:bg-slate-800 rounded-lg shadow-lg p-6 max-h-[80vh] overflow-y-auto">
+              <h2 className="text-lg font-semibold mb-4">{showQuestions.title} — Soal</h2>
               <div className="space-y-3 mb-4">
                 {questions.map(q => (
                   <div key={q.id} className="border dark:border-slate-600 rounded-lg p-3">
                     <div className="flex justify-between items-start">
-                      <div className="flex-1 text-sm dark:text-gray-200">
-                        <p>{q.question_text} <span className="text-gray-400">({q.points}pt, {q.type})</span></p>
-                        {q.type === 'multiple_choice' && q.options && <div className="mt-1 text-xs text-gray-500">{q.options.map((o: any, i: number) => <span key={i} className={`mr-2 ${o.key === q.correct_answer ? 'text-green-600 font-medium' : ''}`}>{o.key}: {o.value}</span>)}</div>}
+                      <div className="flex-1 text-sm">
+                        <p>{q.question_text} <span className="text-muted-foreground/60">({q.points}pt, {q.type})</span></p>
+                        {q.type === 'multiple_choice' && q.options && <div className="mt-1 text-xs text-muted-foreground">{q.options.map((o: any, i: number) => <span key={i} className={`mr-2 ${o.key === q.correct_answer ? 'text-green-600 font-medium' : ''}`}>{o.key}: {o.value}</span>)}</div>}
                       </div>
-                      <button onClick={() => handleDeleteQuestion(q.id)} className="text-red-500 text-xs">Delete</button>
+                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDeleteQuestion(q.id)}>
+                        <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                      </Button>
                     </div>
                   </div>
                 ))}
               </div>
               <div className="border-t dark:border-slate-700 pt-4">
-                <h3 className="text-sm font-semibold mb-2 dark:text-white">Add Question</h3>
+                <h3 className="text-sm font-semibold mb-2">Tambah Soal</h3>
                 <div className="space-y-3">
-                  <textarea value={qForm.question_text} onChange={e => setQForm(p => ({ ...p, question_text: e.target.value }))} placeholder="Question text" rows={2} className="block w-full rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
+                  <textarea value={qForm.question_text} onChange={e => setQForm(p => ({ ...p, question_text: e.target.value }))} placeholder="Teks soal" rows={2} className="block w-full rounded-md border border-border dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
                   <div className="grid grid-cols-2 gap-3">
-                    <select value={qForm.type} onChange={e => setQForm(p => ({ ...p, type: e.target.value, options: [], correct_answer: '' }))} className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm">
-                      <option value="multiple_choice">Multiple Choice</option><option value="essay">Essay</option>
-                    </select>
-                    <input type="number" value={qForm.points} onChange={e => setQForm(p => ({ ...p, points: e.target.value }))} placeholder="Points" min={1} className="rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-3 py-2 text-sm" />
+                    <Select value={qForm.type} onChange={e => setQForm(p => ({ ...p, type: e.target.value, options: [], correct_answer: '' }))} options={[{ value: 'multiple_choice', label: 'Pilihan Ganda' }, { value: 'essay', label: 'Esai' }]} />
+                    <Input type="number" value={qForm.points} onChange={e => setQForm(p => ({ ...p, points: e.target.value }))} placeholder="Poin" min={1} />
                   </div>
                   {qForm.type === 'multiple_choice' && (
                     <div className="space-y-2">
                       {qForm.options.map((o, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <span className="text-xs font-medium dark:text-gray-200">{o.key}</span>
-                          <input type="text" value={o.value} onChange={e => { const opts = [...qForm.options]; opts[i].value = e.target.value; setQForm(p => ({ ...p, options: opts })); }} className="flex-1 rounded-md border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white px-2 py-1 text-sm" />
+                          <span className="text-xs font-medium">{o.key}</span>
+                          <input type="text" value={o.value} onChange={e => { const opts = [...qForm.options]; opts[i].value = e.target.value; setQForm(p => ({ ...p, options: opts })); }} className="flex-1 rounded-md border border-border dark:border-slate-600 dark:bg-slate-700 dark:text-white px-2 py-1 text-sm" />
                           <input type="radio" name="correct" checked={qForm.correct_answer === o.key} onChange={() => setQForm(p => ({ ...p, correct_answer: o.key }))} className="accent-indigo-600" />
                         </div>
                       ))}
-                      <button type="button" onClick={() => setQForm(p => ({ ...p, options: [...p.options, { key: String.fromCharCode(65 + p.options.length), value: '' }] }))} className="text-xs text-indigo-600">+ Add option</button>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setQForm(p => ({ ...p, options: [...p.options, { key: String.fromCharCode(65 + p.options.length), value: '' }] }))}>+ Tambah opsi</Button>
                     </div>
                   )}
-                  <button onClick={handleAddQuestion} className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md">Add</button>
+                  <Button onClick={handleAddQuestion}>Tambah</Button>
                 </div>
               </div>
               <div className="flex justify-end mt-4">
-                <button onClick={() => setShowQuestions(null)} className="px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:text-gray-200 rounded-md">Close</button>
+                <Button variant="outline" onClick={() => setShowQuestions(null)}>Tutup</Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Grading Modal */}
         {showGrading && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-lg font-semibold mb-4 dark:text-white">Grade Essay — {showGrading.quiz?.title}</h2>
+            <div className="w-full max-w-lg bg-card dark:bg-slate-800 rounded-lg shadow-lg p-6">
+              <h2 className="text-lg font-semibold mb-4">Nilai Esai — {showGrading.quiz?.title}</h2>
               <div className="flex justify-end">
-                <button onClick={() => setShowGrading(null)} className="px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:text-gray-200 rounded-md">Close</button>
+                <Button variant="outline" onClick={() => setShowGrading(null)}>Tutup</Button>
               </div>
             </div>
           </div>

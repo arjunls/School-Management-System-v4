@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import { classAPI } from '@/lib/api';
+import { Input, Select } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface ClassFormModalProps {
   open: boolean;
@@ -8,6 +10,8 @@ interface ClassFormModalProps {
   onSuccess: (message: string) => void;
   classData?: { id: number; name: string; grade_level: number; homeroom_teacher_id?: number | null; capacity: number };
 }
+
+const gradeOptions = [7, 8, 9, 10, 11, 12].map((g) => ({ value: String(g), label: `Kelas ${g}` }));
 
 export function ClassFormModal({ open, onClose, onSuccess, classData }: ClassFormModalProps) {
   const isEdit = !!classData;
@@ -38,42 +42,32 @@ export function ClassFormModal({ open, onClose, onSuccess, classData }: ClassFor
     } finally { setSaving(false); }
   };
 
-  const ic = (f: string) => `block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errors[f] ? 'ring-red-500' : 'ring-gray-300'}`;
-
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{isEdit ? 'Edit Class' : 'Add Class'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+      <div className="bg-card text-card-foreground rounded-lg shadow-xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">{isEdit ? 'Edit Kelas' : 'Tambah Kelas'}</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {errors._general && <div className="bg-red-50 border-l-4 border-red-500 p-3 text-sm text-red-700">{errors._general}</div>}
+          {errors._general && <div className="bg-destructive/10 border-l-4 border-destructive p-3 text-sm text-destructive">{errors._general}</div>}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Class Name *</label>
-            <input name="name" required className={ic('name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+            <Input name="name" label="Nama Kelas" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} error={errors.name} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level *</label>
-              <select name="grade_level" className={ic('grade_level')} value={form.grade_level} onChange={(e) => setForm({ ...form, grade_level: Number(e.target.value) })}>
-                {[7, 8, 9, 10, 11, 12].map((g) => <option key={g} value={g}>Grade {g}</option>)}
-              </select>
+              <Select name="grade_level" label="Tingkat" value={String(form.grade_level)} onChange={(e) => setForm({ ...form, grade_level: Number(e.target.value) })} options={gradeOptions} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Capacity *</label>
-              <input name="capacity" type="number" min={1} required className={ic('capacity')} value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} />
-              {errors.capacity && <p className="mt-1 text-xs text-red-600">{errors.capacity}</p>}
+              <Input name="capacity" label="Kapasitas" type="number" min={1} required value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} error={errors.capacity} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Homeroom Teacher ID</label>
-            <input name="homeroom_teacher_id" type="number" className="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" value={form.homeroom_teacher_id} onChange={(e) => setForm({ ...form, homeroom_teacher_id: e.target.value })} placeholder="Optional" />
+            <Input name="homeroom_teacher_id" label="ID Guru Kelas" type="number" value={form.homeroom_teacher_id} onChange={(e) => setForm({ ...form, homeroom_teacher_id: e.target.value })} placeholder="Opsional" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">{saving ? 'Saving...' : isEdit ? 'Update Class' : 'Create Class'}</button>
+            <Button variant="secondary" type="button" onClick={onClose} disabled={saving}>Batal</Button>
+            <Button variant="primary" type="submit" loading={saving}>{saving ? 'Menyimpan...' : isEdit ? 'Perbarui' : 'Simpan'}</Button>
           </div>
         </form>
       </div>

@@ -3,12 +3,13 @@
 namespace App\Modules\Student\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Student\Requests\GetStudentByEmailRequest;
+use App\Modules\Student\Requests\StoreStudentRequest;
+use App\Modules\Student\Requests\UpdateStudentRequest;
 use App\Modules\Student\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use App\Modules\Student\Requests\GetStudentByEmailRequest;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @group Students
@@ -83,25 +84,16 @@ class StudentController extends Controller
     /**
      * Create a new student
      */
-    public function createStudent(Request $request)
+    public function createStudent(StoreStudentRequest $request)
     {
         try {
-            $student = $this->studentService->createStudent($request->only([
-                'name', 'email', 'password', 'password_confirmation', 'phone',
-                'address', 'date_of_birth', 'gender', 'photo', 'status'
-            ]));
+            $student = $this->studentService->createStudent($request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Student created successfully',
                 'data' => $student
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error creating student', ['exception' => $e]);
 
@@ -115,13 +107,10 @@ class StudentController extends Controller
     /**
      * Update an existing student
      */
-    public function updateStudent(Request $request, $id)
+    public function updateStudent(UpdateStudentRequest $request, $id)
     {
         try {
-            $student = $this->studentService->updateStudent($id, $request->only([
-                'name', 'email', 'phone', 'address', 'date_of_birth', 'gender',
-                'photo', 'status', 'password', 'password_confirmation'
-            ]));
+            $student = $this->studentService->updateStudent($id, $request->validated());
             if (!$student) {
                 return response()->json([
                     'success' => false,
@@ -134,12 +123,6 @@ class StudentController extends Controller
                 'message' => 'Student updated successfully',
                 'data' => $student
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 400);
         } catch (\Exception $e) {
             Log::error('Error updating student', ['exception' => $e]);
 

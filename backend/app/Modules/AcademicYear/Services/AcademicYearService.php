@@ -4,8 +4,6 @@ namespace App\Modules\AcademicYear\Services;
 
 use App\Modules\AcademicYear\Repositories\AcademicYearRepository;
 use App\Modules\AcademicYear\Repositories\TermRepository;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class AcademicYearService
 {
@@ -31,46 +29,20 @@ class AcademicYearService
 
     public function create(array $data)
     {
-        $validator = Validator::make($data, [
-            'name' => 'required|string|max:50',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $validated = $validator->validated();
-
-        if (!empty($validated['is_active'])) {
+        if (!empty($data['is_active'])) {
             $this->academicYearRepo->getAll()->each->update(['is_active' => false]);
         }
 
-        return $this->academicYearRepo->create($validated);
+        return $this->academicYearRepo->create($data);
     }
 
     public function update(int $id, array $data)
     {
-        $validator = Validator::make($data, [
-            'name' => 'string|max:50',
-            'start_date' => 'date',
-            'end_date' => 'date|after:start_date',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $validated = $validator->validated();
-
-        if (!empty($validated['is_active'])) {
+        if (!empty($data['is_active'])) {
             $this->academicYearRepo->getAll()->each->update(['is_active' => false]);
         }
 
-        return $this->academicYearRepo->update($id, $validated);
+        return $this->academicYearRepo->update($id, $data);
     }
 
     public function delete(int $id)
@@ -91,51 +63,23 @@ class AcademicYearService
 
     public function createTerm(array $data)
     {
-        $validator = Validator::make($data, [
-            'academic_year_id' => 'required|exists:academic_years,id',
-            'name' => 'required|string|max:50',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+        if (!empty($data['is_active'])) {
+            $this->termRepo->getAll(['academic_year_id' => $data['academic_year_id']])->each->update(['is_active' => false]);
         }
 
-        $validated = $validator->validated();
-
-        if (!empty($validated['is_active'])) {
-            $this->termRepo->getAll(['academic_year_id' => $validated['academic_year_id']])->each->update(['is_active' => false]);
-        }
-
-        return $this->termRepo->create($validated);
+        return $this->termRepo->create($data);
     }
 
     public function updateTerm(int $id, array $data)
     {
-        $validator = Validator::make($data, [
-            'academic_year_id' => 'exists:academic_years,id',
-            'name' => 'string|max:50',
-            'start_date' => 'date',
-            'end_date' => 'date|after:start_date',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        $validated = $validator->validated();
-
-        if (!empty($validated['is_active'])) {
-            $academicYearId = $validated['academic_year_id'] ?? $this->termRepo->find($id)?->academic_year_id;
+        if (!empty($data['is_active'])) {
+            $academicYearId = $data['academic_year_id'] ?? $this->termRepo->find($id)?->academic_year_id;
             if ($academicYearId) {
                 $this->termRepo->getAll(['academic_year_id' => $academicYearId])->each->update(['is_active' => false]);
             }
         }
 
-        return $this->termRepo->update($id, $validated);
+        return $this->termRepo->update($id, $data);
     }
 
     public function deleteTerm(int $id)

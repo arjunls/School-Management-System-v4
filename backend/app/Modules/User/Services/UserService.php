@@ -5,8 +5,6 @@ namespace App\Modules\User\Services;
 use App\Modules\User\Interfaces\UserRepositoryInterface;
 use App\Modules\User\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class UserService
 {
@@ -29,21 +27,6 @@ class UserService
 
     public function createUser(array $data)
     {
-        // Validate data
-        $validator = Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'nullable|string|in:admin,teacher,student,parent,staff',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        // Only use validated fields to avoid mass assignment of unexpected attributes
-        $data = $validator->validated();
-
         // Hash password
         $data['password'] = Hash::make($data['password']);
 
@@ -57,21 +40,6 @@ class UserService
 
     public function updateUser($id, array $data)
     {
-        // Validate data
-        $validator = Validator::make($data, [
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8|confirmed',
-            'role' => 'sometimes|string|in:admin,teacher,student,parent,staff',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        // Only use validated fields to avoid mass assignment of unexpected attributes
-        $data = $validator->validated();
-
         // Hash password if provided
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);

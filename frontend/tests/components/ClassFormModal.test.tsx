@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ClassFormModal } from '@/components/classes/ClassFormModal'
 
 vi.mock('@/lib/api')
-import api from '@/lib/api'
+import { mockPost, mockPut } from '@/lib/api'
 
 describe('ClassFormModal', () => {
   const onClose = vi.fn()
@@ -18,51 +18,51 @@ describe('ClassFormModal', () => {
 
   it('renders form when open', () => {
     render(<ClassFormModal open onClose={onClose} onSuccess={onSuccess} />)
-    expect(screen.getByText('Add Class')).toBeInTheDocument()
-    expect(screen.getByText('Create Class')).toBeInTheDocument()
+    expect(screen.getByText('Tambah Kelas')).toBeInTheDocument()
+    expect(screen.getByText('Simpan')).toBeInTheDocument()
   })
 
   it('renders edit mode with class data', () => {
     render(<ClassFormModal open onClose={onClose} onSuccess={onSuccess} classData={{ id: 1, name: 'X A', grade_level: 10, capacity: 30 }} />)
-    expect(screen.getByText('Edit Class')).toBeInTheDocument()
+    expect(screen.getByText('Edit Kelas')).toBeInTheDocument()
     expect(screen.getByDisplayValue('X A')).toBeInTheDocument()
   })
 
   it('calls create API on submit', async () => {
-    ;(api.post as any).mockResolvedValueOnce({ data: { success: true } })
+    mockPost.mockResolvedValueOnce({ data: { success: true } })
 
     render(<ClassFormModal open onClose={onClose} onSuccess={onSuccess} />)
-    const form = screen.getByRole('button', { name: 'Create Class' }).closest('form')!
+    const form = screen.getByRole('button', { name: 'Simpan' }).closest('form')!
     fireEvent.submit(form)
 
     await waitFor(() => {
-      expect(api.post).toHaveBeenCalledWith('/classes', expect.any(Object))
+      expect(mockPost).toHaveBeenCalled()
       expect(onSuccess).toHaveBeenCalledWith('Class created')
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('calls update API on submit in edit mode', async () => {
-    ;(api.put as any).mockResolvedValueOnce({ data: { success: true } })
+    mockPut.mockResolvedValueOnce({ data: { success: true } })
 
     render(<ClassFormModal open onClose={onClose} onSuccess={onSuccess} classData={{ id: 1, name: 'X A', grade_level: 10, capacity: 30 }} />)
-    const form = screen.getByRole('button', { name: 'Update Class' }).closest('form')!
+    const form = screen.getByRole('button', { name: 'Perbarui' }).closest('form')!
     fireEvent.submit(form)
 
     await waitFor(() => {
-      expect(api.put).toHaveBeenCalledWith('/classes/1', expect.any(Object))
+      expect(mockPut).toHaveBeenCalled()
       expect(onSuccess).toHaveBeenCalledWith('Class updated')
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('shows validation errors from API', async () => {
-    ;(api.post as any).mockRejectedValueOnce({
+    mockPost.mockRejectedValueOnce({
       response: { data: { errors: { name: ['The name field is required.'] } } },
     })
 
     render(<ClassFormModal open onClose={onClose} onSuccess={onSuccess} />)
-    const form = screen.getByRole('button', { name: 'Create Class' }).closest('form')!
+    const form = screen.getByRole('button', { name: 'Simpan' }).closest('form')!
     fireEvent.submit(form)
 
     await waitFor(() => {

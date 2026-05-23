@@ -115,7 +115,7 @@ function ProfileContent() {
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               {viewingSelf ? 'My Profile' : 'Student Profile'}
             </h1>
             {(isAdmin || isTeacher) && (
@@ -123,66 +123,66 @@ function ProfileContent() {
                 <input
                   type="number"
                   placeholder="Student ID..."
-                  className="block rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+                  className="block rounded-md border-0 px-3 py-2 text-foreground shadow-sm ring-1 ring-inset border-input focus:ring-2 focus:ring-inset focus:ring-blue-500/50 sm:text-sm"
                   value={searchId}
                   onChange={(e) => setSearchId(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearchStudent()}
                 />
-                <button onClick={handleSearchStudent} className="px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">View</button>
+                <button onClick={handleSearchStudent} className="px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-md hover:from-blue-700 hover:to-blue-600">View</button>
               </div>
             )}
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Loading profile...</div>
+            <div className="text-center py-12 text-muted-foreground">Loading profile...</div>
           ) : !student ? (
-            <div className="text-center py-12 text-gray-500">Student not found.</div>
+            <div className="text-center py-12 text-muted-foreground">Student not found.</div>
           ) : (
             <>
               {/* Student Info Card */}
-              <div className="bg-white rounded-lg shadow border p-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm border p-6">
                 <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 h-20 w-20 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold">
+                  <div className="flex-shrink-0 h-20 w-20 bg-indigo-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">
                     {student.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Name</p>
-                      <p className="text-sm font-medium text-gray-900">{student.name}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Name</p>
+                      <p className="text-sm font-medium text-foreground">{student.name}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">NISN</p>
-                      <p className="text-sm font-medium text-gray-900">{student.nisn || '—'}</p>
+                      <p className="text-xs text-muted-foreground uppercase">NISN</p>
+                      <p className="text-sm font-medium text-foreground">{student.nisn || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Email</p>
-                      <p className="text-sm text-gray-600">{student.email}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Email</p>
+                      <p className="text-sm text-foreground/70">{student.email}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Class</p>
-                      <p className="text-sm font-medium text-gray-900">{student.kelas?.name || '—'}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Class</p>
+                      <p className="text-sm font-medium text-foreground">{student.kelas?.name || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Gender</p>
-                      <p className="text-sm text-gray-600 capitalize">{student.gender || '—'}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Gender</p>
+                      <p className="text-sm text-foreground/70 capitalize">{student.gender || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Phone</p>
-                      <p className="text-sm text-gray-600">{student.phone || '—'}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Phone</p>
+                      <p className="text-sm text-foreground/70">{student.phone || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Date of Birth</p>
-                      <p className="text-sm text-gray-600">{student.date_of_birth || '—'}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Date of Birth</p>
+                      <p className="text-sm text-foreground/70">{student.date_of_birth || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Status</p>
+                      <p className="text-xs text-muted-foreground uppercase">Status</p>
                       <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${student.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {student.status || 'active'}
                       </span>
                     </div>
                     <div className="md:col-span-1">
-                      <p className="text-xs text-gray-500 uppercase">Address</p>
-                      <p className="text-sm text-gray-600">{student.address || '—'}</p>
+                      <p className="text-xs text-muted-foreground uppercase">Address</p>
+                      <p className="text-sm text-foreground/70">{student.address || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -190,25 +190,25 @@ function ProfileContent() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Grades */}
-                <div className="bg-white rounded-lg shadow border p-6">
+                <div className="rounded-xl border bg-card text-card-foreground shadow-sm border p-6">
                   <h3 className="text-lg font-semibold mb-4">Grades</h3>
                   {grades.length === 0 ? (
-                    <p className="text-sm text-gray-400">No grades recorded.</p>
+                    <p className="text-sm text-muted-foreground/60">No grades recorded.</p>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead className="bg-gray-50">
+                      <table className="min-w-full divide-y divide-border text-sm">
+                        <thead className="bg-muted/50">
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Score</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Grade</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Subject</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Score</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Grade</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-border">
                           {grades.map((g) => (
-                            <tr key={g.id} className="hover:bg-gray-50">
-                              <td className="px-3 py-2 text-gray-900">{g.subject?.name || `#${g.subject_id}`}</td>
-                              <td className="px-3 py-2 text-gray-600">{g.score ?? '—'}</td>
+                            <tr key={g.id} className="hover:bg-muted/50">
+                              <td className="px-3 py-2 text-foreground">{g.subject?.name || `#${g.subject_id}`}</td>
+                              <td className="px-3 py-2 text-foreground/70">{g.score ?? '—'}</td>
                               <td className="px-3 py-2 font-medium">{g.grade || '—'}</td>
                             </tr>
                           ))}
@@ -219,25 +219,25 @@ function ProfileContent() {
                 </div>
 
                 {/* Attendance */}
-                <div className="bg-white rounded-lg shadow border p-6">
+                <div className="rounded-xl border bg-card text-card-foreground shadow-sm border p-6">
                   <h3 className="text-lg font-semibold mb-4">Attendance History</h3>
                   {attendance.length === 0 ? (
-                    <p className="text-sm text-gray-400">No attendance records.</p>
+                    <p className="text-sm text-muted-foreground/60">No attendance records.</p>
                   ) : (
                     <div className="overflow-x-auto max-h-64 overflow-y-auto">
-                      <table className="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead className="bg-gray-50 sticky top-0">
+                      <table className="min-w-full divide-y divide-border text-sm">
+                        <thead className="bg-muted/50 sticky top-0">
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Date</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-border">
                           {attendance.map((a) => (
-                            <tr key={a.id} className="hover:bg-gray-50">
-                              <td className="px-3 py-2 text-gray-900">{a.date}</td>
+                            <tr key={a.id} className="hover:bg-muted/50">
+                              <td className="px-3 py-2 text-foreground">{a.date}</td>
                               <td className="px-3 py-2">
-                                <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-800'}`}>
+                                <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${STATUS_STYLES[a.status] || 'bg-muted/30 text-foreground/90'}`}>
                                   {a.status}
                                 </span>
                               </td>
@@ -251,30 +251,30 @@ function ProfileContent() {
               </div>
 
               {/* Class Schedule */}
-              <div className="bg-white rounded-lg shadow border p-6">
+              <div className="rounded-xl border bg-card text-card-foreground shadow-sm border p-6">
                 <h3 className="text-lg font-semibold mb-4">Class Schedule</h3>
                 {schedules.length === 0 ? (
-                  <p className="text-sm text-gray-400">No schedule available.</p>
+                  <p className="text-sm text-muted-foreground/60">No schedule available.</p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-border text-sm">
+                      <thead className="bg-muted/50">
                         <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Day</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Teacher</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Room</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Day</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Time</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Subject</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Teacher</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Room</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {sortedSchedules.map((s) => (
-                          <tr key={s.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 text-gray-900 capitalize">{s.day_of_week}</td>
-                            <td className="px-4 py-2 text-gray-600">{s.start_time.slice(0,5)} – {s.end_time.slice(0,5)}</td>
-                            <td className="px-4 py-2 text-gray-900">{s.subject?.name || '—'}</td>
-                            <td className="px-4 py-2 text-gray-600">{s.teacher?.name || '—'}</td>
-                            <td className="px-4 py-2 text-gray-600">{s.room || '—'}</td>
+                          <tr key={s.id} className="hover:bg-muted/50">
+                            <td className="px-4 py-2 text-foreground capitalize">{s.day_of_week}</td>
+                            <td className="px-4 py-2 text-foreground/70">{s.start_time.slice(0,5)} – {s.end_time.slice(0,5)}</td>
+                            <td className="px-4 py-2 text-foreground">{s.subject?.name || '—'}</td>
+                            <td className="px-4 py-2 text-foreground/70">{s.teacher?.name || '—'}</td>
+                            <td className="px-4 py-2 text-foreground/70">{s.room || '—'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -292,7 +292,7 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="text-center py-12 text-gray-500">Loading profile...</div>}>
+    <Suspense fallback={<div className="text-center py-12 text-muted-foreground">Loading profile...</div>}>
       <ProfileContent />
     </Suspense>
   );

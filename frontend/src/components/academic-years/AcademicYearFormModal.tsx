@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { academicYearAPI } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
+import { Input, FormField } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface Props {
   open: boolean;
@@ -56,36 +58,57 @@ export function AcademicYearFormModal({ open, onClose, onSuccess, editing }: Pro
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{editing ? 'Edit Academic Year' : 'Add Academic Year'}</h2>
+      <div className="w-full max-w-lg bg-card text-card-foreground rounded-lg shadow-xl p-6">
+        <div className="border-b border-border pb-4 mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">{editing ? 'Edit Academic Year' : 'Add Academic Year'}</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">&times;</button>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
-            <input type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none" required />
-            {errors.name?.map((e, i) => <p key={i} className="text-red-500 text-xs mt-1">{e}</p>)}
-          </div>
+          <Input
+            name="name"
+            label="Nama Tahun Ajaran"
+            type="text"
+            value={form.name}
+            onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+            required
+            error={errors.name?.[0]}
+          />
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Start Date</label>
-              <input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">End Date</label>
-              <input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none" required />
-            </div>
+            <Input
+              name="start_date"
+              label="Tanggal Mulai"
+              type="date"
+              value={form.start_date}
+              onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))}
+              required
+              error={errors.start_date?.[0]}
+            />
+            <Input
+              name="end_date"
+              label="Tanggal Selesai"
+              type="date"
+              value={form.end_date}
+              onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))}
+              required
+              error={errors.end_date?.[0]}
+            />
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.is_active} onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))}
-              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-            Set as active academic year
-          </label>
+          <FormField label="Status Aktif">
+            <label className="flex items-center gap-2 text-sm text-foreground/80 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.is_active}
+                onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))}
+                className="rounded border-input text-primary focus:ring-ring/50"
+              />
+              Aktifkan sebagai tahun ajaran aktif
+            </label>
+          </FormField>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">{saving ? 'Saving...' : 'Save'}</button>
+            <Button variant="secondary" type="button" onClick={onClose}>Batal</Button>
+            <Button variant="primary" type="submit" loading={saving}>
+              {saving ? 'Menyimpan...' : editing ? 'Perbarui' : 'Simpan'}
+            </Button>
           </div>
         </form>
       </div>

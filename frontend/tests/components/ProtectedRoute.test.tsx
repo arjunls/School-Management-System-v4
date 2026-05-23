@@ -23,7 +23,7 @@ describe('ProtectedRoute', () => {
   it('shows loader when loading', () => {
     setAuth(null, true)
     render(<ProtectedRoute><div>Content</div></ProtectedRoute>)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Memuat...')).toBeInTheDocument()
     expect(screen.queryByText('Content')).not.toBeInTheDocument()
   })
 

@@ -6,8 +6,6 @@ use App\Modules\Student\Interfaces\StudentRepositoryInterface;
 use App\Modules\Student\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class StudentService
 {
@@ -30,26 +28,6 @@ class StudentService
 
     public function createStudent(array $data)
     {
-        // Validate data
-        $validator = Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'date_of_birth' => 'nullable|date',
-            'gender' => 'nullable|in:male,female,other',
-            'photo' => 'nullable|string',
-            'status' => 'nullable|in:active,inactive,suspended',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        // Use only validated data to avoid mass assignment of unexpected attributes
-        $data = $validator->validated();
-
         // Hash password
         $data['password'] = Hash::make($data['password']);
 
@@ -69,26 +47,6 @@ class StudentService
 
     public function updateStudent($id, array $data)
     {
-        // Validate data
-        $validator = Validator::make($data, [
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
-            'phone' => 'sometimes|nullable|string|max:20',
-            'address' => 'sometimes|nullable|string',
-            'date_of_birth' => 'sometimes|nullable|date',
-            'gender' => 'sometimes|nullable|in:male,female,other',
-            'photo' => 'sometimes|nullable|string',
-            'status' => 'sometimes|nullable|in:active,inactive,suspended',
-            'password' => 'sometimes|string|min:8|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->toArray());
-        }
-
-        // Use only validated data
-        $data = $validator->validated();
-
         // Hash password if provided
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
