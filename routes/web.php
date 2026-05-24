@@ -102,9 +102,12 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     Route::post('/pembayaran/notification', [PembayaranController::class, 'notification'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
     // Laporan
-    Route::get('/laporan', function () {
-        return view('laporan.index');
-    })->name('laporan.index')->middleware('role:permission:view-laporan');
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/', [\App\Modules\Reporting\Report\Controllers\LaporanWebController::class, 'index'])->name('index')->middleware('role:permission:view-laporan');
+        Route::get('/kehadiran', [\App\Modules\Reporting\Report\Controllers\LaporanWebController::class, 'attendance'])->name('attendance')->middleware('role:permission:view-laporan');
+        Route::get('/nilai', [\App\Modules\Reporting\Report\Controllers\LaporanWebController::class, 'grades'])->name('grades')->middleware('role:permission:view-laporan');
+        Route::get('/pembayaran', [\App\Modules\Reporting\Report\Controllers\LaporanWebController::class, 'payments'])->name('payments')->middleware('role:permission:view-laporan');
+    });
 
     // Dokumen
     Route::get('/dokumen', function () {
