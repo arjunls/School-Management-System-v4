@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\LocaleMiddleware;
 use App\Modules\Finance\Fee\Controllers\PembayaranController;
 use App\Modules\Reporting\Export\Controllers\ExportController;
 use App\Modules\Reporting\Import\Controllers\ImportController;
@@ -14,6 +15,14 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('welcome');
 })->name('login');
+
+// Language Switcher
+Route::get('/lang/{locale}', function (string $locale) {
+    if (in_array($locale, ['id', 'en'])) {
+        LocaleMiddleware::setLocale($locale);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 // Admin Panel Routes
 Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-tua,tata-usaha'])->group(function () {
