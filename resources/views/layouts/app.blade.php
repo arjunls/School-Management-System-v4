@@ -96,11 +96,41 @@
                 <!-- User Actions -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-                    <div class="relative">
-                        <button class="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors">
+                    <div class="relative" x-data="{ open: false, count: 0, items: [] }">
+                        <button @click="open = !open; if(open) fetchNotifications()" class="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors relative">
                             <i class="fas fa-bell"></i>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
+                            <span x-show="count > 0" x-text="count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium"></span>
                         </button>
+                        <!-- Dropdown -->
+                        <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-200 z-50">
+                            <div class="p-3 border-b border-slate-200 flex items-center justify-between">
+                                <span class="font-semibold text-slate-900">Notifikasi</span>
+                                <button @click="markAllRead()" class="text-xs text-blue-600 hover:text-blue-800">Tandai semua dibaca</button>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <template x-for="item in items" :key="item.id">
+                                    <a href="#" class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0">
+                                        <p class="text-sm text-slate-900" x-text="item.data.subject || 'Notifikasi'"></p>
+                                        <p class="text-xs text-slate-500 mt-1" x-text="new Date(item.created_at).toLocaleDateString('id-ID')"></p>
+                                    </a>
+                                </template>
+                                <template x-if="items.length === 0">
+                                    <p class="text-sm text-slate-500 text-center py-6">Tidak ada notifikasi</p>
+                                </template>
+                            </div>
+                        </div>
+                        <script>
+                            function fetchNotifications() {
+                                fetch('/api/notifications/unread', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                                    .then(r => r.json())
+                                    .then(d => {
+                                        if (d.success) {
+                                            document.querySelector('[x-data]').__x.$data.count = d.data.count;
+                                            document.querySelector('[x-data]').__x.$data.items = d.data.notifications;
+                                        }
+                                    }).catch(() => {});
+                            }
+                        </script>
                     </div>
                     
                     <!-- Theme Toggle -->
