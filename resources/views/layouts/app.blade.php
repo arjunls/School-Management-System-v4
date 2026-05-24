@@ -43,6 +43,12 @@
                 <i class="fas fa-chalkboard-teacher mr-3"></i>
                 {{ __('common.guru') }}
             </a>
+            @can('view-nilai')
+            <a href="{{ route('guru.portal.dashboard') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-user-tie mr-3"></i>
+                Portal Guru
+            </a>
+            @endcan
             <a href="{{ route('kelas.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-chalkboard mr-3"></i>
                 {{ __('common.kelas') }}

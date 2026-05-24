@@ -117,7 +117,17 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::delete('/{siswa}', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-siswa');
     });
 
-    // Guru
+    // Guru Portal (role: guru, wali-kelas)
+    Route::prefix('guru')->name('guru.portal.')->middleware('role:guru,wali-kelas')->group(function () {
+        Route::get('/dashboard', [\App\Modules\StaffManagement\Teacher\Controllers\GuruPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/jadwal', [\App\Modules\StaffManagement\Teacher\Controllers\GuruPortalController::class, 'schedule'])->name('schedule');
+        Route::get('/{kelas}/nilai', [\App\Modules\StaffManagement\Teacher\Controllers\GuruPortalController::class, 'grades'])->name('grades');
+        Route::post('/{kelas}/nilai', [\App\Modules\StaffManagement\Teacher\Controllers\GuruPortalController::class, 'storeGrades'])->name('grades.store');
+        Route::get('/{kelas}/absensi', [\App\Modules\StaffManagement\Teacher\Controllers\GuruPortalController::class, 'attendance'])->name('attendance');
+        Route::post('/{kelas}/absensi', [\App\Modules\StaffManagement\Teacher\Controllers\GuruPortalController::class, 'storeAttendance'])->name('attendance.store');
+    });
+
+    // Guru CRUD
     Route::prefix('guru')->name('guru.')->group(function () {
         Route::get('/', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'index'])->name('index')->middleware('role:permission:view-guru');
         Route::get('/create', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'create'])->name('create')->middleware('role:permission:create-guru');
