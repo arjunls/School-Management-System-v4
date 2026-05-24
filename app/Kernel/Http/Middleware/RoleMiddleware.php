@@ -13,21 +13,39 @@ class RoleMiddleware
         $user = $request->user();
 
         if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated',
-            ], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
+            return redirect()->route('login');
         }
 
+        // Check roles
         foreach ($roles as $role) {
             if ($user->hasRole($role) || $user->role === $role) {
                 return $next($request);
             }
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Forbidden: insufficient role permissions',
-        ], 403);
+        // Check permissions (prefixed with 'permission:')
+        foreach ($roles as $role) {
+            if (str_starts_with($role, 'permission:')) {
+                $permission = substr($role, strlen('permission:'));
+                if ($user->can($permission)) {
+                    return $next($request);
+                }
+            }
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden: insufficient role/permission',
+            ], 403);
+        }
+
+        abort(403, 'Forbidden: insufficient role/permission');
     }
 }
