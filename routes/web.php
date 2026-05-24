@@ -151,6 +151,13 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::delete('/{dokumen}', [\App\Modules\Upload\Controllers\DokumenWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-dokumen');
     });
 
+    // Rapor Digital
+    Route::prefix('rapor')->name('rapor.')->middleware('role:permission:view-laporan')->group(function () {
+        Route::get('/', [\App\Modules\Reporting\Report\Controllers\RaporWebController::class, 'index'])->name('index');
+        Route::post('/generate', [\App\Modules\Reporting\Report\Controllers\RaporWebController::class, 'generate'])->name('generate');
+        Route::post('/preview', [\App\Modules\Reporting\Report\Controllers\RaporWebController::class, 'preview'])->name('preview');
+    });
+
     // Profile
     Route::get('/profile', function () {
         return view('profile.index');

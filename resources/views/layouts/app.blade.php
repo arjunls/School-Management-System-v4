@@ -65,6 +65,10 @@
                 <i class="fas fa-chart-bar mr-3"></i>
                 {{ __('common.laporan') }}
             </a>
+            <a href="{{ route('rapor.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-file-pdf mr-3"></i>
+                Rapor Digital
+            </a>
             <a href="{{ route('dokumen.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-file-alt mr-3"></i>
                 {{ __('common.dokumen') }}
