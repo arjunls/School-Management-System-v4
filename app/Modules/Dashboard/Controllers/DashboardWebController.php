@@ -12,6 +12,18 @@ class DashboardWebController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
+        if ($user->hasRole('siswa')) {
+            return redirect()->route('siswa.portal.dashboard');
+        }
+        if ($user->hasRole('orang-tua')) {
+            return redirect()->route('orangtua.portal.dashboard');
+        }
+        if ($user->hasRole('guru') || $user->hasRole('wali-kelas')) {
+            return redirect()->route('guru.portal.dashboard');
+        }
+
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalGuru = User::where('role', 'guru')->count();
         $totalKelas = Kelas::count();
@@ -22,14 +34,30 @@ class DashboardWebController extends Controller
             ? round((AttendanceRecord::where('status', 'hadir')->count() / $totalAttendance) * 100, 1)
             : 0;
 
-        $recentActivities = [
-            ['icon' => 'user-graduate', 'color' => 'blue', 'text' => 'Siswa baru terdaftar', 'time' => 'Hari ini'],
-            ['icon' => 'check-square', 'color' => 'green', 'text' => 'Absensi diperbarui', 'time' => '1 jam lalu'],
-            ['icon' => 'calendar-alt', 'color' => 'purple', 'text' => 'Jadwal baru diterbitkan', 'time' => '3 jam lalu'],
-            ['icon' => 'credit-card', 'color' => 'orange', 'text' => 'Pembayaran diterima', 'time' => '5 jam lalu'],
-        ];
+        // Recent activity from activity log
+        $recentActivities = \Spatie\Activitylog\Models\Activity::latest()->take(5)->get()->map(function ($a) {
+            $icon = match (true) {
+                str_contains($a->description, 'siswa') || str_contains($a->description, 'Siswa') => 'user-graduate',
+                $a->description === 'created' => 'plus-circle',
+                $a->description === 'updated' => 'edit',
+                $a->description === 'deleted' => 'trash',
+                default => 'info-circle',
+            };
+            $color = match ($a->description) {
+                'created' => 'green',
+                'updated' => 'blue',
+                'deleted' => 'red',
+                default => 'purple',
+            };
+            return [
+                'icon' => $icon,
+                'color' => $color,
+                'text' => class_basename($a->subject_type) . ' ' . $a->description,
+                'time' => $a->created_at->diffForHumans(),
+            ];
+        });
 
-        // Monthly enrollment trend (mock data for now - last 12 months)
+        // Monthly enrollment trend
         $months = ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
         $enrollmentData = [];
         foreach (range(0, 11) as $i) {

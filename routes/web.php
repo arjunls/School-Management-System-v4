@@ -252,6 +252,14 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::put('/', [\App\Modules\StaffManagement\User\Controllers\PengaturanController::class, 'update'])->name('update');
     });
 
+    // Backup Database
+    Route::prefix('backup')->name('backup.')->middleware('role:permission:manage-pengaturan')->group(function () {
+        Route::get('/', [\App\Modules\Backup\Controllers\BackupController::class, 'index'])->name('index');
+        Route::post('/create', [\App\Modules\Backup\Controllers\BackupController::class, 'create'])->name('create');
+        Route::get('/{filename}/download', [\App\Modules\Backup\Controllers\BackupController::class, 'download'])->name('download');
+        Route::delete('/{filename}', [\App\Modules\Backup\Controllers\BackupController::class, 'destroy'])->name('destroy');
+    });
+
     // Export
     Route::prefix('export')->name('export.')->group(function () {
         Route::get('/siswa', [ExportController::class, 'students'])->name('siswa')->middleware('role:permission:view-siswa');

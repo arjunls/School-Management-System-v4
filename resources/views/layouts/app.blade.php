@@ -100,6 +100,10 @@
                     <i class="fas fa-cog mr-3"></i>
                     {{ __('common.pengaturan') }}
                 </a>
+                <a href="{{ route('backup.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-database mr-3"></i>
+                    Backup
+                </a>
             </div>
         </div>
     </div>
