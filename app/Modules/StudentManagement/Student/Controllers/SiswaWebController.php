@@ -6,6 +6,7 @@ use App\Kernel\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Academic\Class\Models\Kelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log as LogFacade;
 
 class SiswaWebController extends Controller
 {
@@ -57,8 +58,9 @@ class SiswaWebController extends Controller
 
         $data['role'] = 'siswa';
         $data['password'] = bcrypt('password123');
-        User::create($data);
+        $siswa = User::create($data);
 
+        activity()->performedOn($siswa)->log('created');
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil ditambahkan');
     }
 
@@ -87,12 +89,14 @@ class SiswaWebController extends Controller
         ]);
 
         $siswa->update($data);
+        activity()->performedOn($siswa)->log('updated');
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil diperbarui');
     }
 
     public function destroy(User $siswa)
     {
         if ($siswa->role !== 'siswa') abort(404);
+        activity()->performedOn($siswa)->log('deleted');
         $siswa->delete();
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus');
     }

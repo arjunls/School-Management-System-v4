@@ -65,6 +65,10 @@
                 <i class="fas fa-file-alt mr-3"></i>
                 {{ __('common.dokumen') }}
             </a>
+            <a href="{{ route('activity.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-history mr-3"></i>
+                Aktivitas
+            </a>
         </nav>
         <div class="mt-auto border-t border-slate-800">
             <div class="px-4 py-4">

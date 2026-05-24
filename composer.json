@@ -19,6 +19,7 @@
         "midtrans/midtrans-php": "^2.6",
         "predis/predis": "^3.4",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/laravel-activitylog": "^5.0",
         "spatie/laravel-permission": "^7.4"
     },
     "require-dev": {

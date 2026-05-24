@@ -112,6 +112,9 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::get('/pembayaran', [\App\Modules\Reporting\Report\Controllers\LaporanWebController::class, 'payments'])->name('payments')->middleware('role:permission:view-laporan');
     });
 
+    // Activity Log
+    Route::get('/aktivitas', [\App\Modules\Activity\Controllers\ActivityLogWebController::class, 'index'])->name('activity.index')->middleware('role:permission:view-laporan');
+
     // Dokumen
     Route::prefix('dokumen')->name('dokumen.')->group(function () {
         Route::get('/', [\App\Modules\Upload\Controllers\DokumenWebController::class, 'index'])->name('index')->middleware('role:permission:view-dokumen');
