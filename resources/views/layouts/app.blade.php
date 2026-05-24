@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Management System</title>
     <script src="https://cdn.tailwindcss.com" data-tailwind-config='{ "darkMode": "class" }'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Custom styles for smooth transitions */
@@ -165,6 +166,7 @@
         </main>
     </div>
 
+    @stack('scripts')
     <script>
         // Mobile sidebar toggle
         document.getElementById('mobile-menu-button').addEventListener('click', function() {
