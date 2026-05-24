@@ -8,9 +8,22 @@ use Illuminate\Http\Request;
 
 class GuruWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $guru = User::where('role', 'guru')->orderBy('name')->paginate(25);
+        $query = User::where('role', 'guru');
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $guru = $query->orderBy('name')->paginate(25);
         return view('guru.index', compact('guru'));
     }
 

@@ -9,9 +9,26 @@ use Illuminate\Http\Request;
 
 class SiswaWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $siswa = User::where('role', 'siswa')->with('kelas')->orderBy('name')->paginate(25);
+        $query = User::where('role', 'siswa')->with('kelas');
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('nisn', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+        if ($kelasId = $request->get('kelas_id')) {
+            $query->where('kelas_id', $kelasId);
+        }
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $siswa = $query->orderBy('name')->paginate(25);
         $kelasList = Kelas::all();
         return view('siswa.index', compact('siswa', 'kelasList'));
     }

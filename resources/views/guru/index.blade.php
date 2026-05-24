@@ -20,6 +20,29 @@
         </div>
     </div>
 
+    <!-- Search & Filter -->
+    <form method="GET" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Cari</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama, email..."
+                x-on:input.debounce.300ms="$el.form.submit()"
+                class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Status</label>
+            <select name="status" x-on:change="$el.form.submit()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="">Semua Status</option>
+                <option value="active" @selected(request('status') === 'active')>Aktif</option>
+                <option value="inactive" @selected(request('status') === 'inactive')>Tidak Aktif</option>
+            </select>
+        </div>
+        @if(request()->anyFilled(['search', 'status']))
+        <div class="flex items-end">
+            <a href="{{ route('guru.index') }}" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 border border-red-200 rounded-lg hover:bg-red-50">Reset</a>
+        </div>
+        @endif
+    </form>
+
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
