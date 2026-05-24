@@ -3,6 +3,7 @@
 use App\Modules\Finance\Fee\Controllers\PembayaranController;
 use App\Modules\Reporting\Export\Controllers\ExportController;
 use App\Modules\Reporting\Import\Controllers\ImportController;
+use App\Modules\StudentManagement\Attendance\Controllers\QRCodeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,13 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     Route::get('/kehadiran', function () {
         return view('kehadiran.index');
     })->name('kehadiran.index')->middleware('role:permission:view-kehadiran');
+
+    // QR Code Absensi
+    Route::get('/qr/scanner', [QRCodeController::class, 'scanner'])->name('qr.scanner')->middleware('role:permission:edit-kehadiran');
+    Route::get('/qr/{student}', [QRCodeController::class, 'show'])->name('qr.show')->middleware('role:permission:view-siswa');
+
+    // QR Scan process (no CSRF for external scan)
+    Route::get('/qr/scan/{studentId}/{token}', [QRCodeController::class, 'processScan'])->name('qr.scan.process')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
     // Jadwal
     Route::get('/jadwal', function () {

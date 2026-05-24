@@ -6,9 +6,13 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-slate-900">Kehadiran</h1>
         <div class="flex items-center space-x-3 mt-4 sm:mt-0">
+            <a href="{{ route('qr.scanner') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <i class="fas fa-qrcode"></i>
+                Scan QR
+            </a>
             <button class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2">
                 <i class="fas fa-plus"></i>
-                Tambah Absensi Siswa
+                Tambah Absensi
             </button>
             <a href="{{ route('export.kehadiran') }}" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
                 <i class="fas fa-file-export"></i>

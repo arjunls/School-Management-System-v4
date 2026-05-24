@@ -76,6 +76,9 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ route('qr.show', 'ST001') }}" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded hover:bg-indigo-50" title="QR Code">
+                                <i class="fas fa-qrcode"></i>
+                            </a>
                             <button class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded hover:bg-blue-50">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -120,6 +123,9 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ route('qr.show', 'ST003') }}" class="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded hover:bg-indigo-50" title="QR Code">
+                                <i class="fas fa-qrcode"></i>
+                            </a>
                             <button class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded hover:bg-blue-50">
                                 <i class="fas fa-edit"></i>
                             </button>
