@@ -26,9 +26,7 @@ Route::get('/lang/{locale}', function (string $locale) {
 
 // Admin Panel Routes
 Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-tua,tata-usaha'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard.index');
-    })->name('dashboard')->middleware('role:permission:view-dashboard');
+    Route::get('/dashboard', [\App\Modules\Dashboard\Controllers\DashboardWebController::class, 'index'])->name('dashboard')->middleware('role:permission:view-dashboard');
 
     // Siswa
     Route::prefix('siswa')->name('siswa.')->group(function () {
