@@ -224,6 +224,23 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::post('/mark-all-read', [\App\Modules\Communication\Notification\Controllers\NotificationWebController::class, 'markAllAsRead'])->name('markAllRead');
     });
 
+    // Pesan Internal
+    Route::prefix('messages')->name('messages.')->group(function () {
+        Route::get('/', [\App\Modules\Communication\Message\Controllers\MessageWebController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Modules\Communication\Message\Controllers\MessageWebController::class, 'create'])->name('create');
+        Route::post('/', [\App\Modules\Communication\Message\Controllers\MessageWebController::class, 'store'])->name('store');
+        Route::get('/{message}', [\App\Modules\Communication\Message\Controllers\MessageWebController::class, 'show'])->name('show');
+        Route::post('/{message}/reply', [\App\Modules\Communication\Message\Controllers\MessageWebController::class, 'reply'])->name('reply');
+    });
+
+    // Pengumuman
+    Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
+        Route::get('/', [\App\Modules\Communication\Announcement\Controllers\AnnouncementWebController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Modules\Communication\Announcement\Controllers\AnnouncementWebController::class, 'create'])->name('create');
+        Route::post('/', [\App\Modules\Communication\Announcement\Controllers\AnnouncementWebController::class, 'store'])->name('store');
+        Route::delete('/{pengumuman}', [\App\Modules\Communication\Announcement\Controllers\AnnouncementWebController::class, 'destroy'])->name('destroy');
+    });
+
     // Rapor Digital
     Route::prefix('rapor')->name('rapor.')->middleware('role:permission:view-laporan')->group(function () {
         Route::get('/', [\App\Modules\Reporting\Report\Controllers\RaporWebController::class, 'index'])->name('index');

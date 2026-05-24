@@ -35,6 +35,14 @@
                 <i class="fas fa-tachometer-alt mr-3"></i>
                 {{ __('common.dashboard') }}
             </a>
+            <a href="{{ route('messages.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-comments mr-3"></i>
+                Pesan
+            </a>
+            <a href="{{ route('pengumuman.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-bullhorn mr-3"></i>
+                Pengumuman
+            </a>
             <a href="{{ route('siswa.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-user-graduate mr-3"></i>
                 {{ __('common.siswa') }}
