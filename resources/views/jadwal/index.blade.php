@@ -2,94 +2,47 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header -->
+    @if(session('success'))
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">{{ session('success') }}</div>
+    @endif
+
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">Jadwal Pelajaran</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{{ __('common.jadwal') }}</h1>
         <div class="flex items-center space-x-3 mt-4 sm:mt-0">
-            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <a href="{{ route('jadwal.create') }}" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2">
                 <i class="fas fa-plus"></i>
-                Buat Jadwal Baru
-            </button>
-            <button class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
-                <i class="fas fa-file-export"></i>
-                Ekspor Jadwal
-            </button>
+                {{ __('common.add_new') }}
+            </a>
         </div>
     </div>
 
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div class="relative w-full sm:w-auto mb-4 sm:mb-0">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Cari mata pelajaran..." class="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        @foreach($days as $day)
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div class="p-3 bg-orange-50 rounded-t-2xl border-b border-slate-200">
+                <h3 class="font-bold text-slate-900 text-center">{{ $day }}</h3>
             </div>
-            
-            <div class="flex space-x-3">
-                <select class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[200px]">
-                    <option value="">Semua Kelas</option>
-                    <option value="">X</option>
-                    <option value="">XI</option>
-                    <option value="">XII</option>
-                </select>
-                <select class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[200px]">
-                    <option value="">Semua Hari</option>
-                    <option value="">Senin</option>
-                    <option value="">Selasa</option>
-                    <option value="">Rabu</option>
-                    <option value="">Kamis</option>
-                    <option value="">Jumat</option>
-                    <option value="">Sabtu</option>
-                </select>
+            <div class="p-3 space-y-2 min-h-[200px]">
+                @forelse($jadwalGrouped[$day] as $j)
+                <div class="p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+                    <p class="font-semibold text-slate-900">{{ $j->subject?->name ?? '-' }}</p>
+                    <p class="text-slate-500">{{ $j->teacher?->name ?? '-' }}</p>
+                    <p class="text-slate-400">{{ substr($j->start_time, 0, 5) }} - {{ substr($j->end_time, 0, 5) }}</p>
+                    <p class="text-slate-400">{{ $j->class?->name ?? '-' }} @if($j->room) | {{ $j->room }} @endif</p>
+                    <div class="flex justify-end space-x-1 mt-1">
+                        <a href="{{ route('jadwal.edit', $j) }}" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit text-[10px]"></i></a>
+                        <form action="{{ route('jadwal.destroy', $j) }}" method="POST" class="inline" onsubmit="return confirm('{{ __("common.confirm_delete") }}')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:text-red-800"><i class="fas fa-trash text-[10px]"></i></button>
+                        </form>
+                    </div>
+                </div>
+                @empty
+                <p class="text-xs text-slate-400 text-center py-4">Tidak ada jadwal</p>
+                @endforelse
             </div>
         </div>
-    </div>
-
-    <!-- Schedule Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Hari</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Jam</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kelas</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Mata Pelajaran</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Guru</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Ruang</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200">
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Senin</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">07:00 - 08:30</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">X RPL 1</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Matematika</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Budi Santoso</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Lab 1</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded hover:bg-blue-50">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Selasa</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">08:30 - 10:00</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">XI RPL 2</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Fisika</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Dian Purnama</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Lab 2</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded hover:bg-blue-50">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        @endforeach
     </div>
 </div>
 @endsection

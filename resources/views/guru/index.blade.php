@@ -2,108 +2,81 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header -->
+    @if(session('success'))
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3">{{ session('success') }}</div>
+    @endif
+
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">Guru</h1>
+        <h1 class="text-2xl font-bold text-slate-900">{{ __('common.guru') }}</h1>
         <div class="flex items-center space-x-3 mt-4 sm:mt-0">
-            <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+            <a href="{{ route('guru.create') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
                 <i class="fas fa-plus"></i>
-                Tambah Guru Baru
-            </button>
+                {{ __('common.add_new') }}
+            </a>
             <a href="{{ route('export.guru') }}" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
                 <i class="fas fa-file-export"></i>
-                Export CSV
+                {{ __('common.export') }}
             </a>
         </div>
     </div>
 
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div class="relative w-full sm:w-auto mb-4 sm:mb-0">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Search teachers..." class="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
-            </div>
-            
-            <div class="flex space-x-3">
-                <select class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all min-w-[200px]">
-                    <option value="">All Departments</option>
-                    <option value="">Mathematics</option>
-                    <option value="">Science</option>
-                    <option value="">English</option>
-                </select>
-                <select class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all min-w-[200px]">
-                    <option value="">All Status</option>
-                    <option value="">Active</option>
-                    <option value="">On Leave</option>
-                    <option value="">Retired</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Teachers Table -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Subject</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">NIP</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{{ __('common.guru') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{{ __('common.email') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{{ __('common.phone') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{{ __('common.status') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{{ __('common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
-                    <!-- Teacher Row -->
+                    @forelse($guru as $g)
                     <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">T001</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Sarah Wilson</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Mathematics</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">sarah.wilson@email.com</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">+1 (555) 111-2222</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{{ $g->id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-medium">
+                                    {{ substr($g->name, 0, 1) }}
+                                </div>
+                                <span>{{ $g->name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ $g->email ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ $g->phone ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ($g->status ?? 'active') === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ ucfirst($g->status ?? 'active') }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-green-600 hover:text-green-900 px-3 py-1 rounded hover:bg-green-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                            <a href="{{ route('guru.edit', $g) }}" class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50" title="Edit">
                                 <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="ml-2 text-red-600 hover:text-red-900 px-3 py-1 rounded hover:bg-red-50">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            </a>
+                            <form action="{{ route('guru.destroy', $g) }}" method="POST" class="inline" onsubmit="return confirm('{{ __("common.confirm_delete") }}')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50" title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
-                    
-                    <!-- Teacher Row -->
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">T002</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">David Chen</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Science</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">david.chen@email.com</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">+1 (555) 333-4444</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-green-600 hover:text-green-900 px-3 py-1 rounded hover:bg-green-50">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="ml-2 text-red-600 hover:text-red-900 px-3 py-1 rounded hover:bg-red-50">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-500">{{ __('common.no_data') }}</td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+        @if($guru->hasPages())
+        <div class="px-6 py-4 border-t border-slate-200">
+            {{ $guru->links() }}
+        </div>
+        @endif
     </div>
 </div>
 @endsection

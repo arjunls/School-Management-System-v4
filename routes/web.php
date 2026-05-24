@@ -31,19 +31,35 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     })->name('dashboard')->middleware('role:permission:view-dashboard');
 
     // Siswa
-    Route::get('/siswa', function () {
-        return view('siswa.index');
-    })->name('siswa.index')->middleware('role:permission:view-siswa');
+    Route::prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'index'])->name('index')->middleware('role:permission:view-siswa');
+        Route::get('/create', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'create'])->name('create')->middleware('role:permission:create-siswa');
+        Route::post('/', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'store'])->name('store')->middleware('role:permission:create-siswa');
+        Route::get('/{siswa}/edit', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'edit'])->name('edit')->middleware('role:permission:edit-siswa');
+        Route::put('/{siswa}', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'update'])->name('update')->middleware('role:permission:edit-siswa');
+        Route::delete('/{siswa}', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-siswa');
+    });
 
     // Guru
-    Route::get('/guru', function () {
-        return view('guru.index');
-    })->name('guru.index')->middleware('role:permission:view-guru');
+    Route::prefix('guru')->name('guru.')->group(function () {
+        Route::get('/', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'index'])->name('index')->middleware('role:permission:view-guru');
+        Route::get('/create', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'create'])->name('create')->middleware('role:permission:create-guru');
+        Route::post('/', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'store'])->name('store')->middleware('role:permission:create-guru');
+        Route::get('/{guru}/edit', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'edit'])->name('edit')->middleware('role:permission:edit-guru');
+        Route::put('/{guru}', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'update'])->name('update')->middleware('role:permission:edit-guru');
+        Route::delete('/{guru}', [\App\Modules\StaffManagement\Teacher\Controllers\GuruWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-guru');
+    });
 
     // Kelas
-    Route::get('/kelas', function () {
-        return view('kelas.index');
-    })->name('kelas.index')->middleware('role:permission:view-kelas');
+    Route::prefix('kelas')->name('kelas.')->group(function () {
+        Route::get('/', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'index'])->name('index')->middleware('role:permission:view-kelas');
+        Route::get('/create', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'create'])->name('create')->middleware('role:permission:create-kelas');
+        Route::post('/', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'store'])->name('store')->middleware('role:permission:create-kelas');
+        Route::get('/{kelas}', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'show'])->name('show')->middleware('role:permission:view-kelas');
+        Route::get('/{kelas}/edit', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'edit'])->name('edit')->middleware('role:permission:edit-kelas');
+        Route::put('/{kelas}', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'update'])->name('update')->middleware('role:permission:edit-kelas');
+        Route::delete('/{kelas}', [\App\Modules\Academic\Class\Controllers\KelasWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-kelas');
+    });
 
     // Kehadiran
     Route::get('/kehadiran', function () {
@@ -58,9 +74,14 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     Route::get('/qr/scan/{studentId}/{token}', [QRCodeController::class, 'processScan'])->name('qr.scan.process')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
     // Jadwal
-    Route::get('/jadwal', function () {
-        return view('jadwal.index');
-    })->name('jadwal.index')->middleware('role:permission:view-jadwal');
+    Route::prefix('jadwal')->name('jadwal.')->group(function () {
+        Route::get('/', [\App\Modules\Academic\Schedule\Controllers\JadwalWebController::class, 'index'])->name('index')->middleware('role:permission:view-jadwal');
+        Route::get('/create', [\App\Modules\Academic\Schedule\Controllers\JadwalWebController::class, 'create'])->name('create')->middleware('role:permission:create-jadwal');
+        Route::post('/', [\App\Modules\Academic\Schedule\Controllers\JadwalWebController::class, 'store'])->name('store')->middleware('role:permission:create-jadwal');
+        Route::get('/{jadwal}/edit', [\App\Modules\Academic\Schedule\Controllers\JadwalWebController::class, 'edit'])->name('edit')->middleware('role:permission:edit-jadwal');
+        Route::put('/{jadwal}', [\App\Modules\Academic\Schedule\Controllers\JadwalWebController::class, 'update'])->name('update')->middleware('role:permission:edit-jadwal');
+        Route::delete('/{jadwal}', [\App\Modules\Academic\Schedule\Controllers\JadwalWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-jadwal');
+    });
 
     // Nilai
     Route::get('/nilai', function () {
