@@ -133,6 +133,16 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     // Activity Log
     Route::get('/aktivitas', [\App\Modules\Activity\Controllers\ActivityLogWebController::class, 'index'])->name('activity.index')->middleware('role:permission:view-laporan');
 
+    // Mata Pelajaran
+    Route::prefix('mapel')->name('mapel.')->group(function () {
+        Route::get('/', [\App\Modules\Academic\Subject\Controllers\SubjectWebController::class, 'index'])->name('index')->middleware('role:permission:view-jadwal');
+        Route::get('/create', [\App\Modules\Academic\Subject\Controllers\SubjectWebController::class, 'create'])->name('create')->middleware('role:permission:create-jadwal');
+        Route::post('/', [\App\Modules\Academic\Subject\Controllers\SubjectWebController::class, 'store'])->name('store')->middleware('role:permission:create-jadwal');
+        Route::get('/{mapel}/edit', [\App\Modules\Academic\Subject\Controllers\SubjectWebController::class, 'edit'])->name('edit')->middleware('role:permission:edit-jadwal');
+        Route::put('/{mapel}', [\App\Modules\Academic\Subject\Controllers\SubjectWebController::class, 'update'])->name('update')->middleware('role:permission:edit-jadwal');
+        Route::delete('/{mapel}', [\App\Modules\Academic\Subject\Controllers\SubjectWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-jadwal');
+    });
+
     // Dokumen
     Route::prefix('dokumen')->name('dokumen.')->group(function () {
         Route::get('/', [\App\Modules\Upload\Controllers\DokumenWebController::class, 'index'])->name('index')->middleware('role:permission:view-dokumen');

@@ -41,6 +41,10 @@
                 <i class="fas fa-chalkboard mr-3"></i>
                 {{ __('common.kelas') }}
             </a>
+            <a href="{{ route('mapel.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-book mr-3"></i>
+                Mapel
+            </a>
             <a href="{{ route('kehadiran.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-check-square mr-3"></i>
                 {{ __('common.kehadiran') }}
