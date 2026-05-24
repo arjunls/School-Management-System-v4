@@ -48,7 +48,7 @@ class LoginWebController extends Controller
             $user->hasRole('super-admin') || $user->hasRole('admin') || $user->hasRole('tata-usaha') => '/dashboard',
             $user->hasRole('guru') || $user->hasRole('wali-kelas') => '/dashboard',
             $user->hasRole('siswa') => '/siswa/dashboard',
-            $user->hasRole('orang-tua') => '/dashboard',
+            $user->hasRole('orang-tua') => '/orang-tua/dashboard',
             default => '/dashboard',
         };
     }

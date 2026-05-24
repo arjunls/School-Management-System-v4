@@ -42,6 +42,15 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::get('/tagihan', [\App\Modules\StudentManagement\Student\Controllers\SiswaPortalController::class, 'payments'])->name('payments');
     });
 
+    // Orang Tua Portal (role: orang-tua)
+    Route::prefix('orang-tua')->name('orangtua.portal.')->middleware('role:orang-tua')->group(function () {
+        Route::get('/dashboard', [\App\Modules\StudentManagement\Parent\Controllers\OrangTuaPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/nilai/{studentId}', [\App\Modules\StudentManagement\Parent\Controllers\OrangTuaPortalController::class, 'grades'])->name('grades');
+        Route::get('/kehadiran/{studentId}', [\App\Modules\StudentManagement\Parent\Controllers\OrangTuaPortalController::class, 'attendance'])->name('attendance');
+        Route::get('/jadwal/{studentId}', [\App\Modules\StudentManagement\Parent\Controllers\OrangTuaPortalController::class, 'schedule'])->name('schedule');
+        Route::get('/tagihan/{studentId}', [\App\Modules\StudentManagement\Parent\Controllers\OrangTuaPortalController::class, 'payments'])->name('payments');
+    });
+
     // Siswa CRUD
     Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'index'])->name('index')->middleware('role:permission:view-siswa');
