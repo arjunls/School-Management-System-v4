@@ -10,10 +10,15 @@
                 <i class="fas fa-plus"></i>
                 Tambah Siswa Baru
             </button>
-            <button class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
+            <a href="{{ route('export.siswa') }}" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
                 <i class="fas fa-file-export"></i>
-                Export
-            </button>
+                Export CSV
+            </a>
+            <form action="{{ route('import.siswa') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
+                @csrf
+                <input type="file" name="file" accept=".csv" class="text-sm" required>
+                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm">Import</button>
+            </form>
         </div>
     </div>
 

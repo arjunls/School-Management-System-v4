@@ -10,10 +10,10 @@
                 <i class="fas fa-plus"></i>
                 Tambah Guru Baru
             </button>
-            <button class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
+            <a href="{{ route('export.guru') }}" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
                 <i class="fas fa-file-export"></i>
-                Export
-            </button>
+                Export CSV
+            </a>
         </div>
     </div>
 
