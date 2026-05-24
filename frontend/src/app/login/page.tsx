@@ -99,17 +99,19 @@ export default function LoginPage() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-5 flex flex-col items-center gap-2"
           >
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg shadow-blue-500/25">
+            <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex items-center gap-3"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30 ring-1 ring-white/10">
                 <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" />
                 </svg>
               </div>
               <div>
                 <span className="text-base font-bold tracking-tight text-foreground">SMK Nusantara</span>
-                <span className="block text-[9px] font-medium text-muted-foreground leading-none">School Management System</span>
+                <span className="block text-[9px] font-medium text-muted-foreground/60 leading-none tracking-wider uppercase">School Management System</span>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
 
           <AnimatePresence>
@@ -166,7 +168,7 @@ export default function LoginPage() {
 
               <motion.button variants={formEnter} type="submit" disabled={loading}
                 whileHover={!loading ? { scale: 1.01 } : {}} whileTap={!loading ? { scale: 0.98 } : {}}
-                className="inline-flex items-center justify-center gap-2 w-full h-9 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:from-blue-500 hover:to-blue-400 hover:shadow-xl hover:shadow-blue-500/30 active:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none outline-none"
+                className="inline-flex items-center justify-center gap-2 w-full h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:from-blue-500 hover:to-indigo-500 hover:shadow-xl hover:shadow-blue-500/30 active:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none outline-none"
               >
                 {loading ? (
                   <><svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Memproses...</>
@@ -213,7 +215,7 @@ export default function LoginPage() {
               {error && (
                 <motion.div initial={{ opacity: 0, y: -6, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }} exit={{ opacity: 0, y: -6, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="mt-3 overflow-hidden rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 p-3 text-sm text-red-700 dark:text-red-300"
+                  className="mt-3 overflow-hidden rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 p-3 text-sm text-red-700 dark:text-red-300"
                 >
                   <div className="flex items-center gap-2">
                     <svg className="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>

@@ -9,3 +9,59 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+.fi-sidebar-close-overlay {
+    background: rgb(17 24 39) !important;
+}
+
+.fi-modal-close-overlay {
+    background: rgb(17 24 39) !important;
+}
+
+.fi-main-ctn {
+    background: rgb(249 250 251);
+}
+
+.fi-sidebar {
+    background: rgb(255 255 255) !important;
+}
+
+.fi-sidebar-item-button:hover,
+.fi-sidebar-item-button:focus-visible {
+    background: rgb(243 244 246) !important;
+}
+
+.fi-sidebar-group-button:hover,
+.fi-sidebar-group-button:focus-visible {
+    background: rgb(243 244 246) !important;
+}
+
+.dark .fi-sidebar-close-overlay {
+    background: rgb(17 24 39) !important;
+}
+
+.dark .fi-modal-close-overlay {
+    background: rgb(17 24 39) !important;
+}
+
+.dark .fi-main-ctn {
+    background: rgb(17 24 39);
+}
+
+.dark .fi-sidebar {
+    background: rgb(17 24 39) !important;
+}
+
+.dark .fi-sidebar-item-button:hover,
+.dark .fi-sidebar-item-button:focus-visible {
+    background: rgb(55 65 81) !important;
+}
+
+.dark .fi-sidebar-item.fi-active .fi-sidebar-item-button {
+    background: rgb(75 85 99) !important;
+}
+
+.dark .fi-sidebar-group-button:hover,
+.dark .fi-sidebar-group-button:focus-visible {
+    background: rgb(55 65 81) !important;
+}

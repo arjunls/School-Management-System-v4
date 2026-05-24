@@ -2,7 +2,7 @@
 
 namespace App\Modules\Upload\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Kernel\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Modules\Upload\Requests\UploadPhotoRequest;
 use App\Modules\Upload\Requests\UploadDocumentRequest;

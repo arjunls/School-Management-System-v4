@@ -2,7 +2,7 @@
 
 namespace App\Modules\Calendar\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Kernel\Http\Controllers\Controller;
 use App\Modules\Calendar\Models\Event;
 use Illuminate\Http\Request;
 use App\Modules\Calendar\Requests\StoreEventRequest;

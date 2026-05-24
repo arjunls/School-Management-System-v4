@@ -3,11 +3,11 @@
 namespace App\Modules\Dashboard\Services;
 
 use App\Models\User;
-use App\Modules\AcademicYear\Models\AcademicYear;
-use App\Modules\AcademicYear\Models\Term;
-use App\Modules\Attendance\Models\AttendanceRecord;
-use App\Modules\Class\Models\Kelas;
-use App\Modules\Grade\Models\Grade;
+use App\Modules\Academic\AcademicYear\Models\AcademicYear;
+use App\Modules\Academic\AcademicYear\Models\Term;
+use App\Modules\StudentManagement\Attendance\Models\AttendanceRecord;
+use App\Modules\Academic\Class\Models\Kelas;
+use App\Modules\Learning\Grade\Models\Grade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

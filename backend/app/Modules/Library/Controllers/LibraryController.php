@@ -2,7 +2,7 @@
 
 namespace App\Modules\Library\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Kernel\Http\Controllers\Controller;
 use App\Modules\Library\Models\Book;
 use App\Modules\Library\Models\BookLoan;
 use Illuminate\Http\Request;

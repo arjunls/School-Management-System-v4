@@ -7,14 +7,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   icon?: React.ReactNode;
+  pill?: boolean;
 }
 
 const variantStyles: Record<string, string> = {
-  primary: 'bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 shadow-xs hover:shadow-md hover:shadow-blue-500/25',
-  secondary: 'bg-card border border-input text-foreground hover:bg-accent hover:text-accent-foreground shadow-xs',
-  ghost: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-  outline: 'border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground',
-  danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs',
+  primary: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-md hover:shadow-lg hover:shadow-blue-500/20 active:shadow-sm',
+  secondary: 'bg-card border border-border/60 text-foreground hover:bg-muted hover:text-foreground shadow-sm',
+  ghost: 'text-muted-foreground hover:bg-muted hover:text-foreground',
+  outline: 'border border-border/60 bg-background text-foreground hover:bg-muted hover:text-foreground shadow-sm',
+  danger: 'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg hover:shadow-red-500/20 active:shadow-sm',
 };
 
 const sizeStyles: Record<string, string> = {
@@ -23,11 +24,12 @@ const sizeStyles: Record<string, string> = {
   lg: 'h-10 px-5 text-sm gap-2',
 };
 
-export function Button({ variant = 'primary', size = 'md', loading, icon, children, className = '', disabled, ...props }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', loading, icon, children, className = '', disabled, pill = true, ...props }: ButtonProps) {
+  const radius = pill ? 'rounded-full' : 'rounded-xl';
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}
-      className={`inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-ring/50 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-ring/50 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${radius} ${className}`}
       disabled={disabled || loading}
       {...(props as Record<string, unknown>)}
     >
@@ -49,7 +51,7 @@ export function IconButton({ variant = 'ghost', size = 'md', children, className
   return (
     <motion.button
       whileTap={{ scale: 0.9 }}
-      className={`inline-flex items-center justify-center rounded-md transition-all duration-200 ${variantStyles[variant]} ${sizeClass} ${className}`}
+      className={`inline-flex items-center justify-center rounded-xl transition-all duration-150 ${variantStyles[variant]} ${sizeClass} ${className}`}
       {...(props as Record<string, unknown>)}
     >
       {children}

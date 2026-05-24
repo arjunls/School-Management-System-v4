@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Modules\Grade\Models\Grade;
-use App\Modules\Subject\Models\Subject;
+use App\Modules\Learning\Grade\Models\Grade;
+use App\Modules\Academic\Subject\Models\Subject;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

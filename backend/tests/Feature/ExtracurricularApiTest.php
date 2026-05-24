@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Modules\Extracurricular\Models\Extracurricular;
+use App\Modules\StudentLife\Extracurricular\Models\Extracurricular;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

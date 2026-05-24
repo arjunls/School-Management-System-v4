@@ -2,7 +2,7 @@
 
 namespace App\Modules\Auth\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Kernel\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Auth\Requests\ChangePasswordRequest;
 use App\Modules\Auth\Requests\ForgotPasswordRequest;

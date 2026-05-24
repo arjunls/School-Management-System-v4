@@ -2,7 +2,7 @@
 
 namespace App\Modules\Dashboard\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Kernel\Http\Controllers\Controller;
 use App\Modules\Dashboard\Services\DashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

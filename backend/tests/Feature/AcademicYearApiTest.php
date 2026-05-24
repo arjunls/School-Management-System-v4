@@ -56,7 +56,7 @@ class AcademicYearApiTest extends TestCase
     {
         $token = $this->authToken(['role' => 'admin']);
 
-        \App\Modules\AcademicYear\Models\AcademicYear::create([
+        \App\Modules\Academic\AcademicYear\Models\AcademicYear::create([
             'name' => 'Active Year', 'start_date' => '2025-07-01', 'end_date' => '2026-06-30', 'is_active' => true,
         ]);
 
@@ -68,7 +68,7 @@ class AcademicYearApiTest extends TestCase
 
     public function test_admin_can_update_academic_year()
     {
-        $year = \App\Modules\AcademicYear\Models\AcademicYear::create([
+        $year = \App\Modules\Academic\AcademicYear\Models\AcademicYear::create([
             'name' => 'Old Year', 'start_date' => '2025-07-01', 'end_date' => '2026-06-30',
         ]);
         $token = $this->authToken(['role' => 'admin']);
@@ -82,7 +82,7 @@ class AcademicYearApiTest extends TestCase
 
     public function test_admin_can_delete_academic_year()
     {
-        $year = \App\Modules\AcademicYear\Models\AcademicYear::create([
+        $year = \App\Modules\Academic\AcademicYear\Models\AcademicYear::create([
             'name' => 'Temp Year', 'start_date' => '2025-07-01', 'end_date' => '2026-06-30',
         ]);
         $token = $this->authToken(['role' => 'admin']);
@@ -106,7 +106,7 @@ class AcademicYearApiTest extends TestCase
 
     public function test_admin_can_create_term()
     {
-        $year = \App\Modules\AcademicYear\Models\AcademicYear::create([
+        $year = \App\Modules\Academic\AcademicYear\Models\AcademicYear::create([
             'name' => '2025/2026', 'start_date' => '2025-07-01', 'end_date' => '2026-06-30',
         ]);
         $token = $this->authToken(['role' => 'admin']);

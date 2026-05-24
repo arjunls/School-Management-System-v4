@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Modules\Class\Models\Kelas;
-use App\Modules\Subject\Models\Subject;
-use App\Modules\Quiz\Models\Quiz;
+use App\Modules\Academic\Class\Models\Kelas;
+use App\Modules\Academic\Subject\Models\Subject;
+use App\Modules\Learning\Quiz\Models\Quiz;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

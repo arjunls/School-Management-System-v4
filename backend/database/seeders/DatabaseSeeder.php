@@ -3,12 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Modules\AcademicYear\Models\AcademicYear;
-use App\Modules\AcademicYear\Models\Term;
-use App\Modules\Attendance\Models\AttendanceRecord;
-use App\Modules\Class\Models\Kelas;
-use App\Modules\Grade\Models\Grade;
-use App\Modules\Subject\Models\Subject;
+use App\Modules\Academic\AcademicYear\Models\AcademicYear;
+use App\Modules\Academic\AcademicYear\Models\Term;
+use App\Modules\StudentManagement\Attendance\Models\AttendanceRecord;
+use App\Modules\Academic\Class\Models\Kelas;
+use App\Modules\Learning\Grade\Models\Grade;
+use App\Modules\Academic\Subject\Models\Subject;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 

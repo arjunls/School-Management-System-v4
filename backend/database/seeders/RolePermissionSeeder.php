@@ -25,13 +25,13 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        $admin = Role::create(['name' => 'admin']);
+        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->givePermissionTo(Permission::all());
 
-        $teacher = Role::create(['name' => 'teacher']);
+        $teacher = Role::firstOrCreate(['name' => 'teacher', 'guard_name' => 'web']);
         $teacher->givePermissionTo([
             'view-students', 'view-classes',
             'view-subjects', 'view-schedules',
@@ -41,12 +41,12 @@ class RolePermissionSeeder extends Seeder
             'view-dashboard',
         ]);
 
-        $student = Role::create(['name' => 'student']);
+        $student = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'web']);
         $student->givePermissionTo([
             'view-grades', 'view-schedules', 'view-attendance', 'view-dashboard',
         ]);
 
-        $parent = Role::create(['name' => 'parent']);
+        $parent = Role::firstOrCreate(['name' => 'parent', 'guard_name' => 'web']);
         $parent->givePermissionTo([
             'view-grades', 'view-schedules', 'view-attendance', 'view-dashboard',
         ]);

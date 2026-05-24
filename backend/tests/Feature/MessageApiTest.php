@@ -43,7 +43,7 @@ class MessageApiTest extends TestCase
         $token = $sender->createToken('test')->plainTextToken;
         $receiver = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
 
-        $conv = \App\Modules\Message\Models\Conversation::create(['subject' => 'Help', 'created_by' => $sender->id]);
+        $conv = \App\Modules\Communication\Message\Models\Conversation::create(['subject' => 'Help', 'created_by' => $sender->id]);
         $conv->participants()->attach([$sender->id, $receiver->id]);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
@@ -61,7 +61,7 @@ class MessageApiTest extends TestCase
         $userB = User::factory()->create(['role' => 'student', 'status' => 'active']);
         $tokenA = $userA->createToken('test')->plainTextToken;
 
-        $conv = \App\Modules\Message\Models\Conversation::create(['subject' => 'Private', 'created_by' => $userB->id]);
+        $conv = \App\Modules\Communication\Message\Models\Conversation::create(['subject' => 'Private', 'created_by' => $userB->id]);
         $conv->participants()->attach([$userB->id]);
 
         $response = $this->withHeader('Authorization', "Bearer $tokenA")

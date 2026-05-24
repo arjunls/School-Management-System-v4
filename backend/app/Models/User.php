@@ -81,12 +81,12 @@ class User extends Authenticatable
 
     public function kelas(): BelongsTo
     {
-        return $this->belongsTo(\App\Modules\Class\Models\Kelas::class, 'kelas_id');
+        return $this->belongsTo(\App\Modules\Academic\Class\Models\Kelas::class, 'kelas_id');
     }
 
     public function kelasAsHomeroomTeacher(): HasOne
     {
-        return $this->hasOne(\App\Modules\Class\Models\Kelas::class, 'homeroom_teacher_id');
+        return $this->hasOne(\App\Modules\Academic\Class\Models\Kelas::class, 'homeroom_teacher_id');
     }
 
     public function children(): BelongsToMany
@@ -103,7 +103,7 @@ class User extends Authenticatable
 
     public function conversations(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Modules\Message\Models\Conversation::class, 'conversation_participants')
+        return $this->belongsToMany(\App\Modules\Communication\Message\Models\Conversation::class, 'conversation_participants')
             ->withPivot('last_read_at');
     }
 }

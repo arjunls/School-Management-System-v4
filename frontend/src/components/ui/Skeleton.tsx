@@ -15,7 +15,7 @@ const variants = {
 export function Skeleton({ variant = 'text', className = '' }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse bg-muted/50 ${variants[variant]} ${className}`}
+      className={`animate-pulse bg-muted ${variants[variant]} ${className}`}
       aria-hidden="true"
     />
   );

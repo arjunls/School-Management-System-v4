@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Modules\Class\Models\Kelas;
-use App\Modules\Subject\Models\Subject;
+use App\Modules\Academic\Class\Models\Kelas;
+use App\Modules\Academic\Subject\Models\Subject;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -67,7 +67,7 @@ class AssignmentApiTest extends TestCase
         $subject = Subject::create(['name' => 'Math', 'code' => 'MTH']);
         $teacher = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
 
-        $assignment = \App\Modules\Assignment\Models\Assignment::create([
+        $assignment = \App\Modules\Learning\Assignment\Models\Assignment::create([
             'title' => 'HW', 'class_id' => $class->id, 'subject_id' => $subject->id,
             'teacher_id' => $teacher->id, 'due_date' => now()->addWeek(),
         ]);
@@ -90,7 +90,7 @@ class AssignmentApiTest extends TestCase
         $teacher = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
         $tToken = $teacher->createToken('test')->plainTextToken;
 
-        $assignment = \App\Modules\Assignment\Models\Assignment::create([
+        $assignment = \App\Modules\Learning\Assignment\Models\Assignment::create([
             'title' => 'HW', 'class_id' => $class->id, 'subject_id' => $subject->id,
             'teacher_id' => $teacher->id, 'due_date' => now()->addWeek(), 'max_score' => 100,
         ]);

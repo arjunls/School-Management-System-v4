@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Modules\Class\Models\Kelas;
+use App\Modules\Academic\Class\Models\Kelas;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class KelasFactory extends Factory

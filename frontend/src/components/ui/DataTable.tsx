@@ -65,7 +65,7 @@ export function DataTable<T extends object>({ columns, data, keyExtractor, loadi
   if (loading) {
     return (
       <div className="rounded-xl border bg-card overflow-hidden">
-        <table className="w-full"><thead><tr>{columns.map(c => <th key={c.key} className="h-9 px-4 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/30 border-b border-border">{c.label}</th>)}</tr></thead>
+        <table className="w-full"><thead><tr>{columns.map(c => <th key={c.key} className="h-9 px-4 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted border-b border-border">{c.label}</th>)}</tr></thead>
           <tbody className="divide-y divide-border"><LoadingRows columns={columns.length} /></tbody></table>
       </div>
     );
@@ -76,7 +76,7 @@ export function DataTable<T extends object>({ columns, data, keyExtractor, loadi
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-border bg-muted/20">
+            <tr className="border-b border-border bg-muted">
               {columns.map(col => (
                 <th
                   key={col.key}

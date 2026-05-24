@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Modules\Fee\Models\FeeType;
-use App\Modules\Fee\Models\FeeInvoice;
+use App\Modules\Finance\Fee\Models\FeeType;
+use App\Modules\Finance\Fee\Models\FeeInvoice;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

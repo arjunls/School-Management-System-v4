@@ -10,44 +10,44 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         // User
         $this->app->bind(
-            \App\Modules\User\Interfaces\UserRepositoryInterface::class,
-            \App\Modules\User\Repositories\UserRepository::class
+            \App\Modules\StaffManagement\User\Interfaces\UserRepositoryInterface::class,
+            \App\Modules\StaffManagement\User\Repositories\UserRepository::class
         );
 
         // Student
         $this->app->bind(
-            \App\Modules\Student\Interfaces\StudentRepositoryInterface::class,
-            \App\Modules\Student\Repositories\StudentRepository::class
+            \App\Modules\StudentManagement\Student\Interfaces\StudentRepositoryInterface::class,
+            \App\Modules\StudentManagement\Student\Repositories\StudentRepository::class
         );
 
         // Teacher
         $this->app->bind(
-            \App\Modules\Teacher\Interfaces\TeacherRepositoryInterface::class,
-            \App\Modules\Teacher\Repositories\TeacherRepository::class
+            \App\Modules\StaffManagement\Teacher\Interfaces\TeacherRepositoryInterface::class,
+            \App\Modules\StaffManagement\Teacher\Repositories\TeacherRepository::class
         );
 
         // Subject
         $this->app->bind(
-            \App\Modules\Subject\Interfaces\SubjectRepositoryInterface::class,
-            \App\Modules\Subject\Repositories\SubjectRepository::class
+            \App\Modules\Academic\Subject\Interfaces\SubjectRepositoryInterface::class,
+            \App\Modules\Academic\Subject\Repositories\SubjectRepository::class
         );
 
         // Schedule
         $this->app->bind(
-            \App\Modules\Schedule\Interfaces\ScheduleRepositoryInterface::class,
-            \App\Modules\Schedule\Repositories\ScheduleRepository::class
+            \App\Modules\Academic\Schedule\Interfaces\ScheduleRepositoryInterface::class,
+            \App\Modules\Academic\Schedule\Repositories\ScheduleRepository::class
         );
 
         // Grade
         $this->app->bind(
-            \App\Modules\Grade\Interfaces\GradeRepositoryInterface::class,
-            \App\Modules\Grade\Repositories\GradeRepository::class
+            \App\Modules\Learning\Grade\Interfaces\GradeRepositoryInterface::class,
+            \App\Modules\Learning\Grade\Repositories\GradeRepository::class
         );
 
         // Attendance
         $this->app->bind(
-            \App\Modules\Attendance\Interfaces\AttendanceRepositoryInterface::class,
-            \App\Modules\Attendance\Repositories\AttendanceRepository::class
+            \App\Modules\StudentManagement\Attendance\Interfaces\AttendanceRepositoryInterface::class,
+            \App\Modules\StudentManagement\Attendance\Repositories\AttendanceRepository::class
         );
     }
 

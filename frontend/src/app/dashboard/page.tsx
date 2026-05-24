@@ -11,14 +11,14 @@ import Link from 'next/link';
 interface AttendanceChart { labels: string[]; present: number[]; absent: number[]; sick: number[]; }
 interface PerformanceChart { labels: string[]; data: number[]; }
 
-const stagger = { animate: { transition: { staggerChildren: 0.05 } } };
-const fadeUp = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 } };
+const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
+const fadeUp = { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
 
-const roleColors: Record<string, { accent: string; gradient: string }> = {
-  admin: { accent: '#2563eb', gradient: 'from-blue-600 to-indigo-700' },
-  teacher: { accent: '#7c3aed', gradient: 'from-violet-600 to-purple-700' },
-  student: { accent: '#0d9488', gradient: 'from-teal-600 to-emerald-700' },
-  parent: { accent: '#ea580c', gradient: 'from-orange-600 to-amber-700' },
+const roleColors: Record<string, { accent: string; bg: string }> = {
+  admin: { accent: '#4f46e5', bg: '#4338ca' },
+  teacher: { accent: '#7c3aed', bg: '#6d28d9' },
+  student: { accent: '#0d9488', bg: '#0f766e' },
+  parent: { accent: '#ea580c', bg: '#c2410c' },
 };
 
 const sectionLinks = [
@@ -28,8 +28,6 @@ const sectionLinks = [
   { label: 'Absensi', href: '/attendance', icon: <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>, roles: ['admin', 'teacher'] },
   { label: 'Jadwal', href: '/schedules', icon: <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" /></svg>, roles: ['admin', 'teacher'] },
 ];
-
-const iconCls = 'size-4';
 
 function SectionCard({ title, action, children, accent }: { title: string; action?: React.ReactNode; children: React.ReactNode; accent?: string }) {
   return (
@@ -46,21 +44,21 @@ function WelcomeBanner({ name, role, greeting, initials }: { name: string; role:
   const rc = roleColors[role] || roleColors.admin;
   return (
     <motion.div variants={fadeUp}
-      className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${rc.gradient} p-6 text-white shadow-lg`}
+      className="rounded-xl p-6 sm:p-7 text-white shadow-sm"
+      style={{ backgroundColor: rc.bg }}
     >
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMjBMMCAwaDQweiIgZmlsbD0icmdiKDAsMCwwLDAuMDMpIi8+PC9zdmc+')] opacity-30" />
-      <div className="relative flex items-center gap-4">
-        <div className="flex size-12 items-center justify-center rounded-full bg-white/20 text-sm font-bold backdrop-blur-sm ring-2 ring-white/30">
+      <div className="flex items-center gap-4">
+        <div className="flex size-11 sm:size-12 items-center justify-center rounded-lg bg-white/15 text-sm font-bold ring-1 ring-white/20 shrink-0">
           {initials}
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-white/70">{greeting}</p>
-          <h1 className="text-xl font-semibold tracking-tight">{name}</h1>
-          <p className="text-sm text-white/80 capitalize mt-0.5">{role}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium text-white/70 uppercase tracking-wider">{greeting}</p>
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight truncate mt-0.5">{name}</h1>
+          <p className="text-xs text-white/70 capitalize mt-0.5">{role}</p>
         </div>
-        <div className="hidden sm:flex items-center gap-1">
-          <span className="flex size-2 rounded-full bg-emerald-300 animate-pulse" />
-          <span className="text-xs text-white/80">Online</span>
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/15 text-xs">
+          <span className="flex size-2 rounded-full bg-emerald-300" />
+          <span className="text-white/70 font-medium">Online</span>
         </div>
       </div>
     </motion.div>
@@ -73,7 +71,7 @@ function LoadingSkeleton() {
       <Skeleton variant="card" className="h-24" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="rounded-xl border bg-card p-5">
+          <div key={i} className="rounded-lg border bg-card p-5">
             <div className="flex justify-between mb-3"><Skeleton variant="text" className="h-4 w-20" /><Skeleton variant="text" className="size-9" /></div>
             <Skeleton variant="text" className="h-7 w-16" />
           </div>
@@ -81,7 +79,7 @@ function LoadingSkeleton() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {[...Array(2)].map((_, i) => (
-          <div key={i} className="rounded-xl border bg-card p-5"><Skeleton variant="text" className="h-4 w-32 mb-4" /><Skeleton variant="chart" /></div>
+          <div key={i} className="rounded-lg border bg-card p-5"><Skeleton variant="text" className="h-4 w-32 mb-4" /><Skeleton variant="chart" /></div>
         ))}
       </div>
     </div>
@@ -158,12 +156,12 @@ function StudentDashboard() {
           {grades.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Belum ada nilai.</p> : (
             <div className="overflow-x-auto -mx-5">
               <table className="w-full text-sm">
-                <thead><tr className="border-b border-border"><th className="text-left px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Mata Pelajaran</th><th className="text-right px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Nilai</th></tr></thead>
+                <thead><tr className="border-b border-border"><th className="text-left px-5 py-2.5 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Mata Pelajaran</th><th className="text-right px-5 py-2.5 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Nilai</th></tr></thead>
                 <tbody className="divide-y divide-border">
                   {grades.map((g, i) => (
-                    <tr key={i} className="hover:bg-primary/5 transition-colors">
-                      <td className="px-5 py-2.5">{g.subject?.name || '—'}</td>
-                      <td className="px-5 py-2.5 text-right font-medium">{g.score ?? '—'}</td>
+                    <tr key={i} className="hover:bg-muted/50 transition-colors">
+                      <td className="px-5 py-2.5 text-sm">{g.subject?.name || '—'}</td>
+                      <td className="px-5 py-2.5 text-right text-sm font-semibold">{g.score ?? '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -175,13 +173,13 @@ function StudentDashboard() {
           {schedules.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Tidak ada jadwal.</p> : (
             <div className="overflow-x-auto -mx-5">
               <table className="w-full text-sm">
-                <thead><tr className="border-b border-border"><th className="text-left px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Hari</th><th className="text-left px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Waktu</th><th className="text-left px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Mapel</th></tr></thead>
+                <thead><tr className="border-b border-border"><th className="text-left px-5 py-2.5 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Hari</th><th className="text-left px-5 py-2.5 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Waktu</th><th className="text-left px-5 py-2.5 font-semibold text-[11px] uppercase tracking-wider text-muted-foreground">Mapel</th></tr></thead>
                 <tbody className="divide-y divide-border">
                   {schedules.slice(0, 5).map((s, i) => (
-                    <tr key={i} className="hover:bg-primary/5 transition-colors">
-                      <td className="px-5 py-2.5 capitalize font-medium">{s.day_of_week}</td>
-                      <td className="px-5 py-2.5 text-muted-foreground">{s.start_time?.slice(0,5)}&ndash;{s.end_time?.slice(0,5)}</td>
-                      <td className="px-5 py-2.5">{s.subject?.name || '—'}</td>
+                    <tr key={i} className="hover:bg-muted/50 transition-colors">
+                      <td className="px-5 py-2.5 text-sm capitalize font-medium">{s.day_of_week}</td>
+                      <td className="px-5 py-2.5 text-sm text-muted-foreground">{s.start_time?.slice(0,5)}&ndash;{s.end_time?.slice(0,5)}</td>
+                      <td className="px-5 py-2.5 text-sm">{s.subject?.name || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -193,7 +191,7 @@ function StudentDashboard() {
           {dueAssignments.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Semua selesai!</p> : (
             <div className="space-y-2">
               {dueAssignments.slice(0, 4).map((a: any) => (
-                <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors">
+                <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-muted hover:bg-border transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="size-2 rounded-full bg-amber-500" />
                     <span className="text-sm font-medium">{a.title || '—'}</span>
@@ -208,7 +206,7 @@ function StudentDashboard() {
           {loans.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Tidak ada buku dipinjam.</p> : (
             <div className="space-y-2">
               {loans.map((l: any) => (
-                <div key={l.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors">
+                <div key={l.id} className="flex items-center justify-between p-3 rounded-lg bg-muted hover:bg-border transition-colors">
                   <span className="text-sm font-medium">{l.book?.title || '—'}</span>
                   <Badge variant={l.status === 'overdue' ? 'danger' : 'success'}>{l.status}</Badge>
                 </div>
@@ -264,10 +262,10 @@ function TeacherDashboard() {
             <div className="space-y-2">
               {classes.map((c: any) => (
                 <Link key={c.id} href={`/classes/${c.id}`}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted hover:bg-border transition-colors group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
+                    <div className="size-8 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center text-violet-600 dark:text-violet-400">
                       <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
                     </div>
                     <div>
@@ -285,7 +283,7 @@ function TeacherDashboard() {
           {subjects.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Belum ada mata pelajaran.</p> : (
             <div className="space-y-2">
               {subjects.map((s: any) => (
-                <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors">
+                <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-muted hover:bg-border transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="size-2 rounded-full bg-emerald-500" />
                     <div>
@@ -355,21 +353,23 @@ function AdminDashboard() {
       <WelcomeBanner name="Administrator" role="admin" greeting={greeting} initials={initials} />
 
       {/* Quick actions */}
-      <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
-        {sectionLinks.filter(s => s.roles.includes('admin')).map(s => (
-          <Link key={s.href} href={s.href}
-            className="inline-flex items-center gap-2 rounded-md border border-input bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all shadow-card hover:shadow-card-hover"
+      <motion.div variants={fadeUp}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {sectionLinks.filter(s => s.roles.includes('admin')).map(s => (
+            <Link key={s.href} href={s.href}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            >
+              {s.icon}
+              {s.label}
+            </Link>
+          ))}
+          <Link href="/students/create"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground shadow-xs hover:opacity-90 transition-all"
           >
-            {s.icon}
-            {s.label}
+            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            Tambah Siswa
           </Link>
-        ))}
-        <Link href="/students/create"
-          className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-600 to-blue-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:shadow-md hover:from-blue-700 hover:to-blue-600 transition-all"
-        >
-          <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-          Tambah Siswa
-        </Link>
+        </div>
       </motion.div>
 
       {/* Stats */}
@@ -385,15 +385,15 @@ function AdminDashboard() {
       </motion.div>
 
       {/* Academic year selector */}
-      <motion.div variants={fadeUp} className="flex items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Tahun Akademik:</span>
-        <div className="flex flex-wrap gap-1">
+      <motion.div variants={fadeUp}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground mr-1">Tahun Akademik:</span>
           {academicYears.map((y: any) => (
             <button key={y.id} onClick={() => { setSelectedYear(String(y.id)); fetchData(String(y.id)); }}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${String(y.id) === selectedYear ? 'bg-primary text-primary-foreground shadow-sm' : 'border border-input bg-background hover:bg-accent hover:text-accent-foreground text-muted-foreground'}`}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${String(y.id) === selectedYear ? 'bg-primary text-primary-foreground shadow-xs' : 'border border-border bg-card hover:bg-muted hover:text-foreground text-muted-foreground'}`}
             >
               {y.name}
-              {y.is_active && <span className="ml-1 opacity-70">(Aktif)</span>}
+              {y.is_active && <span className="ml-1 text-[10px] opacity-70">(Aktif)</span>}
             </button>
           ))}
         </div>
@@ -421,12 +421,12 @@ function AdminDashboard() {
       <SectionCard title="Tren Nilai Siswa" accent="#d97706">
         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 mb-4">
           <div className="w-full sm:max-w-xs">
-            <label className="block text-xs font-medium text-muted-foreground mb-1">ID Siswa</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Cari berdasarkan ID Siswa</label>
             <input type="number" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="Masukkan ID siswa"
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-all" />
+              className="h-9 w-full rounded-lg border border-border bg-background px-3 py-1 text-sm shadow-sm focus-visible:border-ring focus-visible:ring-ring/15 focus-visible:ring-[3px] outline-none transition-all placeholder:text-muted-foreground/50" />
           </div>
           <button onClick={fetchTrend}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-all bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 h-9 px-4 py-2 shadow-xs hover:shadow-md hover:shadow-blue-500/25">
+            className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all bg-blue-600 text-white hover:bg-blue-500 h-9 px-4 py-2 shadow-sm">
             <svg className="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125z" /></svg>
             Lihat Tren
           </button>
@@ -481,9 +481,9 @@ function ParentDashboard() {
           <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
             {children.map((c: any) => (
               <button key={c.id} onClick={() => setSelectedChild(c)}
-                className={`inline-flex items-center gap-2 rounded-md text-sm font-medium transition-all h-9 px-4 py-2 ${selectedChild?.id === c.id ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm' : 'border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground'}`}
+                className={`inline-flex items-center gap-2 rounded-md text-sm font-medium transition-all h-9 px-4 py-2 ${selectedChild?.id === c.id ? 'bg-blue-600 text-white shadow-sm' : 'border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground'}`}
               >
-                <div className="size-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold">{c.name?.charAt(0)}</div>
+                <div className="size-5 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">{c.name?.charAt(0)}</div>
                 {c.name} {c.kelas?.name ? `(${c.kelas.name})` : ''}
               </button>
             ))}
@@ -496,7 +496,7 @@ function ParentDashboard() {
                     <thead><tr className="border-b border-border"><th className="text-left px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Mata Pelajaran</th><th className="text-right px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Nilai</th><th className="text-right px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Grade</th><th className="text-right px-5 py-2 font-semibold text-xs uppercase tracking-wider text-muted-foreground">Semester</th></tr></thead>
                     <tbody className="divide-y divide-border">
                       {grades.map((g: any, i: number) => (
-                        <tr key={i} className="hover:bg-primary/5 transition-colors">
+                        <tr key={i} className="hover:bg-muted transition-colors">
                           <td className="px-5 py-2.5">{g.subject?.name || '—'}</td>
                           <td className="px-5 py-2.5 text-right font-medium">{g.score}</td>
                           <td className="px-5 py-2.5 text-right font-semibold">{g.grade || '—'}</td>
@@ -528,18 +528,18 @@ function StackedBarChart({ labels, present, absent, sick, height = 220 }: { labe
           const baseY = height - 20;
           return (
             <g key={i}>
-              <motion.rect initial={{ height: 0, y: baseY }} animate={{ height: hScale(sick[i]), y: baseY - hScale(present[i]) - hScale(absent[i]) - hScale(sick[i]) }} transition={{ duration: 0.4, delay: i * 0.03 }} x={x} width={w} rx="2" fill="#f59e0b" opacity={0.85} />
-              <motion.rect initial={{ height: 0, y: baseY }} animate={{ height: hScale(absent[i]), y: baseY - hScale(present[i]) - hScale(absent[i]) }} transition={{ duration: 0.4, delay: i * 0.03 }} x={x} width={w} rx="2" fill="#ef4444" opacity={0.85} />
-              <motion.rect initial={{ height: 0, y: baseY }} animate={{ height: hScale(present[i]), y: baseY - hScale(present[i]) }} transition={{ duration: 0.4, delay: i * 0.03 }} x={x} width={w} rx="2" fill="#22c55e" opacity={0.85} />
+              <motion.rect initial={{ height: 0, y: baseY }} animate={{ height: hScale(sick[i]), y: baseY - hScale(present[i]) - hScale(absent[i]) - hScale(sick[i]) }} transition={{ duration: 0.4, delay: i * 0.03 }} x={x} width={w} rx="3" fill="#f59e0b" />
+              <motion.rect initial={{ height: 0, y: baseY }} animate={{ height: hScale(absent[i]), y: baseY - hScale(present[i]) - hScale(absent[i]) }} transition={{ duration: 0.4, delay: i * 0.03 }} x={x} width={w} rx="3" fill="#ef4444" />
+              <motion.rect initial={{ height: 0, y: baseY }} animate={{ height: hScale(present[i]), y: baseY - hScale(present[i]) }} transition={{ duration: 0.4, delay: i * 0.03 }} x={x} width={w} rx="3" fill="#22c55e" />
               <text x={x + w / 2} y={baseY + 12} textAnchor="middle" fontSize="9" fill="currentColor" className="fill-muted-foreground">{label}</text>
             </g>
           );
         })}
       </svg>
       <div className="flex justify-center gap-4 mt-2 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-green-500 inline-block" /> Hadir</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-red-500 inline-block" /> Absen</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-amber-500 inline-block" /> Sakit</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500 inline-block" /> Hadir</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> Absen</span>
+        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block" /> Sakit</span>
       </div>
     </motion.div>
   );
@@ -558,7 +558,7 @@ function BarChart({ data, labels, color, height = 220 }: { data: number[]; label
           const y = height - 20 - barH;
           return (
             <g key={i}>
-              <motion.rect initial={{ height: 0, y: height - 20 }} animate={{ height: barH, y }} transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }} x={x} width={w} rx="4" fill={color} opacity={0.85} />
+              <motion.rect initial={{ height: 0, y: height - 20 }} animate={{ height: barH, y }} transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }} x={x} width={w} rx="4" fill={color} />
               <text x={x + w / 2} y={height - 4} textAnchor="middle" fontSize="10" fill="currentColor" className="fill-muted-foreground">{labels[i]}</text>
               <motion.text initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 + i * 0.05 }} x={x + w / 2} y={y - 5} textAnchor="middle" fontSize="10" fill="currentColor" fontWeight="600">{v}</motion.text>
             </g>

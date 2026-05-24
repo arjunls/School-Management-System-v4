@@ -3,31 +3,48 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class GradeAssigned extends Notification implements ShouldQueue
+class GradeAssigned extends Notification
 {
     use Queueable;
 
-    public function __construct(
-        protected string $subjectName,
-        protected ?float $score,
-        protected ?string $grade,
-    ) {}
+    protected $gradeData;
 
-    public function via(object $notifiable): array
+    public function __construct(array $gradeData)
     {
-        return ['database'];
+        $this->gradeData = $gradeData;
     }
 
-    public function toDatabase(object $notifiable): array
+    /**
+     * Get the notification's delivery channels.
+     */
+    public function via($notifiable)
     {
-        return [
-            'message' => "Your {$this->subjectName} grade has been updated: " . ($this->score ?? 'N/A') . ($this->grade ? " ({$this->grade})" : ''),
-            'subject' => $this->subjectName,
-            'score' => $this->score,
-            'grade' => $this->grade,
-        ];
+        return ['mail'];
+    }
+
+    /**
+     * Build the mail representation of the notification.
+     */
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Nilai Baru Diterima')
+            ->line('Anda telah menerima nilai baru.')
+            ->line('Mata Pelajaran: '.$this->gradeData['subject'] ?? 'N/A')
+            ->line('Nilai: '.$this->gradeData['score'] ?? 'N/A')
+            ->action('Lihat Nilai', url('/nilai'))
+            ->line('Terima kasih.');
+    }
+
+    /**
+     * Get the array representation of the notification.
+     */
+    public function toArray($notifiable)
+    {
+        return $this->gradeData;
     }
 }

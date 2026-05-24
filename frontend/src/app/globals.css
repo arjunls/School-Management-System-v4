@@ -2,83 +2,73 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: oklch(0.98 0.01 85);
-  --foreground: oklch(0.15 0.02 260);
-  --card: oklch(0.99 0.005 85);
-  --card-foreground: oklch(0.15 0.02 260);
-  --popover: oklch(0.99 0.005 85);
-  --popover-foreground: oklch(0.15 0.02 260);
-  --primary: oklch(0.55 0.19 240);
+  --background: oklch(0.96 0.005 260);
+  --foreground: oklch(0.12 0.015 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.12 0.015 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.12 0.015 260);
+  --primary: oklch(0.5 0.2 260);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.65 0.15 70);
+  --secondary: oklch(0.7 0.15 75);
   --secondary-foreground: oklch(0.15 0.02 260);
-  --muted: oklch(0.94 0.01 85);
-  --muted-foreground: oklch(0.5 0.02 260);
-  --accent: oklch(0.65 0.15 70);
-  --accent-foreground: oklch(0.15 0.02 260);
-  --destructive: oklch(0.58 0.24 25);
+  --muted: oklch(0.94 0.008 85);
+  --muted-foreground: oklch(0.52 0.015 260);
+  --accent: oklch(0.6 0.15 165);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.88 0.01 85);
-  --input: oklch(0.88 0.01 85);
-  --ring: oklch(0.55 0.19 240);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.15 0.02 260);
-  --sidebar-foreground: oklch(0.95 0.005 85);
-  --sidebar-primary: oklch(0.55 0.19 240);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.55 0.19 240 / 0.15);
-  --sidebar-accent-foreground: oklch(0.95 0.005 85);
-  --sidebar-border: oklch(0.25 0.02 260);
-  --sidebar-ring: oklch(0.55 0.19 240);
-  --chart-1: oklch(0.55 0.19 240);
-  --chart-2: oklch(0.65 0.15 70);
-  --chart-3: oklch(0.6 0.18 160);
-  --chart-4: oklch(0.7 0.2 320);
-  --chart-5: oklch(0.6 0.2 30);
-  --section-dashboard: oklch(0.55 0.19 240);
-  --section-students: oklch(0.6 0.18 180);
-  --section-teachers: oklch(0.6 0.2 280);
-  --section-classes: oklch(0.65 0.15 70);
-  --section-subjects: oklch(0.6 0.22 330);
-  --section-attendance: oklch(0.6 0.2 160);
-  --section-grades: oklch(0.65 0.2 90);
-  --section-schedules: oklch(0.6 0.16 200);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.06);
-  --shadow-sidebar: 4px 0 15px rgb(0 0 0 / 0.08);
+  --border: oklch(0.88 0.008 85);
+  --input: oklch(0.88 0.008 85);
+  --ring: oklch(0.5 0.2 260);
+  --radius: 0.75rem;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-muted: #64748b;
+  --sidebar-primary: #3b82f6;
+  --sidebar-accent: #1e293b;
+  --sidebar-border: #1e293b;
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --section-dashboard: #3b82f6;
+  --section-students: #10b981;
+  --section-teachers: #8b5cf6;
+  --section-classes: #f59e0b;
+  --section-subjects: #ec4899;
+  --section-attendance: #14b8a6;
+  --section-grades: #f97316;
+  --section-schedules: #06b6d4;
 }
 
 .dark {
-  --background: oklch(0.12 0.015 260);
-  --foreground: oklch(0.95 0.005 85);
-  --card: oklch(0.15 0.02 260);
-  --card-foreground: oklch(0.95 0.005 85);
-  --popover: oklch(0.15 0.02 260);
-  --popover-foreground: oklch(0.95 0.005 85);
-  --primary: oklch(0.6 0.18 240);
+  --background: oklch(0.09 0.008 260);
+  --foreground: oklch(0.93 0.006 85);
+  --card: oklch(0.13 0.01 260);
+  --card-foreground: oklch(0.93 0.006 85);
+  --popover: oklch(0.13 0.01 260);
+  --popover-foreground: oklch(0.93 0.006 85);
+  --primary: oklch(0.6 0.18 260);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.65 0.15 70);
+  --secondary: oklch(0.65 0.15 75);
   --secondary-foreground: oklch(0.15 0.02 260);
-  --muted: oklch(0.2 0.01 260);
-  --muted-foreground: oklch(0.65 0.02 260);
-  --accent: oklch(0.65 0.15 70 / 0.2);
-  --accent-foreground: oklch(0.95 0.005 85);
-  --destructive: oklch(0.58 0.24 25);
+  --muted: oklch(0.16 0.008 260);
+  --muted-foreground: oklch(0.55 0.015 260);
+  --accent: oklch(0.6 0.15 165);
+  --accent-foreground: oklch(0.93 0.006 85);
+  --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.25 0.02 260);
-  --input: oklch(0.25 0.02 260);
-  --ring: oklch(0.6 0.18 240);
-  --sidebar: oklch(0.08 0.01 260);
-  --sidebar-foreground: oklch(0.92 0.01 85);
-  --sidebar-primary: oklch(0.55 0.19 240);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.55 0.19 240 / 0.2);
-  --sidebar-accent-foreground: oklch(0.95 0.005 85);
-  --sidebar-border: oklch(0.2 0.01 260);
-  --sidebar-ring: oklch(0.55 0.19 240);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-  --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
-  --shadow-sidebar: 4px 0 15px rgb(0 0 0 / 0.25);
+  --border: oklch(0.18 0.008 260);
+  --input: oklch(0.18 0.008 260);
+  --ring: oklch(0.6 0.18 260);
+  --sidebar: #0a0f1a;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-muted: #475569;
+  --sidebar-primary: #60a5fa;
+  --sidebar-accent: #1e293b;
+  --sidebar-border: #1e293b;
 }
 
 body {
@@ -89,14 +79,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection {
-  background: oklch(0.55 0.19 240 / 0.2);
-  color: var(--foreground);
-}
-
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -104,15 +89,29 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.5 0.02 260 / 0.2);
+  background: oklch(0.5 0.02 260 / 0.15);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.5 0.02 260 / 0.35);
+  background: oklch(0.5 0.02 260 / 0.3);
 }
 
 *:focus-visible {
-  outline: 2px solid oklch(0.55 0.19 240 / 0.5);
+  outline: 2px solid oklch(0.5 0.2 260 / 0.35);
   outline-offset: 2px;
+  border-radius: 2px;
 }
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slide-up-fade {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-scale-in { animation: scale-in 0.2s ease-out; }
+.animate-slide-up { animation: slide-up-fade 0.25s ease-out; }

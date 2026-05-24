@@ -43,7 +43,7 @@ class HealthApiTest extends TestCase
         $student = User::factory()->create(['role' => 'student', 'status' => 'active']);
         $token = $this->authToken(['role' => 'teacher']);
 
-        \App\Modules\Health\Models\HealthRecord::create([
+        \App\Modules\StudentManagement\Health\Models\HealthRecord::create([
             'student_id' => $student->id, 'blood_type' => 'A+',
         ]);
 
