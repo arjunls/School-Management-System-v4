@@ -61,4 +61,9 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     Route::get('/dokumen', function () {
         return view('dokumen.index');
     })->name('dokumen.index')->middleware('role:permission:view-dokumen');
+
+    // Profile
+    Route::get('/profile', function () {
+        return view('profile.index');
+    })->name('profile');
 });
