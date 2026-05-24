@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Finance\Fee\Controllers\PembayaranController;
 use App\Modules\Reporting\Export\Controllers\ExportController;
 use App\Modules\Reporting\Import\Controllers\ImportController;
 use Illuminate\Support\Facades\Route;
@@ -50,9 +51,17 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
     })->name('nilai.index')->middleware('role:permission:view-nilai');
 
     // Pembayaran
-    Route::get('/pembayaran', function () {
-        return view('pembayaran.index');
-    })->name('pembayaran.index')->middleware('role:permission:view-pembayaran');
+    Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
+        Route::get('/', [PembayaranController::class, 'index'])->name('index')->middleware('role:permission:view-pembayaran');
+        Route::get('/create', [PembayaranController::class, 'create'])->name('create')->middleware('role:permission:create-pembayaran');
+        Route::post('/', [PembayaranController::class, 'store'])->name('store')->middleware('role:permission:create-pembayaran');
+        Route::post('/{invoice}/pay', [PembayaranController::class, 'pay'])->name('pay')->middleware('role:permission:edit-pembayaran');
+        Route::get('/{invoice}/pay-online', [PembayaranController::class, 'payOnline'])->name('pay-online')->middleware('role:permission:edit-pembayaran');
+        Route::delete('/{invoice}', [PembayaranController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-pembayaran');
+    });
+
+    // Midtrans notification (no CSRF)
+    Route::post('/pembayaran/notification', [PembayaranController::class, 'notification'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
     // Laporan
     Route::get('/laporan', function () {
