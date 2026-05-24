@@ -46,7 +46,10 @@ class GuruWebController extends Controller
 
         $data['role'] = 'guru';
         $data['password'] = bcrypt('password123');
-        User::create($data);
+        $guru = User::create($data);
+        $guru->assignRole('guru');
+
+        activity()->performedOn($guru)->log('created');
 
         return redirect()->route('guru.index')->with('success', 'Guru berhasil ditambahkan');
     }
@@ -71,6 +74,7 @@ class GuruWebController extends Controller
         ]);
 
         $guru->update($data);
+        activity()->performedOn($guru)->log('updated');
         return redirect()->route('guru.index')->with('success', 'Guru berhasil diperbarui');
     }
 
@@ -78,6 +82,7 @@ class GuruWebController extends Controller
     {
         if ($guru->role !== 'guru') abort(404);
         $guru->delete();
+        activity()->performedOn($guru)->log('deleted');
         return redirect()->route('guru.index')->with('success', 'Guru berhasil dihapus');
     }
 }

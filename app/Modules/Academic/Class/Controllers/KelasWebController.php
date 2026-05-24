@@ -30,7 +30,8 @@ class KelasWebController extends Controller
             'capacity' => 'nullable|integer|min:1|max:50',
         ]);
 
-        Kelas::create($data);
+        $kelas = Kelas::create($data);
+        activity()->performedOn($kelas)->log('created');
         return redirect()->route('kelas.index')->with('success', 'Kelas berhasil ditambahkan');
     }
 
@@ -50,6 +51,7 @@ class KelasWebController extends Controller
         ]);
 
         $kelas->update($data);
+        activity()->performedOn($kelas)->log('updated');
         return redirect()->route('kelas.index')->with('success', 'Kelas berhasil diperbarui');
     }
 
@@ -57,6 +59,7 @@ class KelasWebController extends Controller
     {
         $kelas->students()->update(['kelas_id' => null]);
         $kelas->delete();
+        activity()->performedOn($kelas)->log('deleted');
         return redirect()->route('kelas.index')->with('success', 'Kelas berhasil dihapus');
     }
 

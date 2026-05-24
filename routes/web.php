@@ -219,6 +219,22 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         return view('profile.index');
     })->name('profile');
 
+    // Manajemen Pengguna
+    Route::prefix('pengguna')->name('pengguna.')->middleware('role:permission:manage-users')->group(function () {
+        Route::get('/', [\App\Modules\StaffManagement\User\Controllers\UserWebController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Modules\StaffManagement\User\Controllers\UserWebController::class, 'create'])->name('create');
+        Route::post('/', [\App\Modules\StaffManagement\User\Controllers\UserWebController::class, 'store'])->name('store');
+        Route::get('/{pengguna}/edit', [\App\Modules\StaffManagement\User\Controllers\UserWebController::class, 'edit'])->name('edit');
+        Route::put('/{pengguna}', [\App\Modules\StaffManagement\User\Controllers\UserWebController::class, 'update'])->name('update');
+        Route::delete('/{pengguna}', [\App\Modules\StaffManagement\User\Controllers\UserWebController::class, 'destroy'])->name('destroy');
+    });
+
+    // Pengaturan
+    Route::prefix('pengaturan')->name('pengaturan.')->middleware('role:permission:manage-pengaturan')->group(function () {
+        Route::get('/', [\App\Modules\StaffManagement\User\Controllers\PengaturanController::class, 'index'])->name('index');
+        Route::put('/', [\App\Modules\StaffManagement\User\Controllers\PengaturanController::class, 'update'])->name('update');
+    });
+
     // Export
     Route::prefix('export')->name('export.')->group(function () {
         Route::get('/siswa', [ExportController::class, 'students'])->name('siswa')->middleware('role:permission:view-siswa');

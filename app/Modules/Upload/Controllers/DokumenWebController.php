@@ -28,7 +28,7 @@ class DokumenWebController extends Controller
         $file = $request->file('file');
         $path = $file->store('documents', 'public');
 
-        Document::create([
+        $doc = Document::create([
             'user_id' => auth()->id(),
             'title' => $data['title'],
             'description' => $data['description'] ?? null,
@@ -38,6 +38,7 @@ class DokumenWebController extends Controller
             'category' => $data['category'] ?? null,
         ]);
 
+        activity()->performedOn($doc)->log('created');
         return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil diunggah');
     }
 
@@ -53,6 +54,7 @@ class DokumenWebController extends Controller
     {
         Storage::disk('public')->delete($dokumen->file_path);
         $dokumen->delete();
+        activity()->performedOn($dokumen)->log('deleted');
         return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil dihapus');
     }
 }

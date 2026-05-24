@@ -42,7 +42,8 @@ class PembayaranController extends Controller
         $feeType = FeeType::findOrFail($data['fee_type_id']);
         $data['amount'] ??= $feeType->amount;
 
-        FeeInvoice::create($data);
+        $invoice = FeeInvoice::create($data);
+        activity()->performedOn($invoice)->log('created');
         return redirect()->route('pembayaran.index')->with('success', 'Tagihan berhasil dibuat');
     }
 
@@ -94,6 +95,7 @@ class PembayaranController extends Controller
     {
         $invoice->payments()->delete();
         $invoice->delete();
+        activity()->performedOn($invoice)->log('deleted');
         return redirect()->route('pembayaran.index')->with('success', 'Tagihan berhasil dihapus');
     }
 }

@@ -39,7 +39,8 @@ class JadwalWebController extends Controller
             'room' => 'nullable|string|max:50',
         ]);
 
-        Schedule::create($data);
+        $schedule = Schedule::create($data);
+        activity()->performedOn($schedule)->log('created');
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil ditambahkan');
     }
 
@@ -64,12 +65,14 @@ class JadwalWebController extends Controller
         ]);
 
         $jadwal->update($data);
+        activity()->performedOn($jadwal)->log('updated');
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil diperbarui');
     }
 
     public function destroy(Schedule $jadwal)
     {
         $jadwal->delete();
+        activity()->performedOn($jadwal)->log('deleted');
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus');
     }
 }

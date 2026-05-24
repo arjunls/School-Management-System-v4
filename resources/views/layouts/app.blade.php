@@ -85,8 +85,12 @@
             </a>
         </nav>
         <div class="mt-auto border-t border-slate-800">
-            <div class="px-4 py-4">
-                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+            <div class="px-4 py-4 space-y-1">
+                <a href="{{ route('pengguna.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-users-cog mr-3"></i>
+                    Manajemen User
+                </a>
+                <a href="{{ route('pengaturan.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                     <i class="fas fa-cog mr-3"></i>
                     {{ __('common.pengaturan') }}
                 </a>
