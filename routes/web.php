@@ -1,20 +1,25 @@
 <?php
 
 use App\Http\Middleware\LocaleMiddleware;
+use App\Modules\Auth\Controllers\LoginWebController;
 use App\Modules\Finance\Fee\Controllers\PembayaranController;
 use App\Modules\Reporting\Export\Controllers\ExportController;
 use App\Modules\Reporting\Import\Controllers\ImportController;
 use App\Modules\StudentManagement\Attendance\Controllers\QRCodeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// Web Auth
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginWebController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginWebController::class, 'login'])->name('login.authenticate');
 });
 
-// Login route (for auth middleware redirect)
-Route::get('/login', function () {
-    return view('welcome');
-})->name('login');
+Route::post('/logout', [LoginWebController::class, 'logout'])->name('logout')->middleware('auth');
+
+Route::get('/', function () {
+    if (auth()->check()) return redirect('/dashboard');
+    return redirect('/login');
+});
 
 // Language Switcher
 Route::get('/lang/{locale}', function (string $locale) {
