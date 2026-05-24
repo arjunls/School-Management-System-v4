@@ -29,6 +29,62 @@ Route::get('/lang/{locale}', function (string $locale) {
     return redirect()->back();
 })->name('lang.switch');
 
+// PWA Manifest
+Route::get('/manifest.json', function () {
+    return response()->json([
+        'name' => 'SMK Management V4',
+        'short_name' => 'SMK V4',
+        'start_url' => '/',
+        'display' => 'standalone',
+        'background_color' => '#f8fafc',
+        'theme_color' => '#1e293b',
+        'icons' => [
+            [
+                'src' => '/icons/192',
+                'sizes' => '192x192',
+                'type' => 'image/svg+xml',
+            ],
+            [
+                'src' => '/icons/512',
+                'sizes' => '512x512',
+                'type' => 'image/svg+xml',
+            ],
+        ],
+    ]);
+})->name('manifest');
+
+// PWA Service Worker
+Route::get('/serviceworker.js', function () {
+    $content = <<<'JS'
+const CACHE_NAME = 'smk-v4-cache-v1';
+const urlsToCache = ['/', '/login'];
+
+self.addEventListener('install', event => {
+    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
+});
+
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(response => response || fetch(event.request))
+    );
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(caches.keys().then(names => Promise.all(names.map(n => {
+        if (n !== CACHE_NAME) return caches.delete(n);
+    }))));
+});
+JS;
+    return response($content)->header('Content-Type', 'application/javascript');
+})->name('serviceworker');
+
+// PWA Icons (inline SVG placeholder)
+Route::get('/icons/{size}', function (string $size) {
+    $dim = (int) $size;
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'.$dim.'" height="'.$dim.'" viewBox="0 0 '.$dim.' '.$dim.'"><rect width="'.$dim.'" height="'.$dim.'" fill="#1e293b"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="sans-serif" font-size="'.($dim*0.4).'" font-weight="bold" fill="#ffffff">SMK</text></svg>';
+    return response($svg)->header('Content-Type', 'image/svg+xml');
+})->where('size', '\d+')->name('pwa.icons');
+
 // Admin Panel Routes
 Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-tua,tata-usaha'])->group(function () {
     Route::get('/dashboard', [\App\Modules\Dashboard\Controllers\DashboardWebController::class, 'index'])->name('dashboard')->middleware('role:permission:view-dashboard');
