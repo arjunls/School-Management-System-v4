@@ -28,4 +28,19 @@ class ExportController extends Controller
     {
         return $this->exportService->exportAttendance();
     }
+
+    public function kelas()
+    {
+        return $this->exportService->exportKelas();
+    }
+
+    public function jadwal()
+    {
+        return $this->exportService->exportJadwal();
+    }
+
+    public function pembayaran()
+    {
+        return $this->exportService->exportPembayaran();
+    }
 }

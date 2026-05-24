@@ -9,6 +9,10 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-slate-900">{{ __('common.kelas') }}</h1>
         <div class="flex items-center space-x-3 mt-4 sm:mt-0">
+            <a href="{{ route('export.kelas') }}" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
+                <i class="fas fa-file-export"></i>
+                {{ __('common.export') }}
+            </a>
             <a href="{{ route('kelas.create') }}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
                 <i class="fas fa-plus"></i>
                 {{ __('common.add_new') }}

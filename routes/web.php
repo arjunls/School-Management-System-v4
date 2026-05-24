@@ -217,6 +217,13 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::delete('/{dokumen}', [\App\Modules\Upload\Controllers\DokumenWebController::class, 'destroy'])->name('destroy')->middleware('role:permission:delete-dokumen');
     });
 
+    // Notifikasi
+    Route::prefix('notifikasi')->name('notifikasi.')->group(function () {
+        Route::get('/', [\App\Modules\Communication\Notification\Controllers\NotificationWebController::class, 'index'])->name('index');
+        Route::post('/{id}/read', [\App\Modules\Communication\Notification\Controllers\NotificationWebController::class, 'markAsRead'])->name('markRead');
+        Route::post('/mark-all-read', [\App\Modules\Communication\Notification\Controllers\NotificationWebController::class, 'markAllAsRead'])->name('markAllRead');
+    });
+
     // Rapor Digital
     Route::prefix('rapor')->name('rapor.')->middleware('role:permission:view-laporan')->group(function () {
         Route::get('/', [\App\Modules\Reporting\Report\Controllers\RaporWebController::class, 'index'])->name('index');
@@ -251,6 +258,9 @@ Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-t
         Route::get('/guru', [ExportController::class, 'teachers'])->name('guru')->middleware('role:permission:view-guru');
         Route::get('/nilai', [ExportController::class, 'grades'])->name('nilai')->middleware('role:permission:view-nilai');
         Route::get('/kehadiran', [ExportController::class, 'attendance'])->name('kehadiran')->middleware('role:permission:view-kehadiran');
+        Route::get('/kelas', [ExportController::class, 'kelas'])->name('kelas')->middleware('role:permission:view-kelas');
+        Route::get('/jadwal', [ExportController::class, 'jadwal'])->name('jadwal')->middleware('role:permission:view-jadwal');
+        Route::get('/pembayaran', [ExportController::class, 'pembayaran'])->name('pembayaran')->middleware('role:permission:view-pembayaran');
     });
 
     // Import

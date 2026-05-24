@@ -138,8 +138,8 @@
                             </div>
                             <div class="max-h-64 overflow-y-auto">
                                 <template x-for="item in items" :key="item.id">
-                                    <a href="#" class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0">
-                                        <p class="text-sm text-slate-900" x-text="item.data.subject || '{{ __('common.notifikasi') }}'"></p>
+                                    <a href="{{ route('notifikasi.index') }}" class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0">
+                                        <p class="text-sm text-slate-900" x-text="item.data.title || '{{ __('common.notifikasi') }}'"></p>
                                         <p class="text-xs text-slate-500 mt-1" x-text="new Date(item.created_at).toLocaleDateString('id-ID')"></p>
                                     </a>
                                 </template>
@@ -147,10 +147,16 @@
                                     <p class="text-sm text-slate-500 text-center py-6">{{ __('common.no_notifications') }}</p>
                                 </template>
                             </div>
+                            <div class="p-2 border-t border-slate-200 text-center">
+                                <a href="{{ route('notifikasi.index') }}" class="text-sm text-blue-600 hover:text-blue-800">Lihat Semua Notifikasi</a>
+                            </div>
                         </div>
                         <script>
                             function fetchNotifications() {
-                                fetch('/api/notifications/unread', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                                const token = localStorage.getItem('token');
+                                const url = token ? '/api/notifications/unread' : '/api/notifications/unread';
+                                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                                fetch(url, { headers })
                                     .then(r => r.json())
                                     .then(d => {
                                         if (d.success) {

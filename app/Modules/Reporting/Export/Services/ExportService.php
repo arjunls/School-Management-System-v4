@@ -4,7 +4,9 @@ namespace App\Modules\Reporting\Export\Services;
 
 use App\Models\User;
 use App\Modules\Academic\Class\Models\Kelas;
+use App\Modules\Academic\Schedule\Models\Schedule;
 use App\Modules\Academic\Subject\Models\Subject;
+use App\Modules\Finance\Fee\Models\FeeInvoice;
 use App\Modules\Learning\Grade\Models\Grade;
 use App\Modules\StudentManagement\Attendance\Models\AttendanceRecord;
 use Illuminate\Support\Facades\Storage;
@@ -89,6 +91,63 @@ class ExportService
                     $r->date,
                     $r->status,
                     $r->note ?? '-',
+                ];
+            }
+        });
+    }
+
+    public function exportKelas(): StreamedResponse
+    {
+        $kelas = Kelas::with('homeroomTeacher')->get();
+        return $this->csvResponse('data-kelas.csv', [
+            ['Nama Kelas', 'Tingkat', 'Wali Kelas', 'Kapasitas', 'Jumlah Siswa'],
+        ], function () use ($kelas) {
+            foreach ($kelas as $k) {
+                yield [
+                    $k->name,
+                    $k->grade_level,
+                    $k->homeroomTeacher?->name,
+                    $k->capacity,
+                    $k->students()->count(),
+                ];
+            }
+        });
+    }
+
+    public function exportJadwal(): StreamedResponse
+    {
+        $jadwal = Schedule::with(['class', 'subject', 'teacher'])->get();
+        return $this->csvResponse('data-jadwal.csv', [
+            ['Kelas', 'Mata Pelajaran', 'Guru', 'Hari', 'Jam Mulai', 'Jam Selesai', 'Ruang'],
+        ], function () use ($jadwal) {
+            foreach ($jadwal as $j) {
+                yield [
+                    $j->class?->name,
+                    $j->subject?->name,
+                    $j->teacher?->name,
+                    $j->day_of_week,
+                    $j->start_time,
+                    $j->end_time,
+                    $j->room,
+                ];
+            }
+        });
+    }
+
+    public function exportPembayaran(): StreamedResponse
+    {
+        $invoices = FeeInvoice::with(['student', 'feeType'])->get();
+        return $this->csvResponse('data-pembayaran.csv', [
+            ['NIS', 'Nama Siswa', 'Jenis Tagihan', 'Jumlah', 'Jatuh Tempo', 'Status'],
+        ], function () use ($invoices) {
+            foreach ($invoices as $inv) {
+                yield [
+                    $inv->student_id,
+                    $inv->student?->name,
+                    $inv->feeType?->name,
+                    $inv->amount,
+                    $inv->due_date,
+                    $inv->status,
                 ];
             }
         });
