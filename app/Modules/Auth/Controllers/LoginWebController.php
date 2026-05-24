@@ -47,7 +47,7 @@ class LoginWebController extends Controller
         return match (true) {
             $user->hasRole('super-admin') || $user->hasRole('admin') || $user->hasRole('tata-usaha') => '/dashboard',
             $user->hasRole('guru') || $user->hasRole('wali-kelas') => '/dashboard',
-            $user->hasRole('siswa') => '/nilai',
+            $user->hasRole('siswa') => '/siswa/dashboard',
             $user->hasRole('orang-tua') => '/dashboard',
             default => '/dashboard',
         };

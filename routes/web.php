@@ -33,7 +33,16 @@ Route::get('/lang/{locale}', function (string $locale) {
 Route::middleware(['auth', 'role:super-admin,admin,guru,wali-kelas,siswa,orang-tua,tata-usaha'])->group(function () {
     Route::get('/dashboard', [\App\Modules\Dashboard\Controllers\DashboardWebController::class, 'index'])->name('dashboard')->middleware('role:permission:view-dashboard');
 
-    // Siswa
+    // Siswa Portal (role: siswa)
+    Route::prefix('siswa')->name('siswa.portal.')->middleware('role:siswa')->group(function () {
+        Route::get('/dashboard', [\App\Modules\StudentManagement\Student\Controllers\SiswaPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/nilai', [\App\Modules\StudentManagement\Student\Controllers\SiswaPortalController::class, 'grades'])->name('grades');
+        Route::get('/kehadiran', [\App\Modules\StudentManagement\Student\Controllers\SiswaPortalController::class, 'attendance'])->name('attendance');
+        Route::get('/jadwal', [\App\Modules\StudentManagement\Student\Controllers\SiswaPortalController::class, 'schedule'])->name('schedule');
+        Route::get('/tagihan', [\App\Modules\StudentManagement\Student\Controllers\SiswaPortalController::class, 'payments'])->name('payments');
+    });
+
+    // Siswa CRUD
     Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'index'])->name('index')->middleware('role:permission:view-siswa');
         Route::get('/create', [\App\Modules\StudentManagement\Student\Controllers\SiswaWebController::class, 'create'])->name('create')->middleware('role:permission:create-siswa');
