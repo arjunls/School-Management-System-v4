@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'title' => 'Dashboard',
+    'total_siswa' => 'Total Students',
+    'total_guru' => 'Total Teachers',
+    'total_kelas' => 'Total Classes',
+    'tingkat_kehadiran' => 'Attendance Rate',
+    'laporan_baru' => 'New Report',
+    'export_data' => 'Export Data',
+    'tren_pendaftaran' => 'Student Enrollment Trend',
+    'distribusi_kehadiran' => 'Attendance Distribution',
+    'distribusi_nilai' => 'Grade Distribution by Subject',
+    'aktivitas_terbaru' => 'Recent Activity',
+    'lihat_semua' => 'View All',
+    'aksi_cepat' => 'Quick Actions',
+    'tambah_siswa' => 'Add New Student',
+    'tambah_guru' => 'Add New Teacher',
+    'buat_kelas' => 'Create New Class',
+    'ambil_absensi' => 'Take Attendance',
+    'generate_laporan' => 'Generate Report',
+    'acara_mendatang' => 'Upcoming Events',
+    'hadir' => 'Present',
+    'sakit' => 'Sick',
+    'izin' => 'Permit',
+    'alpha' => 'Absent',
+];

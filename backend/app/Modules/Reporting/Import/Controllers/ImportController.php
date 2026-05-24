@@ -3,110 +3,92 @@
 namespace App\Modules\Reporting\Import\Controllers;
 
 use App\Kernel\Http\Controllers\Controller;
-use App\Models\User;
+use App\Modules\Reporting\Import\Services\ImportService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use App\Modules\Reporting\Import\Requests\ImportUsersRequest;
-use Illuminate\Support\Facades\Validator;
 
-/**
- * @group Imports
- *
- * APIs for importing data
- */
 class ImportController extends Controller
 {
-    /**
-     * Import students from CSV
-     */
-    public function importStudents(Request $request)
+    public function __construct(private ImportService $importService) {}
+
+    public function students(Request $request)
     {
-        return $this->importUsers($request, 'student');
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importStudents($rows, $request->kelas_id);
+        return redirect()->back()->with('import_result', $result);
     }
 
-    /**
-     * Import teachers from CSV
-     */
-    public function importTeachers(Request $request)
+    public function grades(Request $request)
     {
-        return $this->importUsers($request, 'teacher');
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importGrades($rows);
+        return redirect()->back()->with('import_result', $result);
     }
 
-    protected function importUsers(Request $request, string $role)
+    public function attendance(Request $request)
     {
-        try {
-            $request->validate([
-                'file' => 'required|file|mimes:csv,txt|max:2048',
-            ]);
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importAttendance($rows);
+        return redirect()->back()->with('import_result', $result);
+    }
 
-            $file = $request->file('file');
-            $handle = fopen($file->getPathname(), 'r');
-            $headers = fgetcsv($handle);
+    public function classes(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importClasses($rows);
+        return redirect()->back()->with('import_result', $result);
+    }
 
-            $required = ['name', 'email'];
-            $missing = array_diff($required, array_map('strtolower', $headers));
-            if (! empty($missing)) {
-                fclose($handle);
-                return $this->error('CSV must contain columns: ' . implode(', ', $required), 422);
+    public function subjects(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importSubjects($rows);
+        return redirect()->back()->with('import_result', $result);
+    }
+
+    public function schedules(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importSchedules($rows);
+        return redirect()->back()->with('import_result', $result);
+    }
+
+    public function teachers(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importTeachers($rows);
+        return redirect()->back()->with('import_result', $result);
+    }
+
+    public function payments(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
+        $rows = $this->parseCsv($request->file('file'));
+        $result = $this->importService->importPayments($rows);
+        return redirect()->back()->with('import_result', $result);
+    }
+
+    private function parseCsv($file): array
+    {
+        $handle = fopen($file->getRealPath(), 'r');
+        $headers = fgetcsv($handle);
+        $headers = array_map(function ($h) {
+            return strtolower(trim(str_replace([' ', '-'], '_', $h)));
+        }, $headers);
+
+        $rows = [];
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) === count($headers)) {
+                $rows[] = array_combine($headers, $row);
             }
-
-            $headerMap = [];
-            foreach ($headers as $i => $h) {
-                $headerMap[strtolower(trim($h))] = $i;
-            }
-
-            $created = 0;
-            $errors = [];
-            $rowNum = 1;
-
-            while (($row = fgetcsv($handle)) !== false) {
-                $rowNum++;
-                $data = [];
-                foreach ($headerMap as $field => $index) {
-                    $data[$field] = $row[$index] ?? '';
-                }
-
-                $data['password'] = $data['password'] ?? 'password';
-                $data['role'] = $role;
-
-                $validator = Validator::make($data, [
-                    'name' => 'required|string|max:255',
-                    'email' => 'required|string|email|max:255|unique:users,email',
-                    'password' => 'required|string|min:8',
-                    'phone' => 'nullable|string|max:20',
-                    'address' => 'nullable|string',
-                    'gender' => 'nullable|in:male,female,other',
-                    'nisn' => 'nullable|string|max:20|unique:users,nisn',
-                    'status' => 'nullable|in:active,inactive,suspended',
-                ]);
-
-                if ($validator->fails()) {
-                    $errors[] = "Row {$rowNum}: " . implode('; ', $validator->errors()->all());
-                    continue;
-                }
-
-                $validated = $validator->validated();
-                $validated['password'] = Hash::make($validated['password']);
-                $validated['role'] = $role;
-                $validated['status'] = $validated['status'] ?? 'active';
-
-                User::create($validated);
-                $created++;
-            }
-
-            fclose($handle);
-
-            $data = [
-                'created' => $created,
-                'errors' => $errors,
-                'total' => $created + count($errors),
-            ];
-            $message = "Imported {$created} {$role}(s)" . (! empty($errors) ? " with " . count($errors) . " error(s)" : '');
-            return $this->success($data, $message);
-        } catch (\Exception $e) {
-            Log::error('Error importing ' . $role . 's', ['exception' => $e]);
-            return $this->error('Internal server error', 500);
         }
+        fclose($handle);
+        return $rows;
     }
 }

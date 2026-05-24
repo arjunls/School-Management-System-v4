@@ -30,21 +30,34 @@ class DatabaseSeeder extends Seeder
             'date_of_birth' => '1990-01-01',
             'gender' => 'male',
         ]);
-        $admin->assignRole('admin');
-
-        // Teacher account
-        $teacher = User::factory()->create([
-            'name' => 'Budi Guru',
-            'email' => 'teacher@school.com',
-            'password' => Hash::make('password'),
-            'role' => 'teacher',
+$admin->assignRole('admin');
+ 
+         // Super Admin account
+         $superAdmin = User::factory()->create([
+             'name' => 'Super Admin',
+             'email' => 'superadmin@school.com',
+             'password' => Hash::make('password'),
+             'role' => 'super-admin',
+             'status' => 'active',
+             'phone' => '081234567899',
+             'date_of_birth' => '1985-01-01',
+             'gender' => 'male',
+         ]);
+         $superAdmin->assignRole('super-admin');
+ 
+         // Teacher account
+         $teacher = User::factory()->create([
+             'name' => 'Budi Guru',
+             'email' => 'teacher@school.com',
+             'password' => Hash::make('password'),
+             'role' => 'guru',
             'status' => 'active',
             'phone' => '081234567891',
             'address' => 'Jl. Mengajar No. 2',
             'date_of_birth' => '1992-06-15',
             'gender' => 'male',
         ]);
-        $teacher->assignRole('teacher');
+        $teacher->assignRole('guru');
 
         // Demo classes
         $kelas10 = Kelas::create(['name' => 'X A', 'grade_level' => 10, 'capacity' => 30]);
@@ -63,7 +76,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Siti Murid',
             'email' => 'student@school.com',
             'password' => Hash::make('password'),
-            'role' => 'student',
+            'role' => 'siswa',
             'status' => 'active',
             'phone' => '081234567892',
             'address' => 'Jl. Belajar No. 3',
@@ -77,7 +90,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Ahmad Santoso',
             'email' => 'ahmad@school.com',
             'password' => Hash::make('password'),
-            'role' => 'student',
+            'role' => 'siswa',
             'status' => 'active',
             'phone' => '081234567893',
             'date_of_birth' => '2008-05-12',
@@ -90,7 +103,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Dewi Lestari',
             'email' => 'dewi@school.com',
             'password' => Hash::make('password'),
-            'role' => 'student',
+            'role' => 'siswa',
             'status' => 'active',
             'phone' => '081234567894',
             'date_of_birth' => '2008-07-22',
@@ -100,7 +113,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         foreach ([$student1, $student2, $student3] as $s) {
-            $s->assignRole('student');
+            $s->assignRole('siswa');
         }
 
         // Parent account
@@ -108,13 +121,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Rina Orang Tua',
             'email' => 'parent@school.com',
             'password' => Hash::make('password'),
-            'role' => 'parent',
+            'role' => 'orang-tua',
             'status' => 'active',
             'phone' => '081234567895',
             'date_of_birth' => '1980-05-10',
             'gender' => 'female',
         ]);
-        $parent->assignRole('parent');
+        $parent->assignRole('orang-tua');
         $parent->children()->attach([$student1->id => ['relationship' => 'Ibu'], $student2->id => ['relationship' => 'Ibu']]);
 
         $students = [$student1, $student2, $student3];

@@ -13,42 +13,89 @@ class RolePermissionSeeder extends Seeder
         app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissions = [
-            'view-students', 'create-students', 'edit-students', 'delete-students',
-            'view-teachers', 'create-teachers', 'edit-teachers', 'delete-teachers',
-            'view-classes', 'create-classes', 'edit-classes', 'delete-classes',
-            'view-subjects', 'create-subjects', 'edit-subjects', 'delete-subjects',
-            'view-schedules', 'create-schedules', 'edit-schedules', 'delete-schedules',
-            'view-grades', 'create-grades', 'edit-grades', 'delete-grades',
-            'view-attendance', 'create-attendance', 'edit-attendance', 'delete-attendance',
-            'import-data', 'export-data',
+            // Dashboard
             'view-dashboard',
+            // Siswa
+            'view-siswa', 'create-siswa', 'edit-siswa', 'delete-siswa',
+            // Guru
+            'view-guru', 'create-guru', 'edit-guru', 'delete-guru',
+            // Kelas
+            'view-kelas', 'create-kelas', 'edit-kelas', 'delete-kelas',
+            // Kehadiran
+            'view-kehadiran', 'create-kehadiran', 'edit-kehadiran', 'delete-kehadiran',
+            // Jadwal
+            'view-jadwal', 'create-jadwal', 'edit-jadwal', 'delete-jadwal',
+            // Nilai
+            'view-nilai', 'create-nilai', 'edit-nilai', 'delete-nilai',
+            // Pembayaran
+            'view-pembayaran', 'create-pembayaran', 'edit-pembayaran', 'delete-pembayaran',
+            // Laporan
+            'view-laporan', 'create-laporan', 'edit-laporan', 'delete-laporan',
+            // Dokumen
+            'view-dokumen', 'create-dokumen', 'edit-dokumen', 'delete-dokumen',
+            // Data
+            'import-data', 'export-data',
+            // Pengaturan
+            'manage-pengaturan', 'manage-users',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
+        // Super Admin — all permissions
+        $superAdmin = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
+        $superAdmin->givePermissionTo(Permission::all());
+
+        // Admin Sekolah — all permissions
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->givePermissionTo(Permission::all());
 
-        $teacher = Role::firstOrCreate(['name' => 'teacher', 'guard_name' => 'web']);
+        // Guru
+        $teacher = Role::firstOrCreate(['name' => 'guru', 'guard_name' => 'web']);
         $teacher->givePermissionTo([
-            'view-students', 'view-classes',
-            'view-subjects', 'view-schedules',
-            'view-grades', 'create-grades', 'edit-grades',
-            'view-attendance', 'create-attendance', 'edit-attendance',
-            'export-data',
             'view-dashboard',
+            'view-siswa', 'create-siswa', 'edit-siswa',
+            'view-guru',
+            'view-kelas',
+            'view-kehadiran', 'create-kehadiran', 'edit-kehadiran',
+            'view-jadwal',
+            'view-nilai', 'create-nilai', 'edit-nilai',
+            'view-pembayaran',
+            'view-laporan', 'create-laporan',
+            'view-dokumen', 'create-dokumen',
+            'export-data',
         ]);
 
-        $student = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'web']);
+        // Wali Kelas (extends Guru)
+        $waliKelas = Role::firstOrCreate(['name' => 'wali-kelas', 'guard_name' => 'web']);
+        $waliKelas->givePermissionTo($teacher->permissions);
+        $waliKelas->givePermissionTo(['edit-kelas', 'delete-kehadiran', 'delete-nilai']);
+
+        // Siswa
+        $student = Role::firstOrCreate(['name' => 'siswa', 'guard_name' => 'web']);
         $student->givePermissionTo([
-            'view-grades', 'view-schedules', 'view-attendance', 'view-dashboard',
+            'view-dashboard',
+            'view-jadwal',
+            'view-nilai',
+            'view-kehadiran',
+            'view-laporan',
+            'view-dokumen',
         ]);
 
-        $parent = Role::firstOrCreate(['name' => 'parent', 'guard_name' => 'web']);
+        // Orang Tua
+        $parent = Role::firstOrCreate(['name' => 'orang-tua', 'guard_name' => 'web']);
         $parent->givePermissionTo([
-            'view-grades', 'view-schedules', 'view-attendance', 'view-dashboard',
+            'view-dashboard',
+            'view-jadwal',
+            'view-nilai',
+            'view-kehadiran',
+            'view-pembayaran',
+            'view-laporan',
         ]);
+
+        // Tata Usaha
+        $tataUsaha = Role::firstOrCreate(['name' => 'tata-usaha', 'guard_name' => 'web']);
+        $tataUsaha->givePermissionTo(Permission::all());
     }
 }

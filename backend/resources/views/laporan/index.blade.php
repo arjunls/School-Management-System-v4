@@ -2,76 +2,89 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">Laporan</h1>
-        <div class="flex items-center space-x-3 mt-4 sm:mt-0">
-            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-                <i class="fas fa-plus"></i>
-                Buat Laporan Baru
-            </button>
-            <button class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-2">
-                <i class="fas fa-file-export"></i>
-                Ekspor Laporan
-            </button>
+        <h1 class="text-2xl font-bold text-slate-900">{{ __('common.laporan') }}</h1>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Siswa</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ number_format($totalSiswa) }}</p>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-lg"><i class="fas fa-user-graduate text-blue-600 text-xl"></i></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Guru</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ number_format($totalGuru) }}</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-lg"><i class="fas fa-chalkboard-teacher text-green-600 text-xl"></i></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Nilai</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ number_format($totalGrades) }}</p>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-lg"><i class="fas fa-list text-purple-600 text-xl"></i></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Kehadiran</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ number_format($totalAttendance) }}</p>
+                </div>
+                <div class="bg-orange-50 p-3 rounded-lg"><i class="fas fa-check-square text-orange-600 text-xl"></i></div>
+            </div>
         </div>
     </div>
 
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div class="relative w-full sm:w-auto mb-4 sm:mb-0">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" placeholder="Cari laporan..." class="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-            </div>
-            
-            <div class="flex space-x-3">
-                <select class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[200px]">
-                    <option value="">Semua Tipe</option>
-                    <option value="">Kehadiran</option>
-                    <option value="">Nilai</option>
-                    <option value="">Pembayaran</option>
-                </select>
-                <select class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[200px]">
-                    <option value="">Semua Bulan</option>
-                    <option value="">Januari</option>
-                    <option value="">Februari</option>
-                    <option value="">Maret</option>
-                </select>
+    <div class="grid gap-6 md:grid-cols-2">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-4">Rekapitulasi Kehadiran</h2>
+            <div class="space-y-3">
+                @php $colors = ['hadir' => 'bg-green-500', 'sakit' => 'bg-yellow-500', 'izin' => 'bg-blue-500', 'alpha' => 'bg-red-500']; @endphp
+                @foreach(['hadir', 'sakit', 'izin', 'alpha'] as $s)
+                @php $total = $rekapKehadiran[$s] ?? 0; $max = max($rekapKehadiran->sum(), 1); @endphp
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium text-slate-700">{{ ucfirst($s) }}</span>
+                        <span class="text-slate-500">{{ $total }}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2">
+                        <div class="{{ $colors[$s] }} h-2 rounded-full" style="width: {{ ($total / $max) * 100 }}%"></div>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
-    </div>
 
-    <!-- Reports Table -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Judul</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tipe</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tanggal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200">
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">RPT001</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Laporan Kehadiran Januari</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">Kehadiran</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">2024-01-31</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded hover:bg-blue-50">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="ml-2 text-green-600 hover:text-green-900 px-3 py-1 rounded hover:bg-green-50">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-4">Akses Laporan</h2>
+            <div class="space-y-3">
+                <a href="{{ route('laporan.attendance') }}" class="flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <span class="font-medium text-slate-700"><i class="fas fa-calendar-check mr-2 text-orange-500"></i>Kehadiran</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+                <a href="{{ route('laporan.grades') }}" class="flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <span class="font-medium text-slate-700"><i class="fas fa-list mr-2 text-purple-500"></i>Nilai</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+                <a href="{{ route('laporan.payments') }}" class="flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <span class="font-medium text-slate-700"><i class="fas fa-credit-card mr-2 text-green-500"></i>Pembayaran</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+                <a href="{{ route('export.siswa') }}" class="flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <span class="font-medium text-slate-700"><i class="fas fa-download mr-2 text-blue-500"></i>Export Data Siswa (CSV)</span>
+                    <i class="fas fa-chevron-right text-slate-400"></i>
+                </a>
+            </div>
         </div>
     </div>
 </div>

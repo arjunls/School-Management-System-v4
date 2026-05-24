@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Management System</title>
+    <link rel="manifest" href="{{ url('/manifest.json') }}">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SMK V4">
+    <link rel="apple-touch-icon" href="{{ url('/icons/192') }}">
     <script src="https://cdn.tailwindcss.com" data-tailwind-config='{ "darkMode": "class" }'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Custom styles for smooth transitions */
@@ -14,62 +21,240 @@
         }
     </style>
 </head>
-<body class="flex h-screen bg-gray-50">
+<body class="flex h-screen bg-gray-50 {{ auth()->check() && \App\Models\Setting::getValue('dark_mode_' . auth()->id(), 'false') === 'true' ? 'dark' : '' }}">
     <!-- Sidebar -->
     <div class="sidebar-transition w-64 bg-slate-900 text-white flex-shrink-0">
         <div class="px-4 py-6 border-b border-slate-800">
             <h1 class="text-xl font-bold flex items-center gap-3">
                 <i class="fas fa-school text-blue-400"></i>
-                SchoolMS
+                {{ __('common.app_name') }}
             </h1>
         </div>
         <nav class="mt-6 space-y-1">
             <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-tachometer-alt mr-3"></i>
-                Dashboard
+                {{ __('common.dashboard') }}
+            </a>
+            <a href="{{ route('messages.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-comments mr-3"></i>
+                Pesan
+            </a>
+            <a href="{{ route('pengumuman.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-bullhorn mr-3"></i>
+                Pengumuman
             </a>
             <a href="{{ route('siswa.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-user-graduate mr-3"></i>
-                Siswa
+                {{ __('common.siswa') }}
             </a>
             <a href="{{ route('guru.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-chalkboard-teacher mr-3"></i>
-                Guru
+                {{ __('common.guru') }}
             </a>
+            @can('view-nilai')
+            <a href="{{ route('guru.portal.dashboard') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-user-tie mr-3"></i>
+                Portal Guru
+            </a>
+            @endcan
             <a href="{{ route('kelas.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-chalkboard mr-3"></i>
-                Kelas
+                {{ __('common.kelas') }}
+            </a>
+            <a href="{{ route('mapel.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-book mr-3"></i>
+                Mapel
             </a>
             <a href="{{ route('kehadiran.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-check-square mr-3"></i>
-                Kehadiran
+                {{ __('common.kehadiran') }}
             </a>
             <a href="{{ route('jadwal.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-calendar-alt mr-3"></i>
-                Jadwal
+                {{ __('common.jadwal') }}
             </a>
             <a href="{{ route('nilai.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-list mr-3"></i>
-                Nilai
+                {{ __('common.nilai') }}
+            </a>
+            <a href="{{ route('tugas.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-tasks mr-3"></i>
+                Tugas / LKPD
+            </a>
+            <a href="{{ route('jadwal-ujian.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-calendar-check mr-3"></i>
+                Jadwal Ujian
+            </a>
+            <a href="{{ route('kuis.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-question-circle mr-3"></i>
+                Kuis Online
+            </a>
+            <a href="{{ route('jurnal.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-book-open mr-3"></i>
+                Jurnal Mengajar
+            </a>
+            <a href="{{ route('curriculum.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-sitemap mr-3"></i>
+                Kurikulum Merdeka
+            </a>
+            <a href="{{ route('spp.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-money-bill-wave mr-3"></i>
+                SPP Otomatis
             </a>
             <a href="{{ route('pembayaran.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-credit-card mr-3"></i>
-                Pembayaran
+                {{ __('common.pembayaran') }}
+            </a>
+            <a href="{{ route('payment.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-credit-card mr-3"></i>
+                Payment Gateway
             </a>
             <a href="{{ route('laporan.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-chart-bar mr-3"></i>
-                Laporan
+                {{ __('common.laporan') }}
+            </a>
+            <a href="{{ route('rapor.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-file-pdf mr-3"></i>
+                Rapor Digital
             </a>
             <a href="{{ route('dokumen.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                 <i class="fas fa-file-alt mr-3"></i>
-                Dokumen
+                {{ __('common.dokumen') }}
+            </a>
+            <a href="{{ route('activity.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-history mr-3"></i>
+                Aktivitas
+            </a>
+            <a href="{{ route('kalender.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-calendar mr-3"></i>
+                Kalender
+            </a>
+            <a href="{{ route('perpustakaan.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-book-open mr-3"></i>
+                Perpustakaan
+            </a>
+            <a href="{{ route('uks.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-notes-medical mr-3"></i>
+                UKS
+            </a>
+            <a href="{{ route('ekskul.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-trophy mr-3"></i>
+                Ekskul
+            </a>
+            <a href="{{ route('bk.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-hand-holding-heart mr-3"></i>
+                BK
+            </a>
+            <a href="{{ route('career.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-compass mr-3"></i>
+                Bimbingan Karir
+            </a>
+            <a href="{{ route('pelanggaran.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-exclamation-triangle mr-3"></i>
+                Pelanggaran
+            </a>
+            <a href="{{ route('prestasi.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-star mr-3"></i>
+                Prestasi
+            </a>
+            <a href="{{ route('p5.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-leaf mr-3"></i>
+                P5 Projek
+            </a>
+            <a href="{{ route('pkl.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-briefcase mr-3"></i>
+                PKL / Prakerin
+            </a>
+            <a href="{{ route('alumni.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-user-graduate mr-3"></i>
+                Alumni
+            </a>
+            <a href="{{ route('asrama.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-bed mr-3"></i>
+                Asrama
+            </a>
+            <a href="{{ route('transportasi.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-bus mr-3"></i>
+                Transportasi
+            </a>
+            <a href="{{ route('bkk.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-briefcase mr-3"></i>
+                BKK / Mitra Industri
+            </a>
+            <a href="{{ route('ukk.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-certificate mr-3"></i>
+                UKK / Sertifikasi
+            </a>
+            <a href="{{ route('tefa.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-industry mr-3"></i>
+                TEFA / Teaching Factory
+            </a>
+            <a href="{{ route('industry.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-industry mr-3"></i>
+                Kelas Industri
+            </a>
+            <a href="{{ route('polling.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-chart-pie mr-3"></i>
+                Polling
+            </a>
+            <a href="{{ route('hr.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-users-cog mr-3"></i>
+                Kepegawaian
+            </a>
+            <a href="{{ route('asset.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-boxes mr-3"></i>
+                Manajemen Aset
+            </a>
+            <a href="{{ route('koperasi.index') }}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                <i class="fas fa-store mr-3"></i>
+                Koperasi
             </a>
         </nav>
         <div class="mt-auto border-t border-slate-800">
-            <div class="px-4 py-4">
-                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+            <div class="px-4 py-4 space-y-1">
+                <a href="{{ route('pengguna.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-users-cog mr-3"></i>
+                    Manajemen User
+                </a>
+                <a href="{{ route('roles.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-shield-alt mr-3"></i>
+                    Role & Permission
+                </a>
+                <a href="{{ route('import.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-file-import mr-3"></i>
+                    Import CSV
+                </a>
+                <a href="{{ route('budget.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-chart-pie mr-3"></i>
+                    Anggaran RKAS/BOS
+                </a>
+                <a href="{{ route('kenaikan.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-arrow-up mr-3"></i>
+                    Kenaikan Kelas
+                </a>
+                <a href="{{ route('printing.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-print mr-3"></i>
+                    Cetak Massal
+                </a>
+                <a href="{{ route('website.posts.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-globe mr-3"></i>
+                    Website CMS
+                </a>
+                <a href="{{ url('/ppdb') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-door-open mr-3"></i>
+                    PPDB Online
+                </a>
+                <a href="{{ route('pengaturan.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
                     <i class="fas fa-cog mr-3"></i>
-                    Pengaturan
+                    {{ __('common.pengaturan') }}
+                </a>
+                <a href="{{ route('dapodik.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-database mr-3"></i>
+                    Dapodik
+                </a>
+                <a href="{{ route('backup.index') }}" class="flex items-center px-3 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors sidebar-transition">
+                    <i class="fas fa-database mr-3"></i>
+                    Backup
                 </a>
             </div>
         </div>
@@ -89,38 +274,93 @@
                 <div class="flex-1 mx-6">
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        <input type="text" placeholder="{{ __('common.search') }}" class="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                     </div>
                 </div>
                 
                 <!-- User Actions -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-                    <div class="relative">
-                        <button class="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors">
+                    <div class="relative" x-data="{ open: false, count: 0, items: [] }">
+                        <button @click="open = !open; if(open) fetchNotifications()" class="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors relative">
                             <i class="fas fa-bell"></i>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
+                            <span x-show="count > 0" x-text="count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium"></span>
                         </button>
+                        <!-- Dropdown -->
+                        <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-200 z-50">
+                            <div class="p-3 border-b border-slate-200 flex items-center justify-between">
+                                <span class="font-semibold text-slate-900">{{ __('common.notifikasi') }}</span>
+                                <button @click="markAllRead()" class="text-xs text-blue-600 hover:text-blue-800">{{ __('common.mark_all_read') }}</button>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <template x-for="item in items" :key="item.id">
+                                    <a href="{{ route('notifikasi.index') }}" class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0">
+                                        <p class="text-sm text-slate-900" x-text="item.data.title || '{{ __('common.notifikasi') }}'"></p>
+                                        <p class="text-xs text-slate-500 mt-1" x-text="new Date(item.created_at).toLocaleDateString('id-ID')"></p>
+                                    </a>
+                                </template>
+                                <template x-if="items.length === 0">
+                                    <p class="text-sm text-slate-500 text-center py-6">{{ __('common.no_notifications') }}</p>
+                                </template>
+                            </div>
+                            <div class="p-2 border-t border-slate-200 text-center">
+                                <a href="{{ route('notifikasi.index') }}" class="text-sm text-blue-600 hover:text-blue-800">Lihat Semua Notifikasi</a>
+                            </div>
+                        </div>
+                        <script>
+                            function fetchNotifications() {
+                                const token = localStorage.getItem('token');
+                                const url = token ? '/api/notifications/unread' : '/api/notifications/unread';
+                                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                                fetch(url, { headers })
+                                    .then(r => r.json())
+                                    .then(d => {
+                                        if (d.success) {
+                                            document.querySelector('[x-data]').__x.$data.count = d.data.count;
+                                            document.querySelector('[x-data]').__x.$data.items = d.data.notifications;
+                                        }
+                                    }).catch(() => {});
+                            }
+                        </script>
                     </div>
                     
+                    <!-- Language Switcher -->
+                    <div class="relative">
+                        <button class="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors text-sm font-medium">
+                            {{ app()->getLocale() === 'id' ? 'ID' : 'EN' }}
+                        </button>
+                        <div class="absolute right-0 mt-2 w-24 bg-white rounded-xl shadow-lg border border-slate-200 z-50 hidden">
+                            <div class="py-1">
+                                <a href="{{ route('lang.switch', 'id') }}" class="block px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 {{ app()->getLocale() === 'id' ? 'font-bold text-blue-600' : '' }}">Indonesia</a>
+                                <a href="{{ route('lang.switch', 'en') }}" class="block px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 {{ app()->getLocale() === 'en' ? 'font-bold text-blue-600' : '' }}">English</a>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Theme Toggle -->
                     <button id="theme-toggle" class="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors">
-                        <i class="fas fa-moon"></i>
+                        <i class="fas {{ \App\Models\Setting::getValue('dark_mode_' . auth()->id(), 'false') === 'true' ? 'fa-sun' : 'fa-moon' }}"></i>
                     </button>
                     
                     <!-- User Dropdown -->
                     <div class="relative">
                         <button class="flex items-center space-x-2 p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors">
-                            <img src="https://via.placeholder.com/32" alt="User" class="w-8 h-8 rounded-full">
-                            <span class="hidden md:block font-medium">Admin User</span>
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium">
+                                {{ substr(auth()->user()?->name ?? 'U', 0, 1) }}
+                            </div>
+                            <span class="hidden md:block font-medium">{{ auth()->user()?->name ?? 'User' }}</span>
                             <i class="fas fa-chevron-down ml-1 text-xs"></i>
                         </button>
                         <!-- Dropdown Menu -->
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50 hidden">
                             <div class="py-2">
-                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Profile</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Settings</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Logout</a>
+                                <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{{ __('common.profil_saya') }}</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{{ __('common.pengaturan') }}</a>
+                                <hr class="my-1 border-slate-200">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">{{ __('common.logout') }}</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -134,24 +374,26 @@
         </main>
     </div>
 
+    @stack('scripts')
     <script>
         // Mobile sidebar toggle
         document.getElementById('mobile-menu-button').addEventListener('click', function() {
 document.querySelector('.bg-slate-900').classList.toggle('-translate-x-full');
         });
 
-        // Theme toggle (simplified)
+        // Theme toggle with persist
         document.getElementById('theme-toggle').addEventListener('click', function() {
+            const isDark = !document.documentElement.classList.contains('dark');
             document.documentElement.classList.toggle('dark');
-            // Update icon
             const icon = this.querySelector('i');
-            if (document.documentElement.classList.contains('dark')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
+            icon.classList.remove(isDark ? 'fa-moon' : 'fa-sun');
+            icon.classList.add(isDark ? 'fa-sun' : 'fa-moon');
+            // Save preference
+            fetch('{{ route("theme.toggle") }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dark_mode: isDark ? 'true' : 'false' })
+            });
         });
 
         // Dropdown toggle
@@ -169,6 +411,14 @@ document.querySelector('.bg-slate-900').classList.toggle('-translate-x-full');
                 });
             }
         });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('{{ url("/serviceworker.js") }}');
+            });
+        }
     </script>
 </body>
 </html>

@@ -106,4 +106,19 @@ class User extends Authenticatable
         return $this->belongsToMany(\App\Modules\Communication\Message\Models\Conversation::class, 'conversation_participants')
             ->withPivot('last_read_at');
     }
+
+    public function alumni(): HasOne
+    {
+        return $this->hasOne(\App\Modules\StudentLife\Alumni\Models\Alumni::class, 'student_id');
+    }
+
+    public function careerInterests()
+    {
+        return $this->hasMany(\App\Modules\StudentLife\Career\Models\CareerInterest::class, 'student_id');
+    }
+
+    public function careerPlans()
+    {
+        return $this->hasMany(\App\Modules\StudentLife\Career\Models\CareerPlan::class, 'student_id');
+    }
 }

@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'title' => 'Dashboard',
+    'total_siswa' => 'Total Siswa',
+    'total_guru' => 'Total Guru',
+    'total_kelas' => 'Total Kelas',
+    'tingkat_kehadiran' => 'Tingkat Kehadiran',
+    'laporan_baru' => 'Laporan Baru',
+    'export_data' => 'Export Data',
+    'tren_pendaftaran' => 'Tren Pendaftaran Siswa',
+    'distribusi_kehadiran' => 'Distribusi Kehadiran',
+    'distribusi_nilai' => 'Distribusi Nilai per Mata Pelajaran',
+    'aktivitas_terbaru' => 'Aktivitas Terbaru',
+    'lihat_semua' => 'Lihat Semua',
+    'aksi_cepat' => 'Aksi Cepat',
+    'tambah_siswa' => 'Tambah Siswa Baru',
+    'tambah_guru' => 'Tambah Guru Baru',
+    'buat_kelas' => 'Buat Kelas Baru',
+    'ambil_absensi' => 'Ambil Absensi',
+    'generate_laporan' => 'Generate Laporan',
+    'acara_mendatang' => 'Acara Mendatang',
+    'hadir' => 'Hadir',
+    'sakit' => 'Sakit',
+    'izin' => 'Izin',
+    'alpha' => 'Alpha',
+];
